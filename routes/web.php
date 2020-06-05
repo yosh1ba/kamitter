@@ -14,6 +14,23 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// 同一オリジンAPI
+Route::prefix('api')
+  ->group(function () {
+
+    // 登録
+    Route::post('/register', 'Auth\RegisterController@register')->name('register');
+
+    // ログイン
+    Route::post('/login', 'Auth\LoginController@login')->name('login');
+
+    // ログイン
+    Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
+
+    // 認証ユーザー取得
+    Route::get('/user', fn() => Auth::user())->name('user');
+  });
+
 // APIのURL以外のリクエストに対してはindexテンプレートを返す
 // 画面遷移はフロントエンドのVueRouterが制御する
-Route::get('/{any?}', fn() => view('index'))->where('any', '.+');
+Route::get('/{any?}', fn() => view('home'))->where('any', '.+');
