@@ -20,12 +20,10 @@ export default {
   watch: {
     messageText: function(){
       setTimeout(this.hideMessage,3000)
-
     }
   },
   methods: {
     hideMessage() {
-      
       this.$store.commit('message/setText', '')
     }
   }

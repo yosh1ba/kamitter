@@ -21,11 +21,27 @@ const routes = [
   },
   {
     path: '/login',
-    component: Login
+    component: Login,
+    // ログイン状態の場合、ルートディレクトリへ遷移
+    beforeEnter (to, from, next) {
+      if (store.getters['auth/check']) {
+        next('/')
+      } else {
+        next()
+      }
+    }
   },
   {
     path: '/signup',
-    component: Signup
+    component: Signup,
+    // ログイン状態の場合、ルートディレクトリへ遷移
+    beforeEnter (to, from, next) {
+      if (store.getters['auth/check']) {
+        next('/')
+      } else {
+        next()
+      }
+    }
   }
 ]
 
@@ -33,7 +49,29 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',    // URLに # を付与しないための設定
   routes
+})
 
+// ログイン状態によって画面遷移をコントロールする
+router.beforeEach((to, from, next) => {
+
+  // ログインが必要な画面の場合
+  if( to.matched.some(record => record.meta.requiresAuth)){
+    // ログイン状態を判定し、ログインしている場合、そのまま遷移させる
+    if(store.getters['auth/check']){
+      next(
+        next()
+      )
+    // ログインしていない場合、ログイン画面へリダイレクトさせる
+    }else{
+      next({
+        path: '/login',
+        query: {redirect: to.fullPath}
+      })
+    }
+  // ログインが不要な場合、そのまま遷移させる
+  }else {
+    next()
+  }
 })
 
 // VueRouterインスタンスをエクスポートする

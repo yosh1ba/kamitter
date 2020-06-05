@@ -56361,16 +56361,54 @@ var routes = [{
   component: _pages_Home_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
 }, {
   path: '/login',
-  component: _pages_Login_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
+  component: _pages_Login_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
+  // ログイン状態の場合、ルートディレクトリへ遷移
+  beforeEnter: function beforeEnter(to, from, next) {
+    if (_store__WEBPACK_IMPORTED_MODULE_5__["default"].getters['auth/check']) {
+      next('/');
+    } else {
+      next();
+    }
+  }
 }, {
   path: '/signup',
-  component: _pages_Signup_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
+  component: _pages_Signup_vue__WEBPACK_IMPORTED_MODULE_4__["default"],
+  // ログイン状態の場合、ルートディレクトリへ遷移
+  beforeEnter: function beforeEnter(to, from, next) {
+    if (_store__WEBPACK_IMPORTED_MODULE_5__["default"].getters['auth/check']) {
+      next('/');
+    } else {
+      next();
+    }
+  }
 }]; // VueRouterインスタンスを作成する
 
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   mode: 'history',
   // URLに # を付与しないための設定
   routes: routes
+}); // ログイン状態によって画面遷移をコントロールする
+
+router.beforeEach(function (to, from, next) {
+  // ログインが必要な画面の場合
+  if (to.matched.some(function (record) {
+    return record.meta.requiresAuth;
+  })) {
+    // ログイン状態を判定し、ログインしている場合、そのまま遷移させる
+    if (_store__WEBPACK_IMPORTED_MODULE_5__["default"].getters['auth/check']) {
+      next(next()); // ログインしていない場合、ログイン画面へリダイレクトさせる
+    } else {
+      next({
+        path: '/login',
+        query: {
+          redirect: to.fullPath
+        }
+      });
+    } // ログインが不要な場合、そのまま遷移させる
+
+  } else {
+    next();
+  }
 }); // VueRouterインスタンスをエクスポートする
 // app.jsでインポートするため
 
