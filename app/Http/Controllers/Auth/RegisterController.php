@@ -7,7 +7,10 @@ use App\Providers\RouteServiceProvider;
 use App\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -69,5 +72,12 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    // registerdメソッドをオーバーライドし、ユーザ登録成功時のレスポンスをカスタマイズする
+    // ユーザ登録成功時にユーザ情報を返す
+    protected function registered(Request $request, $user)
+    {
+        return $user;
     }
 }

@@ -1,5 +1,7 @@
 <template>
-  
+  <footer>
+    フッターエリア　神ったー
+  </footer>
 </template>
 
 <script>

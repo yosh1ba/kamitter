@@ -41,15 +41,13 @@ const actions = {
   // ユーザー登録
   async register(context, data){
     context.commit('setApiStatus', null)
-    console.log(data)
     const response = await axios.post('/api/register', data)
     // エラーレスポンスが帰ってきた場合の処理を resources/js/bootstrap.js に記述している
 
     if (response.status === CREATED) {
       context.commit('setApiStatus', true)
       context.commit('setUser', response.data)
-      console.log(context)
-      context.commit('message/setText', 'ユーザ登録が完了しました')
+      context.commit('message/setText', 'ユーザ登録が完了しました', { root: true })
       return false
     }
 

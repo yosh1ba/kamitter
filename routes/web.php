@@ -29,6 +29,13 @@ Route::prefix('api')
 
     // 認証ユーザー取得
     Route::get('/user', fn() => Auth::user())->name('user');
+
+    // パスワードリセットメール送信
+    Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+
+    // パスワードリセットメール送信
+    Route::post('/password/reset/{token}', 'Auth\ResetPasswordController@reset'); 
+
   });
 
 // APIのURL以外のリクエストに対してはindexテンプレートを返す

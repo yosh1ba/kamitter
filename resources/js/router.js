@@ -5,6 +5,8 @@ import VueRouter from 'vue-router'
 import Home from './pages/Home.vue'
 import Login from './pages/Login.vue'
 import Signup from './pages/Signup.vue'
+import PasswordForget from './pages/PasswordForget'
+import PasswordReset from './pages/PasswordReset'
 
 // auth ストアを使用するため追加
 import store from './store'
@@ -34,6 +36,30 @@ const routes = [
   {
     path: '/signup',
     component: Signup,
+    // ログイン状態の場合、ルートディレクトリへ遷移
+    beforeEnter (to, from, next) {
+      if (store.getters['auth/check']) {
+        next('/')
+      } else {
+        next()
+      }
+    }
+  },
+  {
+    path: '/password/forget',
+    component: PasswordForget,
+    // ログイン状態の場合、ルートディレクトリへ遷移
+    beforeEnter (to, from, next) {
+      if (store.getters['auth/check']) {
+        next('/')
+      } else {
+        next()
+      }
+    }
+  },
+  {
+    path: '/password/reset',
+    component: PasswordReset,
     // ログイン状態の場合、ルートディレクトリへ遷移
     beforeEnter (to, from, next) {
       if (store.getters['auth/check']) {

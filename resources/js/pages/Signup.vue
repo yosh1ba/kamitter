@@ -1,13 +1,13 @@
 <template>
   <div>
     <h1>新規登録</h1>
-      <form>
+      <form @submit.prevent="register">
         <input id="name" type="text" placeholder="ユーザー名" v-model="form.name">
         <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
         <input id="password" type="password" placeholder="パスワード" v-model="form.password">
         <input id="password_confirmation" type="password" placeholder="パスワード再確認" v-model="form.password_confirmation">
         <div>
-          <button type="submit" v-on:click="register">ログイン</button>
+          <button type="submit">ログイン</button>
         </div>
       </form>
   </div>

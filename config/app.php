@@ -56,6 +56,17 @@ return [
 
     'asset_url' => env('ASSET_URL', null),
 
+    
+    'develop_url' => 'http://localhost:3000',
+
+     // Vue側のパスワードリセットページのURL
+    'reset_pass_url' => env('RESET_PASS_URL', '/password/reset?'),
+
+    'parameter_queryUrl' => 'queryURL=',
+    'parameter_token' => 'token=',
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
