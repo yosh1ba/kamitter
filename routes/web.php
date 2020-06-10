@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Auth::routes(['verify' => true]);
+
 // 同一オリジンAPI
 Route::prefix('api')
   ->group(function () {
@@ -34,9 +37,24 @@ Route::prefix('api')
     Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 
     // パスワードリセットメール送信
-    Route::post('/password/reset/{token}', 'Auth\ResetPasswordController@reset'); 
+    Route::post('/password/reset/{token}', 'Auth\ResetPasswordController@reset');
+
+    Route::get('/email/verify/{id}', 'Auth\VerificationController@verify')->name('verification.verify');
+
+    Route::post('/email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 
   });
+
+  Route::middleware('verified')->group(function() {
+
+    // 本登録ユーザーだけ表示できるページ
+    Route::get('verified',  function(){
+
+        return '本登録が完了してます！';
+
+    });
+
+});
 
 // APIのURL以外のリクエストに対してはindexテンプレートを返す
 // 画面遷移はフロントエンドのVueRouterが制御する

@@ -4,7 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use App\User;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\VerifiesEmails;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use function Psy\debug;
 
 class VerificationController extends Controller
 {
@@ -35,8 +41,23 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:6,1')->only('verify', 'resend');
+      // 1分間に6回までアクセスを許可する
+      $this->middleware('throttle:6,1');
+    }
+
+    public function verify(Request $request)
+    {
+      // 署名付きURLに付与されたユーザーIDからユーザー情報を検索
+      $user = User::find($request->route('id'));
+
+      // email_verified_at カラムがnullかどうかを判定
+      if(!$user->email_verified_at)
+      {
+        // nullの場合、email_verified_atを更新しユーザ情報を再取得する
+        $user->markEmailAsVerified();
+        event(new Verified($user));
+        return new JsonResponse('Email Verified', 200);
+      }
+      return new JsonResponse('Email Verify Failed', 422);
     }
 }

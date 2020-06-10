@@ -11,12 +11,17 @@ const state = {
 const getters = {
   // ログイン状態の真偽値を返すゲッター
   check: state => !! state.user,
+  
+  verified: state => !! state.user.email_verified_at,
 
   // ユーザーIDを返すゲッター
   userid: state => state.user ? state.user.id : '',
   
   // ユーザー名を返すゲッター
-  username: state => state.user ? state.user.name : ''
+  username: state => state.user ? state.user.name : '',
+  
+  // メールアドレスを返すゲッター
+  email: state => state.user ? state.user.email : ''
 }
 
 const mutations = {
@@ -47,7 +52,7 @@ const actions = {
     if (response.status === CREATED) {
       context.commit('setApiStatus', true)
       context.commit('setUser', response.data)
-      context.commit('message/setText', 'ユーザ登録が完了しました', { root: true })
+      context.commit('message/setText', 'ユーザ登録が完了しました。メールアドレスの認証を行って下さい。', { root: true })
       return false
     }
 

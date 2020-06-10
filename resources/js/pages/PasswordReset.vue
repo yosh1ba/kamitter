@@ -34,8 +34,6 @@ export default {
     async reset(){
       const response = await axios.post(`/api/password/reset/${this.form.token}`, this.form)
 
-      console.log(response)
-
       // 失敗の場合、エラーコードをストアする
       if(response.status !== OK){
         this.$store.commit('error/setCode', response.status)

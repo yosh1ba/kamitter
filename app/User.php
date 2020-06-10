@@ -2,12 +2,13 @@
 
 namespace App;
 
+use App\Notifications\VerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\CustomPasswordReset;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -38,8 +39,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // パスワードリセットメール用メソッド
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomPasswordReset($token));
+    }
+
+    // メールアドレス認証メール用メソッド
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new VerifyEmail);
     }
 }
