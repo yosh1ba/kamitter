@@ -103,7 +103,7 @@ const router = new VueRouter({
 })
 
 
-// TODO 認証済みかどうかの条件も追加する
+
 // ログイン状態によって画面遷移をコントロールする
 router.beforeEach((to, from, next) => {
 
