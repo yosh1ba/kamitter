@@ -2,6 +2,17 @@
   <div>
     <h1>新規登録</h1>
       <form @submit.prevent="register">
+        <div v-if="registerErrors" class="">
+          <ul v-if="registerErrors.name">
+            <li v-for="msg in registerErrors.name" :key="msg" class="">{{ msg }}</li>
+          </ul>
+          <ul v-if="registerErrors.email">
+            <li v-for="msg in registerErrors.email" :key="msg" class="">{{ msg }}</li>
+          </ul>
+          <ul v-if="registerErrors.password">
+            <li v-for="msg in registerErrors.password" :key="msg" class="">{{ msg }}</li>
+          </ul>
+        </div>
         <input id="name" type="text" placeholder="ユーザー名" v-model="form.name">
         <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
         <input id="password" type="password" placeholder="パスワード" v-model="form.password">
@@ -14,6 +25,8 @@
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
   name: "Signup",
   data() {
@@ -37,13 +50,23 @@ export default {
         // トップページに移動する
         this.$router.push('/')
       }
+    },
+    // エラー情報をクリアするメソッド
+    clearError(){
+      this.$store.commit('auth/setRegisterErrorMessages', null)
     }
   },
   computed: {
-    // APIのレスポンスが正常かどうかを判断
-    apiStatus () {
-      return this.$store.state.auth.apiStatus
-    },
+    ...mapState({
+      // APIのレスポンスが正常かどうかを判断
+      apiStatus: state => state.auth.apiStatus,
+      // 登録時のエラーメッセージを取得
+      registerErrors: state => state.auth.registerErrorMessages
+    })
+  },
+  // ページ生成時にエラー情報をクリアする
+  created() {
+    this.clearError()
   }
 
 }

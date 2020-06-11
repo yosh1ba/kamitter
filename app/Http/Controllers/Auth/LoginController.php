@@ -40,6 +40,8 @@ class LoginController extends Controller
     }
 
 
+
+
     // authenticatedメソッドをオーバーライドし、ログイン成功時のレスポンスをカスタマイズする
     // ログイン成功時にユーザー情報を返す
     protected function authenticated(Request $request, $user)

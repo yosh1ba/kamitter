@@ -13,6 +13,7 @@ import PasswordReset from './pages/PasswordReset'
 import EmailVerification from './pages/EmailVerification'
 import EmailVerificationResend from "./pages/EmailVerificationResend"
 import MyPage from './pages/MyPage'
+import System from "./pages/errors/System";
 
 
 // VueRouterプラグインを使用する
@@ -93,6 +94,10 @@ const routes = [
     meta: {
       requiresVerify: true
     }
+  },
+  {
+    path: '/500',
+    component: System
   }
 ]
 

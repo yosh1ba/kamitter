@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Auth::routes(['verify' => true]);
+//Auth::routes(['verify' => true]);
 
 // 同一オリジンAPI
 Route::prefix('api')
@@ -39,11 +39,14 @@ Route::prefix('api')
     // パスワードリセットメール送信
     Route::post('/password/reset/{token}', 'Auth\ResetPasswordController@reset');
 
+    // メールアドレス認証
     Route::get('/email/verify/{id}', 'Auth\VerificationController@verify')->name('verification.verify');
 
+    // メールアドレス認証用メール再送信
     Route::post('/email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 
   });
+
 
   Route::middleware('verified')->group(function() {
 

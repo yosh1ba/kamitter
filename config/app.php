@@ -62,7 +62,8 @@ return [
      // Vue側のパスワードリセットページのURL
     'reset_pass_url' => env('RESET_PASS_URL', '/password/reset?'),
 
-    'email_verify_url' => env('EMAIL_VERIFY_URL', '/email/verification?'), // メール認証のURL
+    // メール認証のURL
+    'email_verify_url' => env('EMAIL_VERIFY_URL', '/email/verification?'),
 
     'parameter_queryUrl' => 'queryURL=',
     'parameter_token' => 'token=',
