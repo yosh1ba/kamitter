@@ -12,6 +12,7 @@
       </div>
       <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
       <input id="password" type="password" placeholder="パスワード" v-model="form.password">
+      <p>パスワードを忘れた方は <router-link to="/password/forget">こちら</router-link></p>
       <div>
         <button type="submit">ログイン</button>
       </div>
