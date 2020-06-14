@@ -8,7 +8,7 @@
     <h1>神ったー</h1>
     <nav v-if="isLogin">
       <ul>
-        <router-link tag="li" to="/login"><a>マイページ</a></router-link>
+        <router-link tag="li" to="/mypage"><a>マイページ</a></router-link>
         <li v-on:click="logout"><a>ログアウト</a></li>
       </ul>
     </nav>
