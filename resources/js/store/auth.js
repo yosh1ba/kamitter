@@ -3,6 +3,7 @@ import {CREATED, OK, UNPROCESSABLE_ENTITY} from '../util'
 
 const state = {
   user: null,
+  verified: false,
   apiStatus: null,
   loginErrorMessages: null,
   registerErrorMessages: null
@@ -12,7 +13,7 @@ const getters = {
   // ログイン状態の真偽値を返すゲッター
   check: state => !! state.user,
   
-  verified: state => !! state.user.email_verified_at,
+  verified: state => !! state.user,
 
   // ユーザーIDを返すゲッター
   userid: state => state.user ? state.user.id : '',
@@ -27,6 +28,10 @@ const getters = {
 const mutations = {
   setUser(state, user){
     state.user = user
+  },
+
+  setVerified(state, user){
+    state.verified = user.email_verified_at
   },
 
   setApiStatus(state, status) {
