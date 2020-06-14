@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -39,9 +40,6 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-
-
-
     // authenticatedメソッドをオーバーライドし、ログイン成功時のレスポンスをカスタマイズする
     // ログイン成功時にユーザー情報を返す
     protected function authenticated(Request $request, $user)
@@ -58,4 +56,31 @@ class LoginController extends Controller
 
         return response()->json();
     }
+
+    // Twitter連携用処理
+
+    // 認証ページへのリダイレクト
+    public function redirectToProvider()
+    {
+      return Socialite::driver('twitter')->redirect();
+    }
+
+    public function handleProviderCallback()
+    {
+      try{
+        $twitter_user = Socialite::driver('twitter')->user();
+        //アクセストークン取得
+        $token = $twitter_user->token;
+        $token_secret = $twitter_user->tokenSecret;
+
+        if($twitter_user){
+          // ユーザーの取得または生成
+          $user = User::
+        }
+      } catch (
+
+      )
+    }
+
+
 }

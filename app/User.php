@@ -50,4 +50,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new VerifyEmail);
     }
+
+    public function twitter_users()
+    {
+      $this->hasMany('App\TwitterUser');
+    }
 }

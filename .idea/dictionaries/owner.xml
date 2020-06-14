@@ -4,7 +4,10 @@
       <w>axios</w>
       <w>mypage</w>
       <w>navbar</w>
+      <w>signin</w>
       <w>signup</w>
+      <w>unfollow</w>
+      <w>userid</w>
     </words>
   </dictionary>
 </component>
