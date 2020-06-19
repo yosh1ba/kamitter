@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+  namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Laravel\Socialite\Facades\Socialite;
+  use App\TwitterUser;
+  use Illuminate\Http\Request;
+  use App\Http\Controllers\Controller;
+  use App\Providers\RouteServiceProvider;
+  use Illuminate\Foundation\Auth\AuthenticatesUsers;
+  use Illuminate\Support\Facades\Auth;
+  use Illuminate\Support\Facades\Log;
 
-class LoginController extends Controller
-{
+  class LoginController extends Controller
+  {
     /*
     |--------------------------------------------------------------------------
     | Login Controller
@@ -37,50 +39,25 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except('logout');
+      $this->middleware('guest')->except('logout');
+
     }
 
     // authenticatedメソッドをオーバーライドし、ログイン成功時のレスポンスをカスタマイズする
     // ログイン成功時にユーザー情報を返す
     protected function authenticated(Request $request, $user)
     {
-        return $user;
+      return $user;
     }
 
     // loggedOutメソッドをオーバーライドし、ログアウト成功時のレスポンスをカスタマイズする
     // ログアウト成功時にセッションを再作成する
     protected function loggedOut(Request $request)
     {
-        // セッションを再生成する
-        $request->session()->regenerate();
+      // セッションを再生成する
+      $request->session()->regenerate();
 
-        return response()->json();
+      return response()->json();
     }
 
-    // Twitter連携用処理
-
-    // 認証ページへのリダイレクト
-    public function redirectToProvider()
-    {
-      return Socialite::driver('twitter')->redirect();
-    }
-
-    public function handleProviderCallback()
-    {
-      try{
-        $twitter_user = Socialite::driver('twitter')->user();
-        //アクセストークン取得
-        $token = $twitter_user->token;
-        $token_secret = $twitter_user->tokenSecret;
-
-        if($twitter_user){
-          // ユーザーの取得または生成
-          $user = User::
-        }
-      } catch (
-
-      )
-    }
-
-
-}
+  }

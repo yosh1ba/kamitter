@@ -14,6 +14,7 @@ import EmailVerification from './pages/EmailVerification'
 import EmailVerificationResend from "./pages/EmailVerificationResend"
 import MyPage from './pages/MyPage'
 import System from "./pages/errors/System";
+import Callback from "./pages/Callback";
 
 
 // VueRouterプラグインを使用する
@@ -91,6 +92,13 @@ const routes = [
   {
     path: '/mypage',
     component: MyPage,
+    meta: {
+      requiresVerify: true
+    }
+  },
+  {
+    path: '/twitter/callback',
+    component: Callback,
     meta: {
       requiresVerify: true
     }

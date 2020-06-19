@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-//Auth::routes(['verify' => true]);
+
 
 // 同一オリジンAPI
 Route::prefix('api')
@@ -46,6 +46,12 @@ Route::prefix('api')
     Route::post('/email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 
   });
+
+  // Twitter認証ページを開く
+  Route::get('/twitter', 'Auth\TwitterController@redirectToProvider');
+
+  // Twitterユーザの登録
+  Route::get('/twitter/register', 'Auth\TwitterController@handleProviderCallback');
 
 
   Route::middleware('verified')->group(function() {
