@@ -27,8 +27,17 @@ class TwitterController extends Controller
   public function redirectToProvider()
   {
      // return Socialite::driver('twitter')->redirect();
+
+
+    // 毎回認証画面を出すため、force_loginパラメータを付与
+    $redirect = Socialite::driver('twitter')->redirect();
+    $redirect->setTargetUrl($redirect->getTargetUrl() . '&force_login=true');
+
+    // JSON形式でリダイレクトURLを返す
     return response()->json([
-      'redirect_url' => Socialite::driver('twitter')->with(['fource_url' => true ])->redirect()->getTargetUrl(),
+      'redirect_url' => $redirect->getTargetUrl(),
+      // 'redirect_url' => Socialite::driver('twitter')->redirect()->getTargetUrl(),
+
     ]);
   }
 
