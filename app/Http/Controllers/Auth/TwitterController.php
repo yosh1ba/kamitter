@@ -78,8 +78,13 @@ class TwitterController extends Controller
       return response()->json($user);
 
     } catch (Exception $e) {
-
+      return false;
     }
+  }
 
+  public function authenticatedUsers(Request $request){
+
+    // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
+    return TwitterUser::where('user_id', $request->route('id'))->get();
   }
 }

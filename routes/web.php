@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
+  use App\TwitterUser;
+  use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,6 +45,9 @@ Route::prefix('api')
 
     // メールアドレス認証用メール再送信
     Route::post('/email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
+
+    // twitter認証ユーザ取得
+    Route::get('/twitter/user/{id}', 'Auth\TwitterController@authenticatedUsers');
 
   });
 

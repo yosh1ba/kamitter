@@ -1,27 +1,34 @@
 <template>
-  <p>twitterとの連携を行っています。</p>
+  <p>twitterとの連携を行っています。連携完了後、マイページへ移動します。</p>
 </template>
 
 <script>
   import {OK} from "../util";
+  import {mapState} from "vuex";
 
   export default {
     name: "Callback",
     async created() {
 
       // twitterとの連携を行う
-      const response = await axios.get('/twitter/register', { params: this.$route.query })
+      await this.$store.dispatch('twitter/auth', this.$route.query)
 
-      // 失敗の場合、エラー内容をストアする
-      if(response.status !== OK){
-        this.$store.commit('error/setCode', response.status)
-        this.$store.commit('error/setMessage', response.data.errors)
-        return false
+      // 成功の場合（ユーザ登録が正常に行われた場合）
+      if (this.apiStatus) {
+        
+        await this.$store.dispatch('twitter/authenticatedUser', this.$store.getters['auth/userid'])
+        // マイページに移動する
+        this.$router.push('/mypage')
       }
 
-      // マイページへ遷移する
-      this.$router.push('/mypage')
-    }
+    },
+    computed: {
+      ...mapState({
+        // APIのレスポンスが正常かどうかを判断
+        apiStatus: state => state.twitter.apiStatus,
+      })
+    },
+
   }
 </script>
 
