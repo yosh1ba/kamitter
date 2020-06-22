@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\TargetAccountList;
 use App\TwitterUser;
+use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Abraham\TwitterOAuth\TwitterOAuth;
+use PHPUnit\Util\Json;
+use Psy\Util\Str;
 
 
 class TwitterController extends Controller
@@ -43,7 +48,7 @@ class TwitterController extends Controller
 
   public function handleProviderCallback()
   {
-    $this->middleware('session');
+//    $this->middleware('session');
     try {
       // twitterログイン認証
       $user = Socialite::driver('twitter')->user();
@@ -82,9 +87,91 @@ class TwitterController extends Controller
     }
   }
 
-  public function authenticatedUsers(Request $request){
+  public function authenticatedUsers(Request $request)
+  {
 
     // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
     return TwitterUser::where('user_id', $request->route('id'))->get();
   }
+
+  public function createFollowerTargetList(Request $request)
+  {
+    $this->createTargetAccountList($request);
+
+//    $bearer_token = config('app.twitter_bearer_token');  // ベアラートークン
+//    $request_url = 'https://api.twitter.com/1.1/followers/list.json' ;  // エンドポイント
+//
+//    $response = Http::withToken($bearer_token)->get(
+//      $request_url, [
+//        'screen_name' => $request->name
+//      ]
+//    );
+//
+//    // JSONを多次元配列へデコードする
+//    $decoded_response = json_decode($response,true)['users'];
+//
+//    // プロフィールに日本語が含まれているアカウントのみを抽出する
+//    $filterd_response = array_filter($decoded_response, function ($element){
+//      return preg_match( '/[ぁ-ん]+|[ァ-ヴー]+|[一-龠]/u', $element['description']);
+//    });
+//
+//    Log::debug($filterd_response);
+
+  }
+
+  public function checkTargetAccountList(Request $request)
+  {
+    $bearer_token = config('app.twitter_bearer_token');  // ベアラートークン
+    $request_url = 'https://api.twitter.com/1.1/users/show.json' ;  // エンドポイント
+
+    $response = Http::withToken($bearer_token)->get(
+      $request_url, [
+        'screen_name' => $request->screen_name
+      ]
+    );
+    // Log::debug($response->json());
+
+    return json_decode($response,true);
+  }
+
+  public function createTargetAccountList(Request $request)
+  {
+
+    $arr = [];
+    foreach($request->all() as $data) {
+      // messageプロパティを取り除く
+      unset($data['message']);
+
+      // created_atとupdated_atを現在時刻として追加
+      $data['created_at'] = now();
+      $data['updated_at'] = now();
+
+      // 配列arrに現在のループ配列dataを追加
+      array_push($arr, $data);
+
+      // twitter_user_idの値を変数にセット
+      $twitter_user_id = $data['twitter_user_id'];
+
+    }
+
+    $target = new TargetAccountList;
+
+    // 同じtwitter_user_idのデータを一旦削除する
+    $target->where('twitter_user_id', $twitter_user_id)->delete();
+
+    // 配列の内容をDBへインサート
+    $target->insert($arr);
+
+
+    return $target;
+  }
+
+  public function queryTargetAccountList(Request $request)
+  {
+
+    $response = TargetAccountList::where('twitter_user_id', $request->route('id'))->get('screen_name');
+
+    return $response;
+  }
+
 }

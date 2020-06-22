@@ -55,4 +55,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
       $this->hasMany('App\TwitterUser');
     }
+
+    public function target_account_lists()
+    {
+      $this->hasMany('App\TargetAccountList');
+    }
 }

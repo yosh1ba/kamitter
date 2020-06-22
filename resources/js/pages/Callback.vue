@@ -15,7 +15,7 @@
 
       // 成功の場合（ユーザ登録が正常に行われた場合）
       if (this.apiStatus) {
-        
+
         await this.$store.dispatch('twitter/authenticatedUser', this.$store.getters['auth/userid'])
         // マイページに移動する
         this.$router.push('/mypage')

@@ -68,6 +68,8 @@ return [
     'parameter_queryUrl' => 'queryURL=',
     'parameter_token' => 'token=',
 
+    'twitter_bearer_token' => env('TWITTER_BEARER_TOKEN', ''),
+
 
 
     /*

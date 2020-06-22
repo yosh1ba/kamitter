@@ -49,6 +49,15 @@ Route::prefix('api')
     // twitter認証ユーザ取得
     Route::get('/twitter/user/{id}', 'Auth\TwitterController@authenticatedUsers');
 
+    // ターゲットアカウント存在チェック
+    Route::post('/twitter/target/check', 'Auth\TwitterController@checkTargetAccountList');
+
+    // ターゲットアカウントリスト作成
+    Route::post('/twitter/target', 'Auth\TwitterController@createTargetAccountList');
+
+    // ターゲットアカウントリスト読み込み
+    Route::get('/twitter/target/{id}', 'Auth\TwitterController@queryTargetAccountList');
+
   });
 
   // Twitter認証ページを開く
