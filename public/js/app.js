@@ -2020,6 +2020,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
  // import vSelect from 'vue-select'
 
@@ -2229,14 +2230,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     addKeywordForm: function addKeywordForm() {
       var additionalForm = {
-        selected: 'ADD',
-        // セレクトボックスの結果が入る(規定値：ADD)
+        selected: 'AND',
+        // セレクトボックスの結果が入る(規定値：AND)
         text: '',
         // 検索キーワード
         message: '',
         // エラーメッセージ
         options: [// セレクトボックスの選択肢
-        'ADD', 'OR', 'NOT']
+        'AND', 'OR', 'NOT']
       };
       this.keywords.push(additionalForm);
     },
@@ -2353,7 +2354,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context4.prev = _context4.next) {
               case 0:
                 // セレクトボックス表示用定数
-                options = ['ADD', 'OR', 'NOT']; // ターゲットアカウントリストの内容を呼び出す
+                options = ['AND', 'OR', 'NOT']; // ターゲットアカウントリストの内容を呼び出す
 
                 _context4.next = 3;
                 return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/search/keyword/".concat(_this4.item.id));
@@ -2385,6 +2386,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
         }, _callee4);
+      }))();
+    },
+    autoFollow: function autoFollow() {// 自動フォローを開始する(非同期)
+      // 自動フォロー開始のスプラッシュメッセージを出す
+      // 自動フォローが完了するのを待つ
+      // 完了メール送信
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5);
       }))();
     }
   },
@@ -40418,6 +40436,8 @@ var render = function() {
       _vm._v(" "),
       _c("p", [_vm._v(_vm._s(_vm.item.twitter_screen_name))]),
       _vm._v(" "),
+      _c("button", { on: { click: _vm.autoFollow } }, [_vm._v("自動フォロー")]),
+      _vm._v(" "),
       _vm._l(_vm.targets, function(target, index) {
         return _c("div", [
           _c("input", {
@@ -40537,9 +40557,9 @@ var render = function() {
         ])
       }),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.addKeywordForm } }, [_vm._v("追加")]),
+      _c("button", { on: { click: _vm.saveKeywordForm } }, [_vm._v("保存")]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.saveKeywordForm } }, [_vm._v("保存")])
+      _c("button", { on: { click: _vm.addKeywordForm } }, [_vm._v("追加")])
     ],
     2
   )

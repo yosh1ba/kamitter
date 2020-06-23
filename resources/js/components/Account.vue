@@ -2,6 +2,7 @@
   <div>
     <img :src="item.twitter_avatar" alt="">
     <p>{{item.twitter_screen_name}}</p>
+    <button v-on:click="autoFollow">自動フォロー</button>
     <div v-for="(target, index) in targets">
       <input type="text" v-model="target.screen_name">
       <button v-on:click="deleteTargetForm(index)">削除</button>
@@ -19,8 +20,8 @@
       <button v-on:click="deleteKeywordForm(index)">削除</button>
       <span>{{keyword.message}}</span>
     </div>
-    <button v-on:click="addKeywordForm">追加</button>
     <button v-on:click="saveKeywordForm">保存</button>
+    <button v-on:click="addKeywordForm">追加</button>
   </div>
 
 
@@ -117,11 +118,11 @@
       },
       addKeywordForm() {
         const additionalForm = {
-          selected: 'ADD', // セレクトボックスの結果が入る(規定値：ADD)
+          selected: 'AND', // セレクトボックスの結果が入る(規定値：AND)
           text:'',  // 検索キーワード
           message: '',  // エラーメッセージ
           options: [  // セレクトボックスの選択肢
-            'ADD',
+            'AND',
             'OR',
             'NOT'
           ]
@@ -164,7 +165,7 @@
       },
       async querySearchForm(){
         // セレクトボックス表示用定数
-        const options = ['ADD', 'OR', 'NOT']
+        const options = ['AND', 'OR', 'NOT']
 
         // ターゲットアカウントリストの内容を呼び出す
         const response = await axios.get(`/api/search/keyword/${this.item.id}`);
@@ -176,8 +177,18 @@
             this.keywords.push(data)
           }
         }
+      },
+      async autoFollow(){
+        // 自動フォローを開始する(非同期)
+
+        // 自動フォロー開始のスプラッシュメッセージを出す
+
+        // 自動フォローが完了するのを待つ
+
+        // 完了メール送信
       }
     },
+
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す
       this.queryTargetForm()
