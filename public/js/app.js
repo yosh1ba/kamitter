@@ -2007,7 +2007,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
+ // import vSelect from 'vue-select'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Account",
@@ -2019,19 +2033,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   },
   data: function data() {
     return {
-      targets: [] // ターゲットアカウント
+      targets: [],
+      // ターゲットアカウント
+      keywords: [] // キーワード
 
     };
   },
   methods: {
-    addForm: function addForm() {
+    addTargetForm: function addTargetForm() {
       var additionalForm = {
         screen_name: '',
         message: ''
       };
       this.targets.push(additionalForm);
     },
-    deleteForm: function deleteForm(index) {
+    deleteTargetForm: function deleteTargetForm(index) {
       // クリックした削除ボタンに対応するフォームを削除
       this.targets.splice(index, 1);
     },
@@ -2209,6 +2225,114 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
         }, _callee2);
+      }))();
+    },
+    addKeywordForm: function addKeywordForm() {
+      var additionalForm = {
+        selected: 'ADD',
+        // セレクトボックスの結果が入る(規定値：ADD)
+        text: '',
+        // 検索キーワード
+        message: '',
+        // エラーメッセージ
+        options: [// セレクトボックスの選択肢
+        'ADD', 'OR', 'NOT']
+      };
+      this.keywords.push(additionalForm);
+    },
+    deleteKeywordForm: function deleteKeywordForm(index) {
+      // クリックした削除ボタンに対応するフォームを削除
+      this.keywords.splice(index, 1);
+    },
+    saveKeywordForm: function saveKeywordForm() {
+      var _this3 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+        var _iterator3, _step3, data, response;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _iterator3 = _createForOfIteratorHelper(_this3.keywords);
+                _context3.prev = 1;
+
+                _iterator3.s();
+
+              case 3:
+                if ((_step3 = _iterator3.n()).done) {
+                  _context3.next = 13;
+                  break;
+                }
+
+                data = _step3.value;
+
+                if (!(data.text !== '')) {
+                  _context3.next = 9;
+                  break;
+                }
+
+                _this3.$set(data, 'message', ''); // フォームが空欄の場合はエラーを表示する
+
+
+                _context3.next = 11;
+                break;
+
+              case 9:
+                _this3.$set(data, 'message', 'キーワードが存在しません');
+
+                return _context3.abrupt("return", false);
+
+              case 11:
+                _context3.next = 3;
+                break;
+
+              case 13:
+                _context3.next = 18;
+                break;
+
+              case 15:
+                _context3.prev = 15;
+                _context3.t0 = _context3["catch"](1);
+
+                _iterator3.e(_context3.t0);
+
+              case 18:
+                _context3.prev = 18;
+
+                _iterator3.f();
+
+                return _context3.finish(18);
+
+              case 21:
+                _context3.next = 23;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/twitter/keyword', _this3.keywords);
+
+              case 23:
+                response = _context3.sent;
+
+                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
+                  _context3.next = 28;
+                  break;
+                }
+
+                _this3.$store.commit('error/setCode', response.status);
+
+                _this3.$store.commit('error/setMessage', response.data.errors);
+
+                return _context3.abrupt("return", false);
+
+              case 28:
+                _this3.$store.commit('message/setText', 'キーワードが保存されました', {
+                  root: true
+                });
+
+              case 29:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, null, [[1, 15, 18, 21]]);
       }))();
     }
   },
@@ -40268,7 +40392,7 @@ var render = function() {
             {
               on: {
                 click: function($event) {
-                  return _vm.deleteForm(index)
+                  return _vm.deleteTargetForm(index)
                 }
               }
             },
@@ -40279,9 +40403,89 @@ var render = function() {
         ])
       }),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.addForm } }, [_vm._v("追加")]),
+      _c("button", { on: { click: _vm.addTargetForm } }, [_vm._v("追加")]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.saveTargetForm } }, [_vm._v("保存")])
+      _c("button", { on: { click: _vm.saveTargetForm } }, [_vm._v("保存")]),
+      _vm._v(" "),
+      _vm._l(_vm.keywords, function(keyword, index) {
+        return _c("div", [
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: keyword.selected,
+                  expression: "keyword.selected"
+                }
+              ],
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.$set(
+                    keyword,
+                    "selected",
+                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+                  )
+                }
+              }
+            },
+            _vm._l(keyword.options, function(option) {
+              return _c("option", [
+                _vm._v("\n        " + _vm._s(option) + "\n      ")
+              ])
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: keyword.text,
+                expression: "keyword.text"
+              }
+            ],
+            attrs: { type: "text" },
+            domProps: { value: keyword.text },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(keyword, "text", $event.target.value)
+              }
+            }
+          }),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              on: {
+                click: function($event) {
+                  return _vm.deleteKeywordForm(index)
+                }
+              }
+            },
+            [_vm._v("削除")]
+          ),
+          _vm._v(" "),
+          _c("span", [_vm._v(_vm._s(keyword.message))])
+        ])
+      }),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.addKeywordForm } }, [_vm._v("追加")]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.saveKeywordForm } }, [_vm._v("保存")])
     ],
     2
   )
@@ -57564,7 +57768,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
  // ルートコンポーネントをインポートする
 
-
+ // import vSelect from 'vue-select'
+// import 'vue-select/dist/vue-select.css';
 
 var createApp = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
