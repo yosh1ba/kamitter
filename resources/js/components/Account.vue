@@ -10,18 +10,18 @@
     </div>
     <button v-on:click="addTargetForm">追加</button>
     <button v-on:click="saveTargetForm">保存</button>
-    <div v-for="(keyword, index) in keywords">
-      <select v-model="keyword.selected">
-        <option v-for="option in keyword.options">
+    <div v-for="(searchKeyword, index) in searchKeywords">
+      <select v-model="searchKeyword.selected">
+        <option v-for="option in searchKeyword.options">
           {{ option }}
         </option>
       </select>
-      <input type="text" v-model="keyword.text">
-      <button v-on:click="deleteKeywordForm(index)">削除</button>
-      <span>{{keyword.message}}</span>
+      <input type="text" v-model="searchKeyword.text">
+      <button v-on:click="deleteSearchKeywordForm(index)">削除</button>
+      <span>{{searchKeyword.message}}</span>
     </div>
-    <button v-on:click="saveKeywordForm">保存</button>
-    <button v-on:click="addKeywordForm">追加</button>
+    <button v-on:click="saveSearchKeywordForm">保存</button>
+    <button v-on:click="addSearchKeywordForm">追加</button>
   </div>
 
 
@@ -43,7 +43,7 @@
     data() {
       return {
         targets: [],  // ターゲットアカウント
-        keywords: []  // キーワード
+        searchKeywords: []  // キーワード
       }
     },
     methods: {
@@ -116,7 +116,7 @@
           }
         }
       },
-      addKeywordForm() {
+      addSearchKeywordForm() {
         const additionalForm = {
           selected: 'AND', // セレクトボックスの結果が入る(規定値：AND)
           text:'',  // 検索キーワード
@@ -127,14 +127,14 @@
             'NOT'
           ]
         }
-        this.keywords.push(additionalForm)
+        this.searchKeywords.push(additionalForm)
       },
-      deleteKeywordForm(index){
+      deleteSearchKeywordForm(index){
         // クリックした削除ボタンに対応するフォームを削除
-        this.keywords.splice(index, 1);
+        this.searchKeywords.splice(index, 1);
       },
-      async saveKeywordForm(){
-        for(let data of this.keywords){
+      async saveSearchKeywordForm(){
+        for(let data of this.searchKeywords){
           if(data.text !== ''){
             /*
             認証済みアカウントごとにサーチキーワードリストを作成するため
@@ -153,7 +153,7 @@
         }
 
         // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
-        const response = await axios.post('/api/search/keyword', this.keywords)
+        const response = await axios.post('/api/search/keyword', this.searchKeywords)
 
         if(response.status !== OK){
           this.$store.commit('error/setCode', response.status)
@@ -174,7 +174,7 @@
         if(response.data.length !== 0){
           for (let data of response.data){
             data.options = options  // optionsプロパティ追加
-            this.keywords.push(data)
+            this.searchKeywords.push(data)
           }
         }
       },

@@ -2036,7 +2036,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return {
       targets: [],
       // ターゲットアカウント
-      keywords: [] // キーワード
+      searchKeywords: [] // キーワード
 
     };
   },
@@ -2228,7 +2228,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee2);
       }))();
     },
-    addKeywordForm: function addKeywordForm() {
+    addSearchKeywordForm: function addSearchKeywordForm() {
       var additionalForm = {
         selected: 'AND',
         // セレクトボックスの結果が入る(規定値：AND)
@@ -2239,13 +2239,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         options: [// セレクトボックスの選択肢
         'AND', 'OR', 'NOT']
       };
-      this.keywords.push(additionalForm);
+      this.searchKeywords.push(additionalForm);
     },
-    deleteKeywordForm: function deleteKeywordForm(index) {
+    deleteSearchKeywordForm: function deleteSearchKeywordForm(index) {
       // クリックした削除ボタンに対応するフォームを削除
-      this.keywords.splice(index, 1);
+      this.searchKeywords.splice(index, 1);
     },
-    saveKeywordForm: function saveKeywordForm() {
+    saveSearchKeywordForm: function saveSearchKeywordForm() {
       var _this3 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
@@ -2255,7 +2255,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _iterator3 = _createForOfIteratorHelper(_this3.keywords);
+                _iterator3 = _createForOfIteratorHelper(_this3.searchKeywords);
                 _context3.prev = 1;
 
                 _iterator3.s();
@@ -2314,7 +2314,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 22:
                 _context3.next = 24;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/search/keyword', _this3.keywords);
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/search/keyword', _this3.searchKeywords);
 
               case 24:
                 response = _context3.sent;
@@ -2371,7 +2371,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                       data = _step4.value;
                       data.options = options; // optionsプロパティ追加
 
-                      _this4.keywords.push(data);
+                      _this4.searchKeywords.push(data);
                     }
                   } catch (err) {
                     _iterator4.e(err);
@@ -40481,7 +40481,7 @@ var render = function() {
       _vm._v(" "),
       _c("button", { on: { click: _vm.saveTargetForm } }, [_vm._v("保存")]),
       _vm._v(" "),
-      _vm._l(_vm.keywords, function(keyword, index) {
+      _vm._l(_vm.searchKeywords, function(searchKeyword, index) {
         return _c("div", [
           _c(
             "select",
@@ -40490,8 +40490,8 @@ var render = function() {
                 {
                   name: "model",
                   rawName: "v-model",
-                  value: keyword.selected,
-                  expression: "keyword.selected"
+                  value: searchKeyword.selected,
+                  expression: "searchKeyword.selected"
                 }
               ],
               on: {
@@ -40505,14 +40505,14 @@ var render = function() {
                       return val
                     })
                   _vm.$set(
-                    keyword,
+                    searchKeyword,
                     "selected",
                     $event.target.multiple ? $$selectedVal : $$selectedVal[0]
                   )
                 }
               }
             },
-            _vm._l(keyword.options, function(option) {
+            _vm._l(searchKeyword.options, function(option) {
               return _c("option", [
                 _vm._v("\n        " + _vm._s(option) + "\n      ")
               ])
@@ -40525,18 +40525,18 @@ var render = function() {
               {
                 name: "model",
                 rawName: "v-model",
-                value: keyword.text,
-                expression: "keyword.text"
+                value: searchKeyword.text,
+                expression: "searchKeyword.text"
               }
             ],
             attrs: { type: "text" },
-            domProps: { value: keyword.text },
+            domProps: { value: searchKeyword.text },
             on: {
               input: function($event) {
                 if ($event.target.composing) {
                   return
                 }
-                _vm.$set(keyword, "text", $event.target.value)
+                _vm.$set(searchKeyword, "text", $event.target.value)
               }
             }
           }),
@@ -40546,20 +40546,24 @@ var render = function() {
             {
               on: {
                 click: function($event) {
-                  return _vm.deleteKeywordForm(index)
+                  return _vm.deleteSearchKeywordForm(index)
                 }
               }
             },
             [_vm._v("削除")]
           ),
           _vm._v(" "),
-          _c("span", [_vm._v(_vm._s(keyword.message))])
+          _c("span", [_vm._v(_vm._s(searchKeyword.message))])
         ])
       }),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.saveKeywordForm } }, [_vm._v("保存")]),
+      _c("button", { on: { click: _vm.saveSearchKeywordForm } }, [
+        _vm._v("保存")
+      ]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.addKeywordForm } }, [_vm._v("追加")])
+      _c("button", { on: { click: _vm.addSearchKeywordForm } }, [
+        _vm._v("追加")
+      ])
     ],
     2
   )
