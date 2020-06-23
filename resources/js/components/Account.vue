@@ -134,18 +134,25 @@
       },
       async saveKeywordForm(){
         for(let data of this.keywords){
-          // フォームに入力がある場合はエラーをクリア
           if(data.text !== ''){
+            /*
+            認証済みアカウントごとにサーチキーワードリストを作成するため
+            twitter_usersテーブル内のidをプロパティとして持たせる
+            */
+            this.$set(data, 'twitter_user_id', this.item.id)
+
+            // フォームに入力がある場合はエラーをクリア
             this.$set(data, 'message', '')
-          // フォームが空欄の場合はエラーを表示する
+
           }else {
+            // フォームが空欄の場合はエラーを表示する
             this.$set(data, 'message', 'キーワードが存在しません')
             return false
           }
         }
 
-        // フォームの入力チェック完了後、フォロワーサーチキーワードリストの作成を行う
-        const response = await axios.post('/api/twitter/keyword', this.keywords)
+        // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
+        const response = await axios.post('/api/search/keyword', this.keywords)
 
         if(response.status !== OK){
           this.$store.commit('error/setCode', response.status)

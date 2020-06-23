@@ -2261,58 +2261,65 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 if ((_step3 = _iterator3.n()).done) {
-                  _context3.next = 13;
+                  _context3.next = 14;
                   break;
                 }
 
                 data = _step3.value;
 
                 if (!(data.text !== '')) {
-                  _context3.next = 9;
+                  _context3.next = 10;
                   break;
                 }
 
-                _this3.$set(data, 'message', ''); // フォームが空欄の場合はエラーを表示する
+                /*
+                認証済みアカウントごとにサーチキーワードリストを作成するため
+                twitter_usersテーブル内のidをプロパティとして持たせる
+                */
+                _this3.$set(data, 'twitter_user_id', _this3.item.id); // フォームに入力がある場合はエラーをクリア
 
 
-                _context3.next = 11;
+                _this3.$set(data, 'message', '');
+
+                _context3.next = 12;
                 break;
 
-              case 9:
+              case 10:
+                // フォームが空欄の場合はエラーを表示する
                 _this3.$set(data, 'message', 'キーワードが存在しません');
 
                 return _context3.abrupt("return", false);
 
-              case 11:
+              case 12:
                 _context3.next = 3;
                 break;
 
-              case 13:
-                _context3.next = 18;
+              case 14:
+                _context3.next = 19;
                 break;
 
-              case 15:
-                _context3.prev = 15;
+              case 16:
+                _context3.prev = 16;
                 _context3.t0 = _context3["catch"](1);
 
                 _iterator3.e(_context3.t0);
 
-              case 18:
-                _context3.prev = 18;
+              case 19:
+                _context3.prev = 19;
 
                 _iterator3.f();
 
-                return _context3.finish(18);
+                return _context3.finish(19);
 
-              case 21:
-                _context3.next = 23;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/twitter/keyword', _this3.keywords);
+              case 22:
+                _context3.next = 24;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/search/keyword', _this3.keywords);
 
-              case 23:
+              case 24:
                 response = _context3.sent;
 
                 if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
-                  _context3.next = 28;
+                  _context3.next = 29;
                   break;
                 }
 
@@ -2322,17 +2329,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 return _context3.abrupt("return", false);
 
-              case 28:
+              case 29:
                 _this3.$store.commit('message/setText', 'キーワードが保存されました', {
                   root: true
                 });
 
-              case 29:
+              case 30:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[1, 15, 18, 21]]);
+        }, _callee3, null, [[1, 16, 19, 22]]);
       }))();
     }
   },

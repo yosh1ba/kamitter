@@ -22,12 +22,6 @@ use Psy\Util\Str;
 class TwitterController extends Controller
 {
 
-//  public function __construct()
-//  {
-//    $this->middleware('session');
-//
-//  }
-
   // 認証ページへのリダイレクト
   public function redirectToProvider()
   {
@@ -48,7 +42,6 @@ class TwitterController extends Controller
 
   public function handleProviderCallback()
   {
-//    $this->middleware('session');
     try {
       // twitterログイン認証
       $user = Socialite::driver('twitter')->user();

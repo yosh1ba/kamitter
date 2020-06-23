@@ -2,7 +2,7 @@
 
   use App\TwitterUser;
   use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+  use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +57,9 @@ Route::prefix('api')
 
     // ターゲットアカウントリスト読み込み
     Route::get('/twitter/target/{id}', 'Auth\TwitterController@queryTargetAccountList');
+
+    // フォロワーサーチキーワードリスト作成
+    Route::post('/search/keyword', 'SearchController@createSearchKeywordList');
 
   });
 
