@@ -162,7 +162,7 @@ class TwitterController extends Controller
   public function queryTargetAccountList(Request $request)
   {
 
-    $response = TargetAccountList::where('twitter_user_id', $request->route('id'))->get('screen_name');
+    $response = TargetAccountList::where('twitter_user_id', $request->route('id'))->select('screen_name')->get();
     return $response;
   }
 
