@@ -2341,11 +2341,58 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           }
         }, _callee3, null, [[1, 16, 19, 22]]);
       }))();
+    },
+    querySearchForm: function querySearchForm() {
+      var _this4 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4() {
+        var options, response, _iterator4, _step4, data;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                // セレクトボックス表示用定数
+                options = ['ADD', 'OR', 'NOT']; // ターゲットアカウントリストの内容を呼び出す
+
+                _context4.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/search/keyword/".concat(_this4.item.id));
+
+              case 3:
+                response = _context4.sent;
+
+                // サーチキーワードリストが存在する場合、フォームに展開する
+                if (response.data.length !== 0) {
+                  _iterator4 = _createForOfIteratorHelper(response.data);
+
+                  try {
+                    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                      data = _step4.value;
+                      data.options = options; // optionsプロパティ追加
+
+                      _this4.keywords.push(data);
+                    }
+                  } catch (err) {
+                    _iterator4.e(err);
+                  } finally {
+                    _iterator4.f();
+                  }
+                }
+
+              case 5:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4);
+      }))();
     }
   },
   created: function created() {
     // ページ表示時にターゲットアカウントリストの内容を呼び出す
-    this.queryTargetForm();
+    this.queryTargetForm(); // ページ表示時にサーチキーワードリストの内容を呼び出す
+
+    this.querySearchForm();
   }
 });
 

@@ -162,10 +162,27 @@
 
         this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
+      async querySearchForm(){
+        // セレクトボックス表示用定数
+        const options = ['ADD', 'OR', 'NOT']
+
+        // ターゲットアカウントリストの内容を呼び出す
+        const response = await axios.get(`/api/search/keyword/${this.item.id}`);
+
+        // サーチキーワードリストが存在する場合、フォームに展開する
+        if(response.data.length !== 0){
+          for (let data of response.data){
+            data.options = options  // optionsプロパティ追加
+            this.keywords.push(data)
+          }
+        }
+      }
     },
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す
       this.queryTargetForm()
+      // ページ表示時にサーチキーワードリストの内容を呼び出す
+      this.querySearchForm()
     }
   }
 </script>

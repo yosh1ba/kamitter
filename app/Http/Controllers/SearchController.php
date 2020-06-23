@@ -12,7 +12,6 @@ class SearchController extends Controller
   {
 
     $arr = [];
-    Log::debug($request);
     foreach($request->all() as $data) {
       // messageプロパティを取り除く
       unset($data['message']);
@@ -40,6 +39,13 @@ class SearchController extends Controller
     $target->insert($arr);
 
     return $target;
+  }
+
+  public function querySearchKeywordList(Request $request)
+  {
+    $response = SearchKeywordList::where('twitter_user_id', $request->route('id'))->select('selected', 'text')->get();
+
+    return $response;
   }
 
 }

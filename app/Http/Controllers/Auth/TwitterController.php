@@ -163,7 +163,6 @@ class TwitterController extends Controller
   {
 
     $response = TargetAccountList::where('twitter_user_id', $request->route('id'))->get('screen_name');
-
     return $response;
   }
 
