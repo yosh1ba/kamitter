@@ -10,7 +10,7 @@
     </div>
     <button v-on:click="addTargetForm">追加</button>
     <button v-on:click="saveTargetForm">保存</button>
-    <div v-for="(searchKeyword, index) in searchKeywords">
+    <div v-for="(searchKeyword, index) in searchKeywords" v-if="!emptyKeyword">
       <select v-model="searchKeyword.selected">
         <option v-for="option in searchKeyword.options">
           {{ option }}
@@ -20,8 +20,8 @@
       <button v-on:click="deleteSearchKeywordForm(index)">削除</button>
       <span>{{searchKeyword.message}}</span>
     </div>
-    <button v-on:click="saveSearchKeywordForm">保存</button>
     <button v-on:click="addSearchKeywordForm">追加</button>
+    <button v-on:click="saveSearchKeywordForm">保存</button>
   </div>
 
 
@@ -30,7 +30,6 @@
 <script>
   import axios from "axios";
   import {OK} from "../util";
-  // import vSelect from 'vue-select'
 
   export default {
     name: "Account",
@@ -43,7 +42,8 @@
     data() {
       return {
         targets: [],  // ターゲットアカウント
-        searchKeywords: []  // キーワード
+        searchKeywords: [],  // キーワード
+        emptyKeyword:false  // キーワードが空かどうか判定（画面描画用条件）
       }
     },
     methods: {
@@ -135,6 +135,7 @@
       },
       async saveSearchKeywordForm(){
         for(let data of this.searchKeywords){
+          this.emptyKeyword = false
           if(data.text !== ''){
             /*
             認証済みアカウントごとにサーチキーワードリストを作成するため
@@ -152,6 +153,16 @@
           }
         }
 
+        // 検索キーワードが一つも設定されていない場合、
+        if(this.searchKeywords.length === 0){
+
+          this.emptyKeyword = true
+          this.searchKeywords.push({
+            twitter_user_id: this.item.id,
+            is_empty: true
+          })
+        }
+
         // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
         const response = await axios.post('/api/search/keyword', this.searchKeywords)
 
@@ -160,6 +171,10 @@
           this.$store.commit('error/setMessage', response.data.errors)
           return false
         }
+
+        // if('is_empty' in this.searchKeywords[0]){
+        //   this.searchKeywords.splice(-this.searchKeywords.length)
+        // }
 
         this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
@@ -180,6 +195,7 @@
       },
       async autoFollow(){
         // 自動フォローを開始する(非同期)
+        const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
 
         // 自動フォロー開始のスプラッシュメッセージを出す
 
