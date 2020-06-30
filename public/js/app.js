@@ -2022,7 +2022,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 
- // import vSelect from 'vue-select'
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Account",
@@ -2036,7 +2035,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     return {
       targets: [],
       // ターゲットアカウント
-      searchKeywords: [] // キーワード
+      searchKeywords: [],
+      // キーワード
+      emptyKeyword: false // キーワードが空かどうか判定（画面描画用条件）
 
     };
   },
@@ -2262,14 +2263,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 3:
                 if ((_step3 = _iterator3.n()).done) {
-                  _context3.next = 14;
+                  _context3.next = 15;
                   break;
                 }
 
                 data = _step3.value;
+                _this3.emptyKeyword = false;
 
                 if (!(data.text !== '')) {
-                  _context3.next = 10;
+                  _context3.next = 11;
                   break;
                 }
 
@@ -2282,45 +2284,56 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 _this3.$set(data, 'message', '');
 
-                _context3.next = 12;
+                _context3.next = 13;
                 break;
 
-              case 10:
+              case 11:
                 // フォームが空欄の場合はエラーを表示する
                 _this3.$set(data, 'message', 'キーワードが存在しません');
 
                 return _context3.abrupt("return", false);
 
-              case 12:
+              case 13:
                 _context3.next = 3;
                 break;
 
-              case 14:
-                _context3.next = 19;
+              case 15:
+                _context3.next = 20;
                 break;
 
-              case 16:
-                _context3.prev = 16;
+              case 17:
+                _context3.prev = 17;
                 _context3.t0 = _context3["catch"](1);
 
                 _iterator3.e(_context3.t0);
 
-              case 19:
-                _context3.prev = 19;
+              case 20:
+                _context3.prev = 20;
 
                 _iterator3.f();
 
-                return _context3.finish(19);
+                return _context3.finish(20);
 
-              case 22:
-                _context3.next = 24;
+              case 23:
+                // 検索キーワードが一つも設定されていない場合、
+                if (_this3.searchKeywords.length === 0) {
+                  _this3.emptyKeyword = true;
+
+                  _this3.searchKeywords.push({
+                    twitter_user_id: _this3.item.id,
+                    is_empty: true
+                  });
+                } // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
+
+
+                _context3.next = 26;
                 return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/search/keyword', _this3.searchKeywords);
 
-              case 24:
+              case 26:
                 response = _context3.sent;
 
                 if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
-                  _context3.next = 29;
+                  _context3.next = 31;
                   break;
                 }
 
@@ -2330,17 +2343,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 return _context3.abrupt("return", false);
 
-              case 29:
+              case 31:
+                // if('is_empty' in this.searchKeywords[0]){
+                //   this.searchKeywords.splice(-this.searchKeywords.length)
+                // }
                 _this3.$store.commit('message/setText', 'キーワードが保存されました', {
                   root: true
                 });
 
-              case 30:
+              case 32:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[1, 16, 19, 22]]);
+        }, _callee3, null, [[1, 17, 20, 23]]);
       }))();
     },
     querySearchForm: function querySearchForm() {
@@ -2388,16 +2404,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee4);
       }))();
     },
-    autoFollow: function autoFollow() {// 自動フォローを開始する(非同期)
-      // 自動フォロー開始のスプラッシュメッセージを出す
-      // 自動フォローが完了するのを待つ
-      // 完了メール送信
+    autoFollow: function autoFollow() {
+      var _this5 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
+        var responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
+                // 自動フォローを開始する(非同期)
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this5.item.id)); // 自動フォロー開始のスプラッシュメッセージを出す
+                // 自動フォローが完了するのを待つ
+                // 完了メール送信
+
+              case 1:
               case "end":
                 return _context5.stop();
             }
@@ -40482,87 +40503,91 @@ var render = function() {
       _c("button", { on: { click: _vm.saveTargetForm } }, [_vm._v("保存")]),
       _vm._v(" "),
       _vm._l(_vm.searchKeywords, function(searchKeyword, index) {
-        return _c("div", [
-          _c(
-            "select",
-            {
-              directives: [
+        return !_vm.emptyKeyword
+          ? _c("div", [
+              _c(
+                "select",
                 {
-                  name: "model",
-                  rawName: "v-model",
-                  value: searchKeyword.selected,
-                  expression: "searchKeyword.selected"
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: searchKeyword.selected,
+                      expression: "searchKeyword.selected"
+                    }
+                  ],
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        searchKeyword,
+                        "selected",
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    }
+                  }
+                },
+                _vm._l(searchKeyword.options, function(option) {
+                  return _c("option", [
+                    _vm._v("\n        " + _vm._s(option) + "\n      ")
+                  ])
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: searchKeyword.text,
+                    expression: "searchKeyword.text"
+                  }
+                ],
+                attrs: { type: "text" },
+                domProps: { value: searchKeyword.text },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(searchKeyword, "text", $event.target.value)
+                  }
                 }
-              ],
-              on: {
-                change: function($event) {
-                  var $$selectedVal = Array.prototype.filter
-                    .call($event.target.options, function(o) {
-                      return o.selected
-                    })
-                    .map(function(o) {
-                      var val = "_value" in o ? o._value : o.value
-                      return val
-                    })
-                  _vm.$set(
-                    searchKeyword,
-                    "selected",
-                    $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                  )
-                }
-              }
-            },
-            _vm._l(searchKeyword.options, function(option) {
-              return _c("option", [
-                _vm._v("\n        " + _vm._s(option) + "\n      ")
-              ])
-            }),
-            0
-          ),
-          _vm._v(" "),
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: searchKeyword.text,
-                expression: "searchKeyword.text"
-              }
-            ],
-            attrs: { type: "text" },
-            domProps: { value: searchKeyword.text },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.$set(searchKeyword, "text", $event.target.value)
-              }
-            }
-          }),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              on: {
-                click: function($event) {
-                  return _vm.deleteSearchKeywordForm(index)
-                }
-              }
-            },
-            [_vm._v("削除")]
-          ),
-          _vm._v(" "),
-          _c("span", [_vm._v(_vm._s(searchKeyword.message))])
-        ])
+              }),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.deleteSearchKeywordForm(index)
+                    }
+                  }
+                },
+                [_vm._v("削除")]
+              ),
+              _vm._v(" "),
+              _c("span", [_vm._v(_vm._s(searchKeyword.message))])
+            ])
+          : _vm._e()
       }),
-      _vm._v(" "),
-      _c("button", { on: { click: _vm.saveSearchKeywordForm } }, [
-        _vm._v("保存")
-      ]),
       _vm._v(" "),
       _c("button", { on: { click: _vm.addSearchKeywordForm } }, [
         _vm._v("追加")
+      ]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.saveSearchKeywordForm } }, [
+        _vm._v("保存")
       ])
     ],
     2
