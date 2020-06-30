@@ -64,6 +64,9 @@ Route::prefix('api')
     // サーチキーワードリスト読み込み
     Route::get('/search/keyword/{id}', 'SearchController@querySearchKeywordList');
 
+    // 自動フォロー
+    Route::post('/twitter/follow/{id}', 'Auth\TwitterController@autoFollow');
+
   });
 
   // Twitter認証ページを開く
