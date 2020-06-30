@@ -116,7 +116,6 @@ class TwitterController extends Controller
 
 
     Log::debug('IN: createFollowerTargetList');
-    Log::debug($request->route('id'));
 
 //    // サーチキーワードリストからwhere句を生成
 //    $search = new SearchController;
@@ -134,8 +133,6 @@ class TwitterController extends Controller
     // ターゲットアカウントを取得
     $twitter_user_id = $this->queryTargetAccountList($request);
 
-    Log::debug($twitter_user_id);
-
     /*
       各ターゲットアカウントごとに
       1. フォロワーを取得
@@ -148,7 +145,6 @@ class TwitterController extends Controller
     */
 
     foreach ($twitter_user_id as $data){
-      Log::debug($data->screen_name);
 
       $followers = $this->getFollower($data->screen_name);
       $followerQueue = [];
@@ -176,8 +172,6 @@ class TwitterController extends Controller
           ];
         }
       }
-      Log::debug('フォロワーターゲットリスト');
-      Log::debug($followerQueue);
 
       $target = new FollowerTargetList();
 
@@ -267,7 +261,6 @@ class TwitterController extends Controller
     // AND, OR, NOTそれぞれについて、判定を行う
     if(isset($condition['AND'])){
       foreach ($condition['AND'] as $data){
-        Log::debug($data);
         if(strpos($follower['description'], $data[0]) === false){
           $judgeAND = false;
           break;
@@ -369,15 +362,25 @@ class TwitterController extends Controller
     return $response;
   }
 
+  public function queryFollowerTargetList(Request $request)
+  {
+
+    $response = FollowerTargetList::where('twitter_user_id', $request->route('id'))->select('screen_name')->get();
+    return $response;
+  }
+
   public function autoFollow(Request $request)
   {
     Log::debug('IN: autoFollow');
 
     // フォロワーターゲットリスト作成
     $response= $this->createFollowerTargetList($request);
-
     $response = null;
+
     // 自動フォロー開始
+    // フォロワーターゲットリスト取得
+    $target = $this->queryFollowerTargetList($request);
+    Log::debug($target);
 
 
 
