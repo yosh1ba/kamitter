@@ -81,14 +81,7 @@ class TwitterController extends Controller
     }
   }
 
-  public function authenticatedUsers(Request $request)
-  {
-
-    // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
-    return TwitterUser::where('user_id', $request->route('id'))->get();
-  }
-
-  public function connectTwitter(Array $arr)
+  public function accessTwitterWithBearerToken(Array $arr)
   {
     $url = $arr['url'];
     $params = $arr['params'];
@@ -111,24 +104,34 @@ class TwitterController extends Controller
 
   }
 
-  public function createFollowerTargetList(Request $request)
+  public function accessTwitterWithAccessToken(Array $user, Array $arr)
   {
 
+    Log::debug($user);
+    $client_id = config('app.twitter_client_id');;
+    $client_secret = config('app.twitter_client_secret');
+    $access_token = $user[0]['twitter_oauth_token'];
+    $access_token_secret = $user[0]['twitter_oauth_token_secret'];
 
+    Log::debug($client_id);
+    Log::debug($client_secret);
+    Log::debug($access_token);
+    Log::debug($access_token_secret);
+
+    $connection = new TwitterOAuth($client_id, $client_secret, $access_token, $access_token_secret);
+
+    $content = $connection->get($arr['url']);
+
+    Log::debug(var_export($content, true));
+
+    // TODO フォロー用APIパラメータを受け取り、自動フォローを行う
+
+
+  }
+
+  public function createFollowerTargetList(Request $request)
+  {
     Log::debug('IN: createFollowerTargetList');
-
-//    // サーチキーワードリストからwhere句を生成
-//    $search = new SearchController;
-//    $condition = $search->makeWhereConditions($request);
-//
-//    Log::debug('サーチキーワードの結果');
-//    Log::debug($condition);
-//
-//    if(!$condition){
-//      return response()->json([
-//        'caution' => 'サーチキーワードが存在しません',
-//      ]);
-//    }
 
     // ターゲットアカウントを取得
     $twitter_user_id = $this->queryTargetAccountList($request);
@@ -181,7 +184,6 @@ class TwitterController extends Controller
       // 配列の内容をDBへインサート
       $target->insert($followerQueue);
 
-      // TODO 自動フォロー開始
 
     }
 
@@ -195,18 +197,28 @@ class TwitterController extends Controller
     $request_params = [];
     $request_params['url'] = 'followers/list.json';
     $request_params['params'] = [
-      'cursor' => '-1',
+       'cursor' => '-1',
       'screen_name' => $screen_name,
       'count' => '200'
     ];
 
     $followers = [];
+    $count = 1;
 
      // TwitterAPIへリクエストを投げる
      // フォロワーリストを取得
     do {
-      $response = $this->connectTwitter($request_params);
+      /*
+       * 15回目を実行する前に待機時間を作る
+       * API制限状は15分(900秒)だが、念の為16分(960秒)を設定する
+      */
+      if( ( $count % 15 ) === 0){
+        Log::debug('ループ：'.$count.'回目');
+        sleep(960);
+      }
+      $response = $this->accessTwitterWithBearerToken($request_params);
       $followers = array_merge($followers, $response['users']);
+      $count++;
     }while ($request_params['params']['cursor'] = $response['next_cursor_str']);
 
 //    Log::debug('フォロワー一覧');
@@ -214,26 +226,6 @@ class TwitterController extends Controller
 
     return $followers;
 
-//    $response = Http::withToken($bearer_token)->get(
-//      $request_url, [
-//        'screen_name' => $screen_name
-//      ]
-//    );
-//
-//    // JSONを多次元配列へデコードする
-//    $decoded_response = json_decode($response,true)['users'];
-//
-//    $filtered_response = [];
-//    $arr = [];
-//    foreach ($decoded_response as $data){
-//      foreach ($keys as $key){
-//        $arr[$key] = $data[$key];
-//      }
-//      $filtered_response[] = $arr;
-//      Log::debug($filtered_response);
-//    }
-//     Log::debug($filtered_response);
-//
   }
 
   public function judgeIncludedJapanese(Array $arr)
@@ -355,6 +347,13 @@ class TwitterController extends Controller
     return $target;
   }
 
+  public function queryLinkedUsers(Request $request)
+  {
+
+    // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
+    return TwitterUser::where('user_id', $request->route('id'))->get();
+  }
+
   public function queryTargetAccountList(Request $request)
   {
 
@@ -369,6 +368,18 @@ class TwitterController extends Controller
     return $response;
   }
 
+  public function queryAuthenticatedUser(Request $request)
+  {
+
+    $response = TwitterUser::where('id', $request->route('id'))->select(
+      'twitter_screen_name',
+      'twitter_oauth_token',
+      'twitter_oauth_token_secret'
+    )->get();
+    return $response;
+  }
+
+
   public function autoFollow(Request $request)
   {
     Log::debug('IN: autoFollow');
@@ -378,9 +389,29 @@ class TwitterController extends Controller
     $response = null;
 
     // 自動フォロー開始
+    // 認証済みアカウント情報取得
+    $user = $this->queryAuthenticatedUser($request);
+    Log::debug($user);
+
     // フォロワーターゲットリスト取得
-    $target = $this->queryFollowerTargetList($request);
-    Log::debug($target);
+    $targets = $this->queryFollowerTargetList($request);
+    Log::debug($targets);
+
+//    $request_params = [];
+//    $request_params['url'] = 'friendships/create';
+//
+//    foreach ($targets as $target){
+//      $response = $this->accessTwitterWithAccessToken($target->screen_name, $request_params);
+//    }
+
+    // $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+
+    Log::debug($response);
+
+
+
+
+
 
 
 

@@ -47,7 +47,7 @@ Route::prefix('api')
     Route::post('/email/resend', 'Auth\VerificationController@resend')->name('verification.resend');
 
     // twitter認証ユーザ取得
-    Route::get('/twitter/user/{id}', 'Auth\TwitterController@authenticatedUsers');
+    Route::get('/twitter/user/{id}', 'Auth\TwitterController@queryLinkedUsers');
 
     // ターゲットアカウント存在チェック
     Route::post('/twitter/target/check', 'Auth\TwitterController@checkTargetAccountList');

@@ -68,6 +68,8 @@ return [
     'parameter_queryUrl' => 'queryURL=',
     'parameter_token' => 'token=',
 
+    'twitter_client_id' => env('TWITTER_CLIENT_ID', ''),
+    'twitter_client_secret' => env('TWITTER_CLIENT_SECRET', ''),
     'twitter_bearer_token' => env('TWITTER_BEARER_TOKEN', ''),
 
 
