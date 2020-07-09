@@ -67,6 +67,9 @@ Route::prefix('api')
     // 自動フォロー
     Route::post('/twitter/follow/{id}', 'Auth\TwitterController@autoFollow');
 
+    // 自動アンフォロー
+    Route::post('/twitter/unfollow/{id}', 'Auth\TwitterController@autoUnfollow');
+
   });
 
   // Twitter認証ページを開く

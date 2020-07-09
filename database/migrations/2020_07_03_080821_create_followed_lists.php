@@ -15,6 +15,7 @@ class CreateFollowedLists extends Migration
     {
         Schema::create('followed_lists', function (Blueprint $table) {
             $table->id();
+            $table->string('user_id');
             $table->string('screen_name');
             $table->timestamp('followed_at');
             $table->unsignedBigInteger('twitter_user_id');

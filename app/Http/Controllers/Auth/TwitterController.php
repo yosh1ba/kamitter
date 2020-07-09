@@ -7,6 +7,7 @@ use App\FollowerTargetList;
 use App\TargetAccountList;
 use App\TwitterUser;
 use App\Http\Controllers\SearchController;
+use App\UnfollowedList;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
@@ -19,8 +20,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Abraham\TwitterOAuth\TwitterOAuth;
+use phpDocumentor\Reflection\Types\Boolean;
+use PhpParser\Node\Expr\Cast\Object_;
 use PHPUnit\Util\Json;
 use Psy\Util\Str;
+use Ramsey\Uuid\Type\Integer;
 
 class TwitterController extends Controller
 {
@@ -96,7 +100,7 @@ class TwitterController extends Controller
 //    Log::debug('APIレスポンス');
 //    Log::debug($response);
 
-    if(!isset($response['users'])){
+    if(isset($response['errors'])){
       // API制限
       dd('API制限');
       // return false;
@@ -109,7 +113,6 @@ class TwitterController extends Controller
   public function accessTwitterWithAccessToken(Array $user, Array $arr)
   {
 
-    Log::debug($user);
     $client_id = config('app.twitter_client_id');;
     $client_secret = config('app.twitter_client_secret');
     $access_token = $user[0]['twitter_oauth_token'];
@@ -148,6 +151,7 @@ class TwitterController extends Controller
       各ターゲットアカウントごとに
       1. フォロワーを取得
       2. 各種条件で絞り込み
+        ・自分自身でない
         ・プロフィールに日本語が含まれる
         ・プロフィールとサーチキーワードの条件が一致
         ・アンフォローリストのアカウントは除く
@@ -180,6 +184,9 @@ class TwitterController extends Controller
 
         foreach($followers as $follower){
 
+          // 自分自身かどうかを判定
+          $matchedMySelf = $this->judgeMatchedMySelf($request, $follower);
+
           // プロフィールに日本語が含まれるか判定
           $includedJapanese = $this->judgeIncludedJapanese($follower);
 
@@ -187,12 +194,10 @@ class TwitterController extends Controller
           $matchedKeywords = $this->judgeMatchedKeywords($request, $follower);
 
           // TODO アンフォローリストのアカウントを除く
-          // TODO 30日以内にフォロー済みのアカウントは除く
-
           $alreadyFollowed = $this->alreadyFollowed($request, $follower);
 
 
-          if($includedJapanese && $matchedKeywords && $alreadyFollowed === false){
+          if($matchedMySelf === false && $includedJapanese && $matchedKeywords && $alreadyFollowed === false){
 
             $followerQueue[] = [
               'screen_name' => $follower['screen_name'],
@@ -217,6 +222,23 @@ class TwitterController extends Controller
     return $response;
   }
 
+  public function judgeMatchedMySelf(Request $request, Array $follower)
+  {
+    /*
+     * twitter_usersテーブルから、自分自身の情報を取得
+     * フォロワーリストのアカウントに自分自身がいるかどうかを判定
+     *  いる場合    >>   true
+     *  いない場合   >>  false
+     * を返す
+    */
+    $target = TwitterUser::find($request->route('id'));
+
+    if($target->twitter_screen_name === $follower['screen_name']){
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   public function judgeIncludedJapanese(Array $arr)
   {
@@ -351,13 +373,30 @@ class TwitterController extends Controller
     return $target;
   }
 
-  public function createFollowedLists(Request $request, String $screen_name){
+  public function createFollowedLists(Request $request, Object $obj){
     $follower = FollowedList::create([
-      'screen_name' => $screen_name,
+      'user_id' => $obj->id,
+      'screen_name' => $obj->screen_name,
       'twitter_user_id' => $request->route('id')
     ]);
-
     return $follower;
+  }
+
+  public function createUnfollowedLists(Request $request, Object $obj){
+    $unfollow = UnfollowedList::create([
+      'user_id' => $obj->id,
+      'screen_name' => $obj->screen_name,
+      'twitter_user_id' => $request->route('id')
+    ]);
+    return $unfollow;
+  }
+
+  public function updateFollowerTargetList(Request $request, String $screen_name){
+    $target = new FollowerTargetList();
+
+    $target->where('twitter_user_id', $request->route('id'))
+      ->where('screen_name', $screen_name)
+      ->update(['is_followed' => true]);
   }
 
   public function queryLinkedUsers(Request $request)
@@ -377,7 +416,9 @@ class TwitterController extends Controller
   public function queryFollowerTargetList(Request $request)
   {
 
-    $response = FollowerTargetList::where('twitter_user_id', $request->route('id'))->select('screen_name')->get();
+    $response = FollowerTargetList::where('twitter_user_id', $request->route('id'))
+      ->where('is_followed', false)
+      ->select('screen_name')->get();
     return $response;
   }
 
@@ -392,14 +433,85 @@ class TwitterController extends Controller
     return $response;
   }
 
+  public function queryUnfollowTargetList(Request $request, String $screen_name)
+  {
+    $request_params = [];
+    $request_params['url'] = 'friends/ids.json';
+    $request_params['params'] = [
+      'cursor' => '-1',
+      'count' => '5000',
+      'stringify_ids' => true,
+      'screen_name' => $screen_name
+    ];
+    $friends = $this->accessTwitterWithBearerToken($request_params)['ids'];
 
-  public function autoFollow(Request $request)
+    $request_params['url'] = 'followers/ids.json';
+    $followers = $this->accessTwitterWithBearerToken($request_params)['ids'];
+
+    $oneways = array_diff($friends, $followers);
+
+    return $oneways;
+
+  }
+
+  public function queryFollowedLists(Request $request, Int $day)
+  {
+    // TODO subDayの中身を変数に直す
+    $response = FollowedList::where('twitter_user_id', $request->route('id'))
+      ->where('followed_at', '<', Carbon::now()->subDay(1))
+      ->select('user_id')
+      ->get();
+
+    return $response;
+  }
+
+  public function queryInactiveUsers(Request $request, String $screen_name, Int $day)
+  {
+    $request_params = [];
+    $request_params['url'] = 'friends/ids.json';
+    $request_params['params'] = [
+      'cursor' => '-1',
+      'count' => '5000',
+      'stringify_ids' => true,
+      'screen_name' => $screen_name
+    ];
+    $friends = $this->accessTwitterWithBearerToken($request_params)['ids'];
+
+    $request_params = [];
+    $request_params['url'] = 'statuses/user_timeline.json';
+    $request_params['params'] = [
+      'count' => '1',
+      'user_id' => ''
+    ];
+
+    $inactive_users = [];
+    foreach ($friends as $friend){
+      $request_params['params']['user_id'] = $friend;
+
+      $timeline = $this->accessTwitterWithBearerToken($request_params);
+
+      if(isset($timeline->json()[0]['created_at'])){
+        $datetime_tweet = date('Y-m-d H:i:s', strtotime($timeline->json()[0]['created_at']));
+        $datetime_past = Carbon::now()->subDay($day);
+
+        if ($datetime_tweet < $datetime_past){
+          array_push($inactive_users, $friend);
+        }
+      }
+    }
+    return $inactive_users;
+
+
+  }
+
+  public function autoFollow(Request $request, Boolean $restart = null)
   {
     Log::debug('IN: autoFollow');
 
     // フォロワーターゲットリスト作成
-    $response= $this->createFollowerTargetList($request);
-    $response = null;
+    if ($restart === null){
+      $response= $this->createFollowerTargetList($request);
+    }
 
     // 自動フォロー開始
     // 認証済みアカウント情報取得
@@ -407,6 +519,7 @@ class TwitterController extends Controller
 
     // フォロワーターゲットリスト取得
     $targets = $this->queryFollowerTargetList($request);
+
 
     $request_params = [];
     $request_params['url'] = 'friendships/create';
@@ -418,7 +531,7 @@ class TwitterController extends Controller
     /*
      * フォロワーターゲットリストのアカウントを順番にフォローしていく。
      * 以下の通り、ウェイトを設ける。
-     *  ・１アカウントフォローするごとに30秒
+     *  ・１アカウントフォローするごとに15秒
      *  ・15アカウントフォローするごとに16分
      * twitterAPIからエラーが帰ってきた場合、その時点で処理を終了する
     */
@@ -430,18 +543,68 @@ class TwitterController extends Controller
       // twitterAPIへフォローリクエストを送る
       $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
 
-      // アカウント情報が返ってこない　＝　エラーが発生した場合、処理を中断する
+      // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if(!property_exists($response, 'id')){
         return false;
       }else {
         // フォロー成功した場合、フォロー済みリストにもアカウント情報を格納する
-        $response = $this->createFollowedLists($request, $target->screen_name);
+        $this->updateFollowerTargetList($request, $target->screen_name);
+        $this->createFollowedLists($request, $response);
       }
-      sleep(30);
+      sleep(15);
       $count++;
     }
-    return $response;
-
+    return response()->json($response);
   }
 
+  public function autoUnfollow(Request $request, Boolean $restart = null)
+  {
+    Log::debug('IN: autoUnfollow');
+
+    $user = TwitterUser::find($request->route('id'));
+
+    // アンフォローターゲットリスト取得
+    if ($restart === null) {
+      $oneways = $this->queryUnfollowTargetList($request, $user['twitter_screen_name']);
+    }
+
+    $followed_lists = $this->queryFollowedLists($request, 7);
+    $while_ago_follow = [];
+    foreach ($followed_lists as $friend) {
+      array_push($while_ago_follow, $friend->user_id);
+    }
+
+    $targets = array_intersect($oneways, $while_ago_follow);
+
+    $inactive_users = $this->queryInactiveUsers($request, $user['twitter_screen_name'], 3);
+
+    $merge_targets = array_merge($targets, $inactive_users);
+    $unique_targets = array_unique($merge_targets);
+
+    $result_targets = array_values($unique_targets);
+
+    $request_params = [];
+    $request_params['url'] = 'friendships/destroy';
+    $request_params['params'] = [
+      'id' => ''
+    ];
+
+    $user = $this->queryAuthenticatedUser($request);
+
+    foreach ($result_targets as $target) {
+      $request_params['params']['id'] = $target;
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+
+      // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
+      if (!property_exists($response, 'id')) {
+        return false;
+      } else {
+        $this->createUnfollowedLists($request, $response);
+      }
+      // 実際にアンフォローを行ってみる
+      sleep(15);
+
+    }
+    return response()->json($response);
+  }
 }

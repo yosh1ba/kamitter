@@ -4,12 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FollowedList extends Model
+class UnfollowedList extends Model
 {
   protected $fillable = [
     'user_id',
     'screen_name',
-    'followed_at',
+    'unfollowed_at',
     'twitter_user_id'
   ];
 }

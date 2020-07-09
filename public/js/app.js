@@ -2021,6 +2021,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2424,6 +2425,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
         }, _callee5);
+      }))();
+    },
+    autoUnfollow: function autoUnfollow() {
+      var _this6 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6() {
+        var responsePromise;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                // 自動アンフォローを開始する
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this6.item.id));
+
+              case 1:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6);
       }))();
     }
   },
@@ -40458,6 +40479,10 @@ var render = function() {
       _c("p", [_vm._v(_vm._s(_vm.item.twitter_screen_name))]),
       _vm._v(" "),
       _c("button", { on: { click: _vm.autoFollow } }, [_vm._v("自動フォロー")]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.autoUnfollow } }, [
+        _vm._v("自動アンフォロー")
+      ]),
       _vm._v(" "),
       _vm._l(_vm.targets, function(target, index) {
         return _c("div", [

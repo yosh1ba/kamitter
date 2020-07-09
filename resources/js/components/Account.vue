@@ -3,6 +3,7 @@
     <img :src="item.twitter_avatar" alt="">
     <p>{{item.twitter_screen_name}}</p>
     <button v-on:click="autoFollow">自動フォロー</button>
+    <button v-on:click="autoUnfollow">自動アンフォロー</button>
     <div v-for="(target, index) in targets">
       <input type="text" v-model="target.screen_name">
       <button v-on:click="deleteTargetForm(index)">削除</button>
@@ -202,9 +203,12 @@
         // 自動フォローが完了するのを待つ
 
         // 完了メール送信
-      }
+      },
+      async autoUnfollow(){
+        // 自動アンフォローを開始する
+        const responsePromise = axios.post(`/api/twitter/unfollow/${this.item.id}`);
+      },
     },
-
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す
       this.queryTargetForm()
