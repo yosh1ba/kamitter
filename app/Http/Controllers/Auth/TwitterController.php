@@ -110,7 +110,7 @@ class TwitterController extends Controller
 
   }
 
-  public function accessTwitterWithAccessToken(Array $user, Array $arr)
+  public function accessTwitterWithAccessToken(Array $user, Array $arr,String $context = 'post')
   {
 
     $client_id = config('app.twitter_client_id');;
@@ -120,7 +120,12 @@ class TwitterController extends Controller
 
     $connection = new TwitterOAuth($client_id, $client_secret, $access_token, $access_token_secret);
 
-    $content = $connection->post($arr['url'],$arr['params']);
+    if($context === 'get'){
+      $content = $connection->get($arr['url'],$arr['params']);
+    }else{
+      $content = $connection->post($arr['url'],$arr['params']);
+    }
+
 
     return $content;
 
@@ -193,11 +198,14 @@ class TwitterController extends Controller
           // キーワードマッチングを行う
           $matchedKeywords = $this->judgeMatchedKeywords($request, $follower);
 
-          // TODO アンフォローリストのアカウントを除く
+          // アンフォローリストに含まれるアカウントは除く
+          $alreadyUnfollowed = $this->alreadyUnfollowed($request, $follower);
+
+          // すでにフォロー済みのアカウントは除く
           $alreadyFollowed = $this->alreadyFollowed($request, $follower);
 
 
-          if($matchedMySelf === false && $includedJapanese && $matchedKeywords && $alreadyFollowed === false){
+          if($matchedMySelf === false && $includedJapanese && $matchedKeywords && $alreadyFollowed === false && $alreadyUnfollowed === false){
 
             $followerQueue[] = [
               'screen_name' => $follower['screen_name'],
@@ -324,6 +332,18 @@ class TwitterController extends Controller
      }else{
        return true;
      }
+  }
+
+  public function alreadyUnfollowed(Request $request, Array $follower)
+  {
+    $target = UnfollowedList::where('twitter_user_id', $request->route('id'))
+      ->where('screen_name', $follower['screen_name'])
+      ->get();
+    if ($target->isEmpty()){
+      return false;
+    }else{
+      return true;
+    }
   }
 
   public function checkTargetAccountList(Request $request)
@@ -500,7 +520,22 @@ class TwitterController extends Controller
       }
     }
     return $inactive_users;
+  }
 
+  public function queryFriendsCount(Request $request, Object $user)
+  {
+
+    $decoded_user = json_decode($user, true);
+
+    $request_params = [];
+    $request_params['url'] = 'users/show';
+    $request_params['params'] = [
+      'screen_name' => $decoded_user[0]['twitter_screen_name']
+    ];
+
+    $response = $this->accessTwitterWithAccessToken($decoded_user, $request_params, 'get');
+
+    return $response->friends_count;
 
   }
 
@@ -537,6 +572,15 @@ class TwitterController extends Controller
     */
     foreach ($targets as $target){
       $request_params['params']['screen_name'] = $target->screen_name;
+
+      // 現在のフォロー数を確認する
+      $friends_count = $this->queryFriendsCount($request ,$user);
+
+      // フォロー数が5000人を超えた場合、自動アンフォローを開始する
+      if($friends_count >= 5000){
+        $this->autoUnfollow($request);
+      }
+
       if( $count !== 0  && ($count % 15) === 0 ){
         sleep(960);
       }
@@ -605,6 +649,7 @@ class TwitterController extends Controller
       sleep(15);
 
     }
-    return response()->json($response);
+    // TODO 戻り値の必要有無確認
+    return false;
   }
 }
