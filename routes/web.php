@@ -64,11 +64,20 @@ Route::prefix('api')
     // サーチキーワードリスト読み込み
     Route::get('/search/keyword/{id}', 'SearchController@querySearchKeywordList');
 
+    // いいねキーワードリスト作成
+    Route::post('/favorite/keyword', 'FavoriteController@createFavoriteKeywordList');
+
+    // いいねキーワードリスト読み込み
+    Route::get('/favorite/keyword/{id}', 'FavoriteController@queryFavoriteKeywordList');
+
     // 自動フォロー
     Route::post('/twitter/follow/{id}', 'Auth\TwitterController@autoFollow');
 
     // 自動アンフォロー
     Route::post('/twitter/unfollow/{id}', 'Auth\TwitterController@autoUnfollow');
+
+    // 自動いいね
+    Route::post('/twitter/favorite/{id}', 'Auth\TwitterController@autoFavorite');
 
   });
 

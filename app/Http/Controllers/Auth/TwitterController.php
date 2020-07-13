@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\FollowedList;
 use App\FollowerTargetList;
+use App\Http\Controllers\FavoriteController;
 use App\TargetAccountList;
 use App\TwitterUser;
 use App\Http\Controllers\SearchController;
@@ -645,11 +646,88 @@ class TwitterController extends Controller
       } else {
         $this->createUnfollowedLists($request, $response);
       }
-      // 実際にアンフォローを行ってみる
       sleep(15);
 
     }
     // TODO 戻り値の必要有無確認
     return false;
+  }
+
+  public function autoFavorite(Request $request)
+  {
+    Log::debug('IN: autoFollow');
+
+    $user = $this->queryAuthenticatedUser($request);
+
+    // いいね用キーワード取得
+    $favorite = new FavoriteController;
+    $condition = $favorite->makeWhereConditions($request);
+
+    $query = '';
+
+    // AND, OR, NOTそれぞれについて、判定を行う
+    if(isset($condition['AND'])){
+      $query = '(';
+      foreach ($condition['AND'] as $data){
+        $query = $query .' '. $data[0];
+      }
+      $query = $query. ')';
+    }
+
+    if(isset($condition['OR'])){
+      foreach ($condition['OR'] as $data){
+        $query = $query .' OR '. $data[0];
+      }
+    }
+
+    if(isset($condition['NOT'])){
+      foreach ($condition['NOT'] as $data){
+        $query = $query .' -'. $data[0];
+      }
+    }
+
+    $query = $query . ' exclude:retweets -filter:replies';
+    // ツイート検索
+    $request_params = [];
+    $request_params['url'] = 'search/tweets';
+    $request_params['params'] = [
+      'q' => $query,
+      'count' => 10,
+      'result_type' => 'recent'
+    ];
+
+    // TODO エラーハンドリング
+    $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, 'get');
+
+
+    // いいねを付ける
+    $request_params = [];
+    $request_params['url'] = 'favorites/create';
+    $request_params['params'] = [
+      'id' => '',
+    ];
+
+    foreach ($response->statuses as $tweet){
+      $request_params['params']['id'] = $tweet->id;
+      // TODO エラーハンドリング
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+      sleep(10);
+    }
+  }
+  public function reserveTweet(Request $request)
+  {
+    // フォームから予約ツイート内容と予約時間を取得
+    // DBへ格納
+    // すでに予約ツイート情報があった場合、その内容を上書き
+  }
+
+  public function autoTweet(Request $request)
+  {
+    // 時間がきたら実行
+    // 現在時刻をキーに、reserveテーブルを検索
+    // is_postedがfalseの値を探す
+    // twitter_user_idをキーにアクセスキーを取得
+    // ツイートする
+    // is_postedをtrueへ変更
   }
 }

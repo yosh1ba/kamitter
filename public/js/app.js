@@ -2022,6 +2022,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2037,8 +2050,12 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       targets: [],
       // ターゲットアカウント
       searchKeywords: [],
-      // キーワード
-      emptyKeyword: false // キーワードが空かどうか判定（画面描画用条件）
+      // 検索用キーワード
+      favoriteKeywords: [],
+      // いいね用キーワード
+      emptySearchKeyword: false,
+      // 検索用キーワードが空かどうか判定（画面描画用条件）
+      emptyFavoriteKeyword: false // いいね用キーワードが空かどうか判定（画面描画用条件）
 
     };
   },
@@ -2269,7 +2286,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 }
 
                 data = _step3.value;
-                _this3.emptyKeyword = false;
+                _this3.emptySearchKeyword = false;
 
                 if (!(data.text !== '')) {
                   _context3.next = 11;
@@ -2318,7 +2335,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 23:
                 // 検索キーワードが一つも設定されていない場合、
                 if (_this3.searchKeywords.length === 0) {
-                  _this3.emptyKeyword = true;
+                  _this3.emptySearchKeyword = true;
 
                   _this3.searchKeywords.push({
                     twitter_user_id: _this3.item.id,
@@ -2405,46 +2422,241 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee4);
       }))();
     },
-    autoFollow: function autoFollow() {
+    addFavoriteKeywordForm: function addFavoriteKeywordForm() {
+      var additionalForm = {
+        selected: 'AND',
+        // セレクトボックスの結果が入る(規定値：AND)
+        text: '',
+        // 検索キーワード
+        message: '',
+        // エラーメッセージ
+        options: [// セレクトボックスの選択肢
+        'AND', 'OR', 'NOT']
+      };
+      this.favoriteKeywords.push(additionalForm);
+    },
+    deleteFavoriteKeywordForm: function deleteFavoriteKeywordForm(index) {
+      // クリックした削除ボタンに対応するフォームを削除
+      this.favoriteKeywords.splice(index, 1);
+    },
+    saveFavoriteKeywordForm: function saveFavoriteKeywordForm() {
       var _this5 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5() {
-        var responsePromise;
+        var _iterator5, _step5, data, response;
+
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
-                // 自動フォローを開始する(非同期)
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this5.item.id)); // 自動フォロー開始のスプラッシュメッセージを出す
-                // 自動フォローが完了するのを待つ
-                // 完了メール送信
+                _iterator5 = _createForOfIteratorHelper(_this5.favoriteKeywords);
+                _context5.prev = 1;
 
-              case 1:
+                _iterator5.s();
+
+              case 3:
+                if ((_step5 = _iterator5.n()).done) {
+                  _context5.next = 15;
+                  break;
+                }
+
+                data = _step5.value;
+                _this5.emptyFavoriteKeyword = false;
+
+                if (!(data.text !== '')) {
+                  _context5.next = 11;
+                  break;
+                }
+
+                /*
+                認証済みアカウントごとにサーチキーワードリストを作成するため
+                twitter_usersテーブル内のidをプロパティとして持たせる
+                */
+                _this5.$set(data, 'twitter_user_id', _this5.item.id); // フォームに入力がある場合はエラーをクリア
+
+
+                _this5.$set(data, 'message', '');
+
+                _context5.next = 13;
+                break;
+
+              case 11:
+                // フォームが空欄の場合はエラーを表示する
+                _this5.$set(data, 'message', 'キーワードが存在しません');
+
+                return _context5.abrupt("return", false);
+
+              case 13:
+                _context5.next = 3;
+                break;
+
+              case 15:
+                _context5.next = 20;
+                break;
+
+              case 17:
+                _context5.prev = 17;
+                _context5.t0 = _context5["catch"](1);
+
+                _iterator5.e(_context5.t0);
+
+              case 20:
+                _context5.prev = 20;
+
+                _iterator5.f();
+
+                return _context5.finish(20);
+
+              case 23:
+                // 検索キーワードが一つも設定されていない場合、
+                if (_this5.favoriteKeywords.length === 0) {
+                  _this5.emptyFavoriteKeyword = true;
+
+                  _this5.favoriteKeywords.push({
+                    twitter_user_id: _this5.item.id,
+                    is_empty: true
+                  });
+                } // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
+
+
+                _context5.next = 26;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/favorite/keyword', _this5.favoriteKeywords);
+
+              case 26:
+                response = _context5.sent;
+
+                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
+                  _context5.next = 31;
+                  break;
+                }
+
+                _this5.$store.commit('error/setCode', response.status);
+
+                _this5.$store.commit('error/setMessage', response.data.errors);
+
+                return _context5.abrupt("return", false);
+
+              case 31:
+                // if('is_empty' in this.favoriteKeywords[0]){
+                //   this.favoriteKeywords.splice(-this.favoriteKeywords.length)
+                // }
+                _this5.$store.commit('message/setText', 'キーワードが保存されました', {
+                  root: true
+                });
+
+              case 32:
               case "end":
                 return _context5.stop();
             }
           }
-        }, _callee5);
+        }, _callee5, null, [[1, 17, 20, 23]]);
       }))();
     },
-    autoUnfollow: function autoUnfollow() {
+    queryFavoriteForm: function queryFavoriteForm() {
       var _this6 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6() {
-        var responsePromise;
+        var options, response, _iterator6, _step6, data;
+
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
           while (1) {
             switch (_context6.prev = _context6.next) {
               case 0:
-                // 自動アンフォローを開始する
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this6.item.id));
+                // セレクトボックス表示用定数
+                options = ['AND', 'OR', 'NOT']; // ターゲットアカウントリストの内容を呼び出す
 
-              case 1:
+                _context6.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/favorite/keyword/".concat(_this6.item.id));
+
+              case 3:
+                response = _context6.sent;
+
+                // サーチキーワードリストが存在する場合、フォームに展開する
+                if (response.data.length !== 0) {
+                  _iterator6 = _createForOfIteratorHelper(response.data);
+
+                  try {
+                    for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                      data = _step6.value;
+                      data.options = options; // optionsプロパティ追加
+
+                      _this6.favoriteKeywords.push(data);
+                    }
+                  } catch (err) {
+                    _iterator6.e(err);
+                  } finally {
+                    _iterator6.f();
+                  }
+                }
+
+              case 5:
               case "end":
                 return _context6.stop();
             }
           }
         }, _callee6);
+      }))();
+    },
+    autoFollow: function autoFollow() {
+      var _this7 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee7() {
+        var responsePromise;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                // 自動フォローを開始する(非同期)
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this7.item.id)); // 自動フォロー開始のスプラッシュメッセージを出す
+                // 自動フォローが完了するのを待つ
+                // 完了メール送信
+
+              case 1:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7);
+      }))();
+    },
+    autoUnfollow: function autoUnfollow() {
+      var _this8 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee8() {
+        var responsePromise;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee8$(_context8) {
+          while (1) {
+            switch (_context8.prev = _context8.next) {
+              case 0:
+                // 自動アンフォローを開始する
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this8.item.id));
+
+              case 1:
+              case "end":
+                return _context8.stop();
+            }
+          }
+        }, _callee8);
+      }))();
+    },
+    autoFavorite: function autoFavorite() {
+      var _this9 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee9() {
+        var responsePromise;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee9$(_context9) {
+          while (1) {
+            switch (_context9.prev = _context9.next) {
+              case 0:
+                // 自動いいねを開始する
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/".concat(_this9.item.id));
+
+              case 1:
+              case "end":
+                return _context9.stop();
+            }
+          }
+        }, _callee9);
       }))();
     }
   },
@@ -2452,7 +2664,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // ページ表示時にターゲットアカウントリストの内容を呼び出す
     this.queryTargetForm(); // ページ表示時にサーチキーワードリストの内容を呼び出す
 
-    this.querySearchForm();
+    this.querySearchForm(); // ページ表示時にいいねキーワードリストの内容を呼び出す
+
+    this.queryFavoriteForm();
   }
 });
 
@@ -40484,6 +40698,8 @@ var render = function() {
         _vm._v("自動アンフォロー")
       ]),
       _vm._v(" "),
+      _c("button", { on: { click: _vm.autoFavorite } }, [_vm._v("自動いいね")]),
+      _vm._v(" "),
       _vm._l(_vm.targets, function(target, index) {
         return _c("div", [
           _c("input", {
@@ -40528,7 +40744,7 @@ var render = function() {
       _c("button", { on: { click: _vm.saveTargetForm } }, [_vm._v("保存")]),
       _vm._v(" "),
       _vm._l(_vm.searchKeywords, function(searchKeyword, index) {
-        return !_vm.emptyKeyword
+        return !_vm.emptySearchKeyword
           ? _c("div", [
               _c(
                 "select",
@@ -40612,6 +40828,94 @@ var render = function() {
       ]),
       _vm._v(" "),
       _c("button", { on: { click: _vm.saveSearchKeywordForm } }, [
+        _vm._v("保存")
+      ]),
+      _vm._v(" "),
+      _vm._l(_vm.favoriteKeywords, function(favoriteKeyword, index) {
+        return !_vm.emptyFavoriteKeyword
+          ? _c("div", [
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: favoriteKeyword.selected,
+                      expression: "favoriteKeyword.selected"
+                    }
+                  ],
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.$set(
+                        favoriteKeyword,
+                        "selected",
+                        $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      )
+                    }
+                  }
+                },
+                _vm._l(favoriteKeyword.options, function(option) {
+                  return _c("option", [
+                    _vm._v("\n        " + _vm._s(option) + "\n      ")
+                  ])
+                }),
+                0
+              ),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: favoriteKeyword.text,
+                    expression: "favoriteKeyword.text"
+                  }
+                ],
+                attrs: { type: "text" },
+                domProps: { value: favoriteKeyword.text },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(favoriteKeyword, "text", $event.target.value)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  on: {
+                    click: function($event) {
+                      return _vm.deleteFavoriteKeywordForm(index)
+                    }
+                  }
+                },
+                [_vm._v("削除")]
+              ),
+              _vm._v(" "),
+              _c("span", [_vm._v(_vm._s(favoriteKeyword.message))])
+            ])
+          : _vm._e()
+      }),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.addFavoriteKeywordForm } }, [
+        _vm._v("追加")
+      ]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.saveFavoriteKeywordForm } }, [
         _vm._v("保存")
       ])
     ],
