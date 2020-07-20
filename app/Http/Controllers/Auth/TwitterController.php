@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\FollowedList;
 use App\FollowerTargetList;
 use App\Http\Controllers\FavoriteController;
+use App\Reserve;
 use App\TargetAccountList;
 use App\TwitterUser;
 use App\Http\Controllers\SearchController;
@@ -420,6 +421,13 @@ class TwitterController extends Controller
       ->update(['is_followed' => true]);
   }
 
+  public function updateReserves(String $id){
+    $target = new Reserve();
+
+    $target->where('id', $id)
+      ->update(['is_posted' => true]);
+  }
+
   public function queryLinkedUsers(Request $request)
   {
 
@@ -447,6 +455,17 @@ class TwitterController extends Controller
   {
 
     $response = TwitterUser::where('id', $request->route('id'))->select(
+      'twitter_screen_name',
+      'twitter_oauth_token',
+      'twitter_oauth_token_secret'
+    )->get();
+    return $response;
+  }
+
+  public function queryAuthenticatedUserAsString(String $id)
+  {
+
+    $response = TwitterUser::where('id', $id)->select(
       'twitter_screen_name',
       'twitter_oauth_token',
       'twitter_oauth_token_secret'
@@ -538,6 +557,13 @@ class TwitterController extends Controller
 
     return $response->friends_count;
 
+  }
+
+  public function queryReserve(Request $request){
+    $response = Reserve::where('twitter_user_id', $request->route('id'))
+      ->where('is_posted', false)
+      ->get();
+    return $response;
   }
 
   public function autoFollow(Request $request, Boolean $restart = null)
@@ -717,17 +743,61 @@ class TwitterController extends Controller
   public function reserveTweet(Request $request)
   {
     // フォームから予約ツイート内容と予約時間を取得
+    $tweet = [];
+    $tweet = $request->all();
+
     // DBへ格納
-    // すでに予約ツイート情報があった場合、その内容を上書き
+    // すでに登録されている場合は上書き
+    $response = Reserve::updateOrCreate(
+      ['twitter_user_id' => $tweet['twitter_user_id']],
+      [
+        'reserved_at' => date('Y-m-d H:i:s', strtotime($tweet['reserved_at'])),
+        'tweet' => $tweet['tweet'],
+        'is_posted' => false
+      ]
+    );
+
+    return response()->json($response);
   }
 
-  public function autoTweet(Request $request)
+  public function autoTweet()
   {
     // 時間がきたら実行
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す
+    // $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subSeconds(30), Carbon::now()->addSeconds(30)])
+    $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subDay(), Carbon::now()->addDay()])
+      ->where('is_posted',false)
+      ->get();
+
+
     // twitter_user_idをキーにアクセスキーを取得
     // ツイートする
     // is_postedをtrueへ変更
+    $request_params = [];
+    $request_params['url'] = 'statuses/update';
+    $request_params['params'] = [
+      'status' => '',
+    ];
+
+    foreach ($reserves as $reserve){
+      $request_params['params']['status'] = $reserve['tweet'];
+      $user = $this->queryAuthenticatedUserAsString($reserve['twitter_user_id']);
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+
+      // TODO エラーハンドリング
+      $this->updateReserves($reserve['id']);
+
+    }
   }
+
+  public function deleteAuthenticatedUser(Request $request){
+
+    $response = TwitterUser::where('id', $request->route('id'))
+      ->delete();
+    return $response;
+  }
+
+
+  // Todo 戻り値をどうするか
 }

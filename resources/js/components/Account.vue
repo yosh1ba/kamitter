@@ -5,6 +5,7 @@
     <button v-on:click="autoFollow">自動フォロー</button>
     <button v-on:click="autoUnfollow">自動アンフォロー</button>
     <button v-on:click="autoFavorite">自動いいね</button>
+    <button v-on:click="deleteUser">認証解除</button>
     <div v-for="(target, index) in targets">
       <input type="text" v-model="target.screen_name">
       <button v-on:click="deleteTargetForm(index)">削除</button>
@@ -36,6 +37,14 @@
     </div>
     <button v-on:click="addFavoriteKeywordForm">追加</button>
     <button v-on:click="saveFavoriteKeywordForm">保存</button>
+    <div>
+      <flat-pickr v-model="reserve.reserved_at" :config="config"></flat-pickr>
+      <div>
+        <textarea name="" id="" cols="30" rows="10" v-model="reserve.tweet"></textarea>
+      </div>
+      <button v-on:click="reserveTweet">予約</button>
+      <button v-on:click="autoTweet">自動ツイートテスト</button>
+    </div>
   </div>
 
 
@@ -44,6 +53,8 @@
 <script>
   import axios from "axios";
   import {OK} from "../util";
+  import flatPickr from 'vue-flatpickr-component';
+  import 'flatpickr/dist/flatpickr.css';
 
   export default {
     name: "Account",
@@ -53,15 +64,27 @@
         required: true
       }
     },
+    components: {
+      flatPickr
+    },
     data() {
       return {
         targets: [],  // ターゲットアカウント
         searchKeywords: [],  // 検索用キーワード
         favoriteKeywords:[],  // いいね用キーワード
         emptySearchKeyword:false,  // 検索用キーワードが空かどうか判定（画面描画用条件）
-        emptyFavoriteKeyword:false  // いいね用キーワードが空かどうか判定（画面描画用条件）
-        tweetText: [],  // 予約ツイート用テキスト
-        tweetDate: ,  // 予約ツイート用日付
+        emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
+        reserve: {  // 予約ツイート用プロパティ
+          tweet : '',  // ツイート内容
+          reserved_at : null // ツイート時間
+        },
+        config: { // 日時入力コンポーネント用プロパティ
+          enableTime: true,
+          dateFormat: "Y-m-d H:i",
+          time_24hr: true,
+          minDate: "today",
+          defaultDate: "today"
+        },
       }
     },
     methods: {
@@ -288,6 +311,19 @@
           }
         }
       },
+      async queryReserve(){
+        // 予約ツイートの内容を呼び出す
+        const response = await axios.get(`/api/twitter/reserve/${this.item.id}`);
+
+        //　未投稿の予約ツイートが存在する場合、フォームに展開する
+        if(response.data.length !== 0){
+          console.log(response.data[0])
+          this.$set(this.reserve, 'tweet', response.data[0].tweet)
+          this.$set(this.reserve, 'reserved_at', response.data[0].reserved_at)
+        } else {
+          this.$set(this.reserve, 'reserved_at', new Date)
+        }
+      },
       async autoFollow(){
         // 自動フォローを開始する(非同期)
         const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
@@ -306,6 +342,31 @@
         // 自動いいねを開始する
         const responsePromise = axios.post(`/api/twitter/favorite/${this.item.id}`);
       },
+      async reserveTweet(){
+        this.reserve.twitter_user_id = this.item.id;
+
+        const response = await axios.post(`/api/twitter/reserve`, this.reserve);
+
+        // TODO レスポンス結果でメッセージ表示
+        console.log(response);
+      },
+      async autoTweet(){
+        const responseTweet = axios.post('/api/twitter/tweet');
+      },
+      async deleteUser(){
+        const response = await axios.post(`/api/twitter/user/delete/${this.item.id}`)
+
+        if(response.status !== OK){
+          this.$store.commit('error/setCode', response.status)
+          this.$store.commit('error/setMessage', response.data.errors)
+          return false
+        }
+
+        this.$store.commit('message/setText', '認証が解除されました', { root: true })
+
+        location.reload();
+      }
+
     },
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す
@@ -314,6 +375,8 @@
       this.querySearchForm()
       // ページ表示時にいいねキーワードリストの内容を呼び出す
       this.queryFavoriteForm()
+      // ページ表示時に未投稿の予約ツイートを呼び出す
+      this.queryReserve()
     }
   }
 </script>

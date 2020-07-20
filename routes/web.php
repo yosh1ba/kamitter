@@ -79,6 +79,18 @@ Route::prefix('api')
     // 自動いいね
     Route::post('/twitter/favorite/{id}', 'Auth\TwitterController@autoFavorite');
 
+    // ツイート予約
+    Route::post('/twitter/reserve', 'Auth\TwitterController@reserveTweet');
+
+    // ツイート
+    Route::post('/twitter/tweet', 'Auth\TwitterController@AutoTweet');
+
+    // ツイート予約読み込み
+    Route::get('/twitter/reserve/{id}', 'Auth\TwitterController@queryReserve');
+
+    // twitter認証ユーザ削除
+    Route::post('/twitter/user/delete/{id}', 'Auth\TwitterController@deleteAuthenticatedUser');
+
   });
 
   // Twitter認証ページを開く
