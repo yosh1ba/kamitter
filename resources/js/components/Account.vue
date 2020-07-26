@@ -6,6 +6,7 @@
     <button v-on:click="autoUnfollow">自動アンフォロー</button>
     <button v-on:click="autoFavorite">自動いいね</button>
     <button v-on:click="deleteUser">認証解除</button>
+    <button v-on:click="sendMail">メール送信</button>
     <div v-for="(target, index) in targets">
       <input type="text" v-model="target.screen_name">
       <button v-on:click="deleteTargetForm(index)">削除</button>
@@ -76,7 +77,7 @@
         emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
         reserve: {  // 予約ツイート用プロパティ
           tweet : '',  // ツイート内容
-          reserved_at : null // ツイート時間
+          reserved_at : '' // ツイート時間
         },
         config: { // 日時入力コンポーネント用プロパティ
           enableTime: true,
@@ -317,7 +318,6 @@
 
         //　未投稿の予約ツイートが存在する場合、フォームに展開する
         if(response.data.length !== 0){
-          console.log(response.data[0])
           this.$set(this.reserve, 'tweet', response.data[0].tweet)
           this.$set(this.reserve, 'reserved_at', response.data[0].reserved_at)
         } else {
@@ -365,6 +365,9 @@
         this.$store.commit('message/setText', '認証が解除されました', { root: true })
 
         location.reload();
+      },
+      async sendMail(){
+        const response = await axios.post(`/api/send/mail/${this.item.id}`)
       }
 
     },

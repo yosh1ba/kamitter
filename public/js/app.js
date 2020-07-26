@@ -2048,6 +2048,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 
 
@@ -2079,7 +2080,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         // 予約ツイート用プロパティ
         tweet: '',
         // ツイート内容
-        reserved_at: null // ツイート時間
+        reserved_at: '' // ツイート時間
 
       },
       config: {
@@ -2647,8 +2648,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 //　未投稿の予約ツイートが存在する場合、フォームに展開する
                 if (response.data.length !== 0) {
-                  console.log(response.data[0]);
-
                   _this7.$set(_this7.reserve, 'tweet', response.data[0].tweet);
 
                   _this7.$set(_this7.reserve, 'reserved_at', response.data[0].reserved_at);
@@ -2808,6 +2807,29 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             }
           }
         }, _callee13);
+      }))();
+    },
+    sendMail: function sendMail() {
+      var _this13 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee14() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee14$(_context14) {
+          while (1) {
+            switch (_context14.prev = _context14.next) {
+              case 0:
+                _context14.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/send/mail/".concat(_this13.item.id));
+
+              case 2:
+                response = _context14.sent;
+
+              case 3:
+              case "end":
+                return _context14.stop();
+            }
+          }
+        }, _callee14);
       }))();
     }
   },
@@ -43578,6 +43600,8 @@ var render = function() {
       _c("button", { on: { click: _vm.autoFavorite } }, [_vm._v("自動いいね")]),
       _vm._v(" "),
       _c("button", { on: { click: _vm.deleteUser } }, [_vm._v("認証解除")]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.sendMail } }, [_vm._v("メール送信")]),
       _vm._v(" "),
       _vm._l(_vm.targets, function(target, index) {
         return _c("div", [

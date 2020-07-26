@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\FollowedList;
 use App\FollowerTargetList;
 use App\Http\Controllers\FavoriteController;
+use App\Mail\SendEmail;
 use App\Reserve;
 use App\TargetAccountList;
 use App\TwitterUser;
 use App\Http\Controllers\SearchController;
 use App\UnfollowedList;
+use App\User;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
@@ -17,9 +19,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Laravel\Socialite\Facades\Socialite;
 use Abraham\TwitterOAuth\TwitterOAuth;
 use phpDocumentor\Reflection\Types\Boolean;
@@ -97,10 +101,6 @@ class TwitterController extends Controller
     $bearer_token = config('app.twitter_bearer_token');  // ベアラートークン
 
     $response = Http::withToken($bearer_token)->get('https://api.twitter.com/1.1/'. $url, $params);
-
-
-//    Log::debug('APIレスポンス');
-//    Log::debug($response);
 
     if(isset($response['errors'])){
       // API制限
@@ -570,8 +570,10 @@ class TwitterController extends Controller
   {
     Log::debug('IN: autoFollow');
 
+    $restart = $this->judgeRestartedFollow($request);
+
     // フォロワーターゲットリスト作成
-    if ($restart === null){
+    if ($restart === false){
       $response= $this->createFollowerTargetList($request);
     }
 
@@ -609,6 +611,7 @@ class TwitterController extends Controller
       }
 
       if( $count !== 0  && ($count % 15) === 0 ){
+        $this->autoFavorite($request);
         sleep(960);
       }
       // twitterAPIへフォローリクエストを送る
@@ -616,6 +619,7 @@ class TwitterController extends Controller
 
       // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if(!property_exists($response, 'id')){
+
         return false;
       }else {
         // フォロー成功した場合、フォロー済みリストにもアカウント情報を格納する
@@ -625,6 +629,15 @@ class TwitterController extends Controller
       sleep(15);
       $count++;
     }
+
+    $data = [];
+    $data['message'] =
+      '自動処理が完了しました。
+      ご確認をお願い致します。
+      ';
+    $data['subject'] = '[神ったー]自動処理完了のお知らせ';
+    $this->sendMail($request, $data);
+
     return response()->json($response);
   }
 
@@ -675,6 +688,7 @@ class TwitterController extends Controller
       sleep(15);
 
     }
+
     // TODO 戻り値の必要有無確認
     return false;
   }
@@ -791,11 +805,24 @@ class TwitterController extends Controller
     }
   }
 
-  public function deleteAuthenticatedUser(Request $request){
+  public function deleteAuthenticatedUser(Request $request)
+  {
 
     $response = TwitterUser::where('id', $request->route('id'))
       ->delete();
     return $response;
+  }
+
+  public function sendMail(Request $request, Array $data)
+  {
+    $target = TwitterUser::find($request->route('id'));
+    $user = $target->user;
+
+
+    $data['name'] = $user['name'];
+    $data['target'] = $target['twitter_screen_name'];
+    Mail::to($user['email'])
+      ->send(new SendEmail($data));
   }
 
 

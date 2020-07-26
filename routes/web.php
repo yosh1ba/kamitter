@@ -91,6 +91,9 @@ Route::prefix('api')
     // twitter認証ユーザ削除
     Route::post('/twitter/user/delete/{id}', 'Auth\TwitterController@deleteAuthenticatedUser');
 
+    // メール送信
+    Route::post('/send/mail/{id}', 'Auth\TwitterController@sendMail');
+
   });
 
   // Twitter認証ページを開く
