@@ -1,8 +1,48 @@
-// Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+/**
+* Foundation
+* ========================== */
+@import "foundation/_reset";
+@import "foundation/_variables";
+@import "foundation/_mixin";
+ @import "foundation/_base";
+@import "foundation/_reset2";
 
-// Variables
-@import 'variables';
+/**
+* Layout
+* ========================== */
+@import "layout/_container";
+@import "layout/flex";
+@import "layout/footer";
+@import "layout/header";
+@import "layout/main";
+@import "layout/wrapper";
 
-// Bootstrap
-@import '~bootstrap/scss/bootstrap';
+
+/* Object
+* ========================== */
+/* Component ------------ */
+@import "object/component/form";
+@import "object/component/flash";
+@import "object/component/panel";
+@import "object/component/button";
+@import "object/component/hr";
+
+/* Project ------------ */
+@import "object/project/footer";
+@import "object/project/header";
+@import "object/project/nav";
+@import "object/project/hero";
+@import "object/project/system";
+@import "object/project/mypage";
+@import "object/project/account";
+//@import "object/project/signup";
+
+/* Utility ------------ */
+@import "object/utility/custom";
+
+// Font Awesome
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/brands';
+

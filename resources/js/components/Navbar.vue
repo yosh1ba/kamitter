@@ -1,22 +1,27 @@
 <template>
-  <header>
+  <header class="l-container l-header">
     <transition>
-      <div class="c-message" v-if="messageText">
+      <div class="c-flash" v-if="messageText">
         {{ messageText }}
       </div>
     </transition>
-    <h1>神ったー</h1>
-    <nav v-if="isLogin">
-      <ul>
-        <router-link tag="li" to="/mypage"><a>マイページ</a></router-link>
-        <li v-on:click="logout"><a>ログアウト</a></li>
-      </ul>
-    </nav>
-    <nav v-else>
-      <ul>
-        <router-link tag="li" to="/login"><a>ログイン</a></router-link>
-      </ul>
-    </nav>
+    <div class="p-header">
+      <div class="l-flex p-header__content">
+        <h2 class="p-header__logo">神ったー</h2>
+        <nav class="p-header__nav" v-if="isLogin">
+          <ul class="l-flex p-nav">
+            <router-link tag="li" class="p-nav__item" to="/mypage"><a>マイページ</a></router-link>
+            <li class="p-nav__item" v-on:click="logout"><a>ログアウト</a></li>
+          </ul>
+        </nav>
+        <nav class="p-header__nav" v-else>
+          <ul class="l-flex p-nav">
+            <router-link tag="li" class="p-nav__item" to="/signup"><a>新規登録</a></router-link>
+            <router-link tag="li" class="p-nav__item" to="/login"><a>ログイン</a></router-link>
+          </ul>
+        </nav>
+      </div>
+    </div>
 
   </header>
 </template>
@@ -49,12 +54,8 @@
         // authストアのログアウト用メソッドを呼び出す
         await this.$store.dispatch('auth/logout', this.form)
 
-        // 成功の場合（ユーザ登録が正常に行われた場合）
-        if (this.apiStatus) {
-
-          // トップページに移動する
-          this.$router.push('/')
-        }
+        await this.$store.commit('message/setText', 'ログアウトが完了しました', { root: true })
+        this.$router.push('/')
       }
     }
 
@@ -67,11 +68,6 @@
   }
   .v-enter, .v-leave-to{
     opacity: 0;
-  }
-
-  .c-message {
-    position: absolute;
-    top: 0;
   }
 
 </style>

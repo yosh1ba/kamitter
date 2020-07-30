@@ -14,9 +14,8 @@ class TwitterUser extends Model
       'twitter_name',
       'twitter_screen_name',
       'twitter_avatar',
-      'auto_follow_enabled',
-      'auto_unfollow_enabled',
-      'auto_like_enabled',
+      'auto_pilot_enabled',
+      'pause_enabled',
       'user_id'
     ];
 

@@ -1,18 +1,24 @@
 <template>
-  <div>
-    <h1>パスワード再設定
-    </h1>
-    <form @submit.prevent="send">
-      <div v-if="errorMessages" class="">
-        <ul v-if="errorMessages.email">
-          <li v-for="msg in errorMessages.email" :key="msg" class="">{{ msg }}</li>
-        </ul>
+  <div class="l-container">
+    <div class="l-main">
+      <div class="c-panel">
+        <div class="c-panel__content p-forget__content">
+          <h3 class="c-panel__content__header p-forget__content__header">パスワード再設定</h3>
+          <form @submit.prevent="send">
+            <div v-if="errorMessages" class="c-form__error">
+              <ul v-if="errorMessages.email">
+                <li v-for="msg in errorMessages.email" :key="msg" class="c-form__error__msg ">{{ msg }}</li>
+              </ul>
+            </div>
+            <div class="c-form__item p-forget__form__item">
+              <label for="mail" class="c-form__item__label p-forget__form__item__label"></label>
+              <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input ">
+            </div>
+            <button type="submit" class="c-form__btn p-forget__form__btn">再設定用メールを送信する</button>
+          </form>
+        </div>
       </div>
-      <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
-      <div>
-        <button type="submit">送信</button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 

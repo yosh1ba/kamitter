@@ -1,0 +1,41 @@
+html{
+    font-size: 62.5%;
+    overflow:auto;
+}
+    
+
+body {
+    font-family: $font_family;
+    color: $color-font-dark;
+    font-size: 1.6rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-height: 100vh;
+    position: relative;
+    // padding-bottom: 40px;
+
+    background-color: #fafafa;
+    @include mq('sp') {
+        font-size: 1.4rem;
+    }
+}
+
+h1 {
+    font-size: 4.5rem;
+}
+
+h2 {
+    font-size: 3.2rem;
+}
+
+h3 {
+    font-size: 2.3rem;
+}
+
+h4 {
+    font-size: 1.6rem;
+}
+
+p , a {
+    -webkit-font-smoothing: antialiased;
+}

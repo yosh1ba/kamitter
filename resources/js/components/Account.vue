@@ -1,54 +1,86 @@
 <template>
-  <div>
-    <img :src="item.twitter_avatar" alt="">
-    <p>{{item.twitter_screen_name}}</p>
-    <button v-on:click="autoFollow">自動フォロー</button>
-    <button v-on:click="autoUnfollow">自動アンフォロー</button>
-    <button v-on:click="autoFavorite">自動いいね</button>
-    <button v-on:click="deleteUser">認証解除</button>
-    <button v-on:click="sendMail">メール送信</button>
-    <div v-for="(target, index) in targets">
-      <input type="text" v-model="target.screen_name">
-      <button v-on:click="deleteTargetForm(index)">削除</button>
-      <span>{{target.message}}</span>
-    </div>
-    <button v-on:click="addTargetForm">追加</button>
-    <button v-on:click="saveTargetForm">保存</button>
-    <div v-for="(searchKeyword, index) in searchKeywords" v-if="!emptySearchKeyword">
-      <select v-model="searchKeyword.selected">
-        <option v-for="option in searchKeyword.options">
-          {{ option }}
-        </option>
-      </select>
-      <input type="text" v-model="searchKeyword.text">
-      <button v-on:click="deleteSearchKeywordForm(index)">削除</button>
-      <span>{{searchKeyword.message}}</span>
-    </div>
-    <button v-on:click="addSearchKeywordForm">追加</button>
-    <button v-on:click="saveSearchKeywordForm">保存</button>
-    <div v-for="(favoriteKeyword, index) in favoriteKeywords" v-if="!emptyFavoriteKeyword">
-      <select v-model="favoriteKeyword.selected">
-        <option v-for="option in favoriteKeyword.options">
-          {{ option }}
-        </option>
-      </select>
-      <input type="text" v-model="favoriteKeyword.text">
-      <button v-on:click="deleteFavoriteKeywordForm(index)">削除</button>
-      <span>{{favoriteKeyword.message}}</span>
-    </div>
-    <button v-on:click="addFavoriteKeywordForm">追加</button>
-    <button v-on:click="saveFavoriteKeywordForm">保存</button>
-    <div>
-      <flat-pickr v-model="reserve.reserved_at" :config="config"></flat-pickr>
-      <div>
-        <textarea name="" id="" cols="30" rows="10" v-model="reserve.tweet"></textarea>
+  <div class="p-account">
+    <div class="p-account__content">
+      <div class="l-flex p-account__info">
+        <img :src="item.twitter_avatar" alt="" class="p-account__info__img">
+        <p class="p-account__info__name">{{item.twitter_screen_name}}</p>
+        <div class="p-account__info__buttons">
+          <button v-on:click="autoFollow" v-if="!autoPilot" class="c-button__circle p-account__info__buttons__btn--play"><i class="fas fa-play"></i></button>
+          <button v-on:click="toCancel" v-else class="c-button__circle p-account__info__buttons__btn--cancel"><i class="fas fa-stop"></i></button>
+          <transition name="fade">
+            <button v-on:click="toPause" v-if="autoPilot && !pause" class="c-button__circle p-account__info__buttons__btn--pause"><i class="fas fa-pause"></i></button>
+            <button v-on:click="toRestart" v-else-if="autoPilot && pause" class="c-button__circle p-account__info__buttons__btn--restart"><i class="fas fa-reply-all"></i></button>
+          </transition>
+          <button v-on:click="deleteUser" class="c-button__circle p-account__info__buttons__btn--delete"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
-      <button v-on:click="reserveTweet">予約</button>
-      <button v-on:click="autoTweet">自動ツイートテスト</button>
+      <div class="p-account__info__buttons--sp">
+        <button v-on:click="autoFollow" v-if="!autoPilot" class="c-button__circle p-account__info__buttons__btn--play"><i class="fas fa-play"></i></button>
+        <button v-on:click="toCancel" v-else class="c-button__circle p-account__info__buttons__btn--cancel"><i class="fas fa-stop"></i></button>
+        <transition name="fade">
+          <button v-on:click="toPause" v-if="autoPilot && !pause" class="c-button__circle p-account__info__buttons__btn--pause"><i class="fas fa-pause"></i></button>
+          <button v-on:click="toRestart" v-else-if="autoPilot && pause" class="c-button__circle p-account__info__buttons__btn--restart"><i class="fas fa-reply-all"></i></button>
+        </transition>
+        <button v-on:click="deleteUser" class="c-button__circle p-account__info__buttons__btn--delete"><i class="fas fa-trash"></i></button>
+      </div>
+      <!--<button v-on:click="autoUnfollow">自動アンフォロー</button>-->
+      <!--<button v-on:click="autoFavorite">自動いいね</button>-->
+      <!--<button v-on:click="sendMail">メール送信</button>-->
+      <div class="p-account__content__forms">
+        <p class="p-account__content__forms__title">フォロー対象アカウント</p>
+        <div v-for="(target, index) in targets" class="p-account__form">
+          <span class="p-account__form__msg">{{target.message}}</span>
+          <input type="text" v-model="target.screen_name" placeholder="@以降の名前" class="p-account__form__input">
+          <button v-on:click="deleteTargetForm(index)" class="c-button__square p-account__form__btn">削除</button>
+
+        </div>
+        <button v-on:click="addTargetForm" class="c-button__square">追加</button>
+        <button v-on:click="saveTargetForm" class="c-button__square">保存</button>
+      </div>
+      <div class="p-account__content__forms">
+        <p class="p-account__content__forms__title">検索キーワード</p>
+        <div v-for="(searchKeyword, index) in searchKeywords" v-if="!emptySearchKeyword" class="p-account__form">
+          <span class="p-account__form__msg">{{searchKeyword.message}}</span>
+          <select v-model="searchKeyword.selected" class="p-account__form__select">
+            <option v-for="option in searchKeyword.options">
+              {{ option }}
+            </option>
+          </select>
+          <input type="text" v-model="searchKeyword.text" class="p-account__form__keyword">
+          <button v-on:click="deleteSearchKeywordForm(index)" class="c-button__square p-account__form__btn">削除</button>
+        </div>
+        <button v-on:click="addSearchKeywordForm" class="c-button__square">追加</button>
+        <button v-on:click="saveSearchKeywordForm" class="c-button__square">保存</button>
+      </div>
+      <div class="p-account__content__forms">
+        <p class="p-account__content__forms__title">いいねキーワード</p>
+        <div v-for="(favoriteKeyword, index) in favoriteKeywords" v-if="!emptyFavoriteKeyword" class="p-account__form">
+          <span class="p-account__form__msg">{{favoriteKeyword.message}}</span>
+          <select v-model="favoriteKeyword.selected" class="p-account__form__select">
+            <option v-for="option in favoriteKeyword.options">
+              {{ option }}
+            </option>
+          </select>
+          <input type="text" v-model="favoriteKeyword.text" class="p-account__form__keyword">
+          <button v-on:click="deleteFavoriteKeywordForm(index)" class="c-button__square p-account__form__btn">削除</button>
+        </div>
+        <button v-on:click="addFavoriteKeywordForm" class="c-button__square">追加</button>
+        <button v-on:click="saveFavoriteKeywordForm" class="c-button__square">保存</button>
+      </div>
+
+      <div class="p-account__content__forms">
+        <p class="p-account__content__forms__title">ツイート予約</p>
+        <flat-pickr v-model="reserve.reserved_at" :config="config"></flat-pickr>
+        <div>
+          <span class="p-account__form__msg">{{reserve.message}}</span>
+          <textarea name="" id="" rows="7" maxlength="140" v-model="reserve.tweet" class="p-account__form__textarea"></textarea>
+        </div>
+        <button v-on:click="reserveTweet" class="c-button__square">予約</button>
+        <!--<button v-on:click="autoTweet" class="c-button__square p-account__form__btn">自動ツイートテスト</button>-->
+      </div>
+      <hr class="c-hr">
     </div>
   </div>
-
-
 </template>
 
 <script>
@@ -56,6 +88,7 @@
   import {OK} from "../util";
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
+  import {mapGetters, mapState} from "vuex";
 
   export default {
     name: "Account",
@@ -75,6 +108,8 @@
         favoriteKeywords:[],  // いいね用キーワード
         emptySearchKeyword:false,  // 検索用キーワードが空かどうか判定（画面描画用条件）
         emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
+        autoPilot:false,
+        pause:false,
         reserve: {  // 予約ツイート用プロパティ
           tweet : '',  // ツイート内容
           reserved_at : '' // ツイート時間
@@ -98,9 +133,17 @@
       },
       deleteTargetForm(index){
         // クリックした削除ボタンに対応するフォームを削除
-        this.targets.splice(index, 1);
+        if (this.targets.length === 1){
+          alert('ターゲットを空にはできません')
+        }else {
+          this.targets.splice(index, 1);
+        }
       },
       async saveTargetForm(){
+        if(this.targets.length === 0){
+          alert('入力必須です')
+          return false;
+        }
         for(let data of this.targets){
           if(data.name !== ''){
             /*
@@ -176,6 +219,10 @@
         this.searchKeywords.splice(index, 1);
       },
       async saveSearchKeywordForm(){
+        if(this.searchKeywords.length === 0){
+          alert('入力必須です')
+          return false;
+        }
         for(let data of this.searchKeywords){
           this.emptySearchKeyword = false
           if(data.text !== ''){
@@ -253,6 +300,10 @@
         this.favoriteKeywords.splice(index, 1);
       },
       async saveFavoriteKeywordForm(){
+        if(this.favoriteKeywords.length === 0){
+          alert('入力必須です')
+          return false;
+        }
         for(let data of this.favoriteKeywords){
           this.emptyFavoriteKeyword = false
           if(data.text !== ''){
@@ -324,15 +375,24 @@
           this.$set(this.reserve, 'reserved_at', new Date)
         }
       },
+      async queryStateAutoPilot(){
+        const response = await axios.get(`/api/twitter/auto/${this.item.id}`);
+
+        if(response.data.length !== 0) {
+          this.autoPilot = true
+        }
+      },
+      async queryStatePause(){
+        const response = await axios.get(`/api/twitter/pause/${this.item.id}`);
+
+        if(response.data.length !== 0) {
+          this.pause = true
+        }
+      },
       async autoFollow(){
         // 自動フォローを開始する(非同期)
+        this.autoPilot = true
         const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
-
-        // 自動フォロー開始のスプラッシュメッセージを出す
-
-        // 自動フォローが完了するのを待つ
-
-        // 完了メール送信
       },
       async autoUnfollow(){
         // 自動アンフォローを開始する
@@ -343,17 +403,41 @@
         const responsePromise = axios.post(`/api/twitter/favorite/${this.item.id}`);
       },
       async reserveTweet(){
-        this.reserve.twitter_user_id = this.item.id;
+        if(this.reserve.tweet !== ''){
+          // フォームに入力がある場合はエラーをクリア
+          this.$set(this.reserve, 'message', '')
+          this.reserve.twitter_user_id = this.item.id;
+          const response = await axios.post(`/api/twitter/reserve`, this.reserve);
+        }else{
+          this.$set(this.reserve, 'message', 'ツイート内容が存在しません')
+          return false
+        }
 
-        const response = await axios.post(`/api/twitter/reserve`, this.reserve);
 
-        // TODO レスポンス結果でメッセージ表示
-        console.log(response);
       },
       async autoTweet(){
         const responseTweet = axios.post('/api/twitter/tweet');
       },
+      async toPause(){
+        // 自動処理を一時停止する
+        this.pause = true
+        const responsePromise = axios.post(`/api/twitter/pause/${this.item.id}`);
+      },
+      async toCancel(){
+        // 自動処理を中止する
+        this.autoPilot = false
+        this.pause = false
+        const responsePromise = axios.post(`/api/twitter/cancel/${this.item.id}`);
+      },
+      async toRestart(){
+        // 自動処理を再開する
+        this.pause = false
+        const responsePromise = axios.post(`/api/twitter/restart/${this.item.id}`);
+      },
       async deleteUser(){
+        if(window.confirm('連携を解除してもよろしいですか') === false){
+          return false;
+        }
         const response = await axios.post(`/api/twitter/user/delete/${this.item.id}`)
 
         if(response.status !== OK){
@@ -369,7 +453,6 @@
       async sendMail(){
         const response = await axios.post(`/api/send/mail/${this.item.id}`)
       }
-
     },
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す
@@ -380,6 +463,8 @@
       this.queryFavoriteForm()
       // ページ表示時に未投稿の予約ツイートを呼び出す
       this.queryReserve()
+      this.queryStateAutoPilot()
+      this.queryStatePause()
     }
   }
 </script>

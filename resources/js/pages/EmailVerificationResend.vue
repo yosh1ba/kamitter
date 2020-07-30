@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <form @submit.prevent="resend">
-      <p>メールアドレスの認証が行われていません。</p>
-      <p>以下のボタンをクリックし、認証を行って下さい。</p>
-      <div>
-        <button type="submit">認証メール送信</button>
+  <div class="l-container">
+    <div class="c-panel">
+      <div class="c-panel__content p-resend__content">
+        <p>メールアドレスの認証が行われていません。</p>
+        <p>以下のボタンをクリックし、認証を行って下さい。</p>
+        <form @submit.prevent="resend">
+          <button type="submit" class="c-form__btn p-resend__form__btn">認証メール送信</button>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 

@@ -94,6 +94,21 @@ Route::prefix('api')
     // メール送信
     Route::post('/send/mail/{id}', 'Auth\TwitterController@sendMail');
 
+    // 自動運用状態読み込み
+    Route::get('/twitter/auto/{id}', 'Auth\TwitterController@judgeAutoPilot');
+
+    // 一時停止状態読み込み
+    Route::get('/twitter/pause/{id}', 'Auth\TwitterController@judgePaused');
+
+    // 自動処理を一時停止する
+    Route::post('/twitter/pause/{id}', 'Auth\TwitterController@toPause');
+
+    // 自動処理を再開する
+    Route::post('/twitter/restart/{id}', 'Auth\TwitterController@toRestart');
+
+    // 自動処理を中止する
+    Route::post('/twitter/cancel/{id}', 'Auth\TwitterController@toCancel');
+
   });
 
   // Twitter認証ページを開く

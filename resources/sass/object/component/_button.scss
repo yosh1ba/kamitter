@@ -1,0 +1,33 @@
+.c-button{
+  &__circle {
+    margin-left: 8px;
+    display: inline-block;
+    text-decoration: none;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 16px;
+    border-radius: 50%;
+    text-align: center;
+    overflow: hidden;
+    font-weight: bold;
+    background-image: linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), 0 2px 2px rgba(0, 0, 0, 0.19);
+    border-bottom: solid 2px #b5b5b5;
+    & i{
+      line-height: 30px;
+    }
+  }
+  &__square {
+    width: 60px;
+    padding: 2px 0;
+    text-align: center;
+    text-decoration: none;
+    color: $color-dark;
+    background: #d6d6d6;
+    &:hover{
+      @include hover;
+    }
+  }
+}

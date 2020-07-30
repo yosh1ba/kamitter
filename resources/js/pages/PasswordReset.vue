@@ -1,22 +1,33 @@
 <template>
-  <div>
-    <h1>パスワードリセット</h1>
-    <form @submit.prevent="reset">
-      <div v-if="errorMessages" class="">
-        <ul v-if="errorMessages.email">
-          <li v-for="msg in errorMessages.email" :key="msg" class="">{{ msg }}</li>
-        </ul>
-        <ul v-if="errorMessages.password">
-          <li v-for="msg in errorMessages.password" :key="msg" class="">{{ msg }}</li>
-        </ul>
+  <div class="l-container">
+    <div class="c-panel">
+      <div class="c-panel__content p-reset__content">
+        <h3 class="c-panel__content__header p-reset__content__header">パスワードリセット</h3>
+        <form @submit.prevent="reset">
+          <div v-if="errorMessages" class="c-form__error">
+            <ul v-if="errorMessages.email">
+              <li v-for="msg in errorMessages.email" :key="msg" class="c-form__error__msg ">{{ msg }}</li>
+            </ul>
+            <ul v-if="errorMessages.password">
+              <li v-for="msg in errorMessages.password" :key="msg" class="c-form__error__msg ">{{ msg }}</li>
+            </ul>
+          </div>
+          <div class="c-form__item p-reset__form__item">
+            <label for="mail" class="c-form__item__label p-reset__form__item__label"></label>
+            <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input p-reset__form__item__input">
+          </div>
+          <div class="c-form__item p-reset__form__item">
+            <label for="password" class="c-form__item__label p-reset__form__item__label"></label>
+            <input id="password" type="password" placeholder="パスワード" v-model="form.password" class="c-form__item__input p-reset__form__item__input">
+          </div>
+          <div class="c-form__item p-reset__form__item">
+            <label for="password_confirmation" class="c-form__item__label p-reset__form__item__label"></label>
+            <input id="password_confirmation" type="password" placeholder="パスワード再確認" v-model="form.password_confirmation" class="c-form__item__input p-reset__form__item__input">
+          </div>
+          <button type="submit" class="c-form__btn p-reset__form__btn">再設定する</button>
+        </form>
       </div>
-      <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
-      <input id="password" type="password" placeholder="パスワード" v-model="form.password">
-      <input id="password_confirmation" type="password" placeholder="パスワード再確認" v-model="form.password_confirmation">
-      <div>
-        <button type="submit">再設定</button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 

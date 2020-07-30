@@ -1,7 +1,11 @@
 <template>
-  <div>
-    <h1>システムエラー 500</h1>
-    <p>システムエラーが発生しました</p>
+  <div class="l-container">
+    <div class="p-system">
+      <div class="p-system__content">
+        <h1>システムエラー 500</h1>
+        <p>システムエラーが発生しました。しばらく経ってから再度お試し下さい。</p>
+      </div>
+    </div>
   </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="l-wrapper">
   <Navbar />
   <RouterView />
   <Footer />

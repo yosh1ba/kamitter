@@ -93,7 +93,7 @@ class TwitterController extends Controller
     }
   }
 
-  public function accessTwitterWithBearerToken(Array $arr)
+  public function accessTwitterWithBearerToken(Array $arr, Request $request = null)
   {
     $url = $arr['url'];
     $params = $arr['params'];
@@ -103,16 +103,27 @@ class TwitterController extends Controller
     $response = Http::withToken($bearer_token)->get('https://api.twitter.com/1.1/'. $url, $params);
 
     if(isset($response['errors'])){
-      // API制限
-      dd('API制限');
-      // return false;
+      $data = [];
+      $data['message'] =
+        '自動処理が停止しました。
+      アカウントをご確認下さい。
+      ';
+      $data['subject'] = '[神ったー]自動処理停止のお知らせ';
+      $this->sendMail($request, $data);
+
+      TwitterUser::find($request->route('id'))->update([
+        'auto_pilot_enabled' => false,
+        'pause_enabled' => false
+      ]);
+
+      exit();
     }
 
     return $response;
 
   }
 
-  public function accessTwitterWithAccessToken(Array $user, Array $arr,String $context = 'post')
+  public function accessTwitterWithAccessToken(Array $user, Array $arr,String $context = 'post',Request $request = null)
   {
 
     $client_id = config('app.twitter_client_id');;
@@ -128,6 +139,23 @@ class TwitterController extends Controller
       $content = $connection->post($arr['url'],$arr['params']);
     }
 
+    if(isset($content->errors)){
+      $data = [];
+      $data['message'] =
+        '自動処理が停止しました。
+      アカウントをご確認下さい。
+      ';
+      $data['subject'] = '[神ったー]自動処理停止のお知らせ';
+      $this->sendMail($request, $data);
+
+      TwitterUser::find($request->route('id'))->update([
+        'auto_pilot_enabled' => false,
+        'pause_enabled' => false
+      ]);
+
+      exit();
+    }
+
 
     return $content;
 
@@ -139,6 +167,11 @@ class TwitterController extends Controller
 
     // ターゲットアカウントを取得
     $twitter_user_id = $this->queryTargetAccountList($request);
+
+    // TODO $twitter_user_idが空の場合の判定
+    if($twitter_user_id->count() === 0){
+      return false;
+    }
 
     // APIリクエスト用のパラメータを定義
     // cursorおよびscreen_nameについては、後述のループ処理にて値を代入する
@@ -366,8 +399,13 @@ class TwitterController extends Controller
   public function createTargetAccountList(Request $request)
   {
 
+    if( empty($request->all())  ){
+      return false;
+    }
+
     $arr = [];
     foreach($request->all() as $data) {
+
       // messageプロパティを取り除く
       unset($data['message']);
 
@@ -473,6 +511,28 @@ class TwitterController extends Controller
     return $response;
   }
 
+  public function judgeAutoPilot(Request $request)
+  {
+    $target = TwitterUser::find($request->route('id'));
+
+    if($target->auto_pilot_enabled === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public function judgePaused(Request $request)
+  {
+    $target = TwitterUser::find($request->route('id'));
+
+    if($target->pause_enabled === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public function queryUnfollowTargetList(Request $request, String $screen_name)
   {
     $request_params = [];
@@ -483,10 +543,10 @@ class TwitterController extends Controller
       'stringify_ids' => true,
       'screen_name' => $screen_name
     ];
-    $friends = $this->accessTwitterWithBearerToken($request_params)['ids'];
+    $friends = $this->accessTwitterWithBearerToken($request_params, $request)['ids'];
 
     $request_params['url'] = 'followers/ids.json';
-    $followers = $this->accessTwitterWithBearerToken($request_params)['ids'];
+    $followers = $this->accessTwitterWithBearerToken($request_params, $request)['ids'];
 
     $oneways = array_diff($friends, $followers);
 
@@ -515,7 +575,7 @@ class TwitterController extends Controller
       'stringify_ids' => true,
       'screen_name' => $screen_name
     ];
-    $friends = $this->accessTwitterWithBearerToken($request_params)['ids'];
+    $friends = $this->accessTwitterWithBearerToken($request_params, $request)['ids'];
 
     $request_params = [];
     $request_params['url'] = 'statuses/user_timeline.json';
@@ -528,7 +588,7 @@ class TwitterController extends Controller
     foreach ($friends as $friend){
       $request_params['params']['user_id'] = $friend;
 
-      $timeline = $this->accessTwitterWithBearerToken($request_params);
+      $timeline = $this->accessTwitterWithBearerToken($request_params, $request);
 
       if(isset($timeline->json()[0]['created_at'])){
         $datetime_tweet = date('Y-m-d H:i:s', strtotime($timeline->json()[0]['created_at']));
@@ -553,7 +613,7 @@ class TwitterController extends Controller
       'screen_name' => $decoded_user[0]['twitter_screen_name']
     ];
 
-    $response = $this->accessTwitterWithAccessToken($decoded_user, $request_params, 'get');
+    $response = $this->accessTwitterWithAccessToken($decoded_user, $request_params, 'get', $request);
 
     return $response->friends_count;
 
@@ -566,14 +626,16 @@ class TwitterController extends Controller
     return $response;
   }
 
-  public function autoFollow(Request $request, Boolean $restart = null)
+  public function autoFollow(Request $request,$restart = null)
   {
     Log::debug('IN: autoFollow');
 
-    $restart = $this->judgeRestartedFollow($request);
+    TwitterUser::find($request->route('id'))->update([
+      'auto_pilot_enabled' => true
+    ]);
 
     // フォロワーターゲットリスト作成
-    if ($restart === false){
+    if ($restart !== true){
       $response= $this->createFollowerTargetList($request);
     }
 
@@ -600,6 +662,11 @@ class TwitterController extends Controller
      * twitterAPIからエラーが帰ってきた場合、その時点で処理を終了する
     */
     foreach ($targets as $target){
+      // 自動処理無効もしくは一時停止の場合、処理を中止する
+      if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === true){
+        return false;
+      }
+
       $request_params['params']['screen_name'] = $target->screen_name;
 
       // 現在のフォロー数を確認する
@@ -607,7 +674,12 @@ class TwitterController extends Controller
 
       // フォロー数が5000人を超えた場合、自動アンフォローを開始する
       if($friends_count >= 5000){
-        $this->autoUnfollow($request);
+        if ($restart !== true){
+          $this->autoUnfollow($request);
+        }else {
+          $this->autoUnfollow($request, true);
+        }
+
       }
 
       if( $count !== 0  && ($count % 15) === 0 ){
@@ -615,7 +687,7 @@ class TwitterController extends Controller
         sleep(960);
       }
       // twitterAPIへフォローリクエストを送る
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
 
       // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if(!property_exists($response, 'id')){
@@ -638,10 +710,15 @@ class TwitterController extends Controller
     $data['subject'] = '[神ったー]自動処理完了のお知らせ';
     $this->sendMail($request, $data);
 
+    TwitterUser::find($request->route('id'))->update([
+      'auto_pilot_enabled' => false,
+      'pause_enabled' => false
+    ]);
+
     return response()->json($response);
   }
 
-  public function autoUnfollow(Request $request, Boolean $restart = null)
+  public function autoUnfollow(Request $request, $restart = null)
   {
     Log::debug('IN: autoUnfollow');
 
@@ -676,8 +753,13 @@ class TwitterController extends Controller
     $user = $this->queryAuthenticatedUser($request);
 
     foreach ($result_targets as $target) {
+      // 自動処理無効もしくは一時停止の場合、処理を中止する
+      if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === false){
+        return false;
+      }
+
       $request_params['params']['id'] = $target;
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
 
       // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if (!property_exists($response, 'id')) {
@@ -688,8 +770,6 @@ class TwitterController extends Controller
       sleep(15);
 
     }
-
-    // TODO 戻り値の必要有無確認
     return false;
   }
 
@@ -703,6 +783,9 @@ class TwitterController extends Controller
     $favorite = new FavoriteController;
     $condition = $favorite->makeWhereConditions($request);
 
+    if($condition === false){
+      return false;
+    }
     $query = '';
 
     // AND, OR, NOTそれぞれについて、判定を行う
@@ -736,8 +819,7 @@ class TwitterController extends Controller
       'result_type' => 'recent'
     ];
 
-    // TODO エラーハンドリング
-    $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, 'get');
+    $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, 'get', $request);
 
 
     // いいねを付ける
@@ -748,12 +830,16 @@ class TwitterController extends Controller
     ];
 
     foreach ($response->statuses as $tweet){
+      // 自動処理無効もしくは一時停止の場合、処理を中止する
+      if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === true){
+        return false;
+      }
       $request_params['params']['id'] = $tweet->id;
-      // TODO エラーハンドリング
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
       sleep(10);
     }
   }
+
   public function reserveTweet(Request $request)
   {
     // フォームから予約ツイート内容と予約時間を取得
@@ -797,9 +883,8 @@ class TwitterController extends Controller
     foreach ($reserves as $reserve){
       $request_params['params']['status'] = $reserve['tweet'];
       $user = $this->queryAuthenticatedUserAsString($reserve['twitter_user_id']);
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params);
+      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $reserve['twitter_user_id']);
 
-      // TODO エラーハンドリング
       $this->updateReserves($reserve['id']);
 
     }
@@ -811,6 +896,35 @@ class TwitterController extends Controller
     $response = TwitterUser::where('id', $request->route('id'))
       ->delete();
     return $response;
+  }
+
+  public function toPause(Request $request)
+  {
+    TwitterUser::find($request->route('id'))->update([
+      'pause_enabled' => true
+    ]);
+
+    return false;
+  }
+
+  public function toRestart(Request $request)
+  {
+    TwitterUser::find($request->route('id'))->update([
+      'pause_enabled' => false
+    ]);
+    $this->autoFollow($request, (bool)TRUE);
+
+    return false;
+  }
+
+  public function toCancel(Request $request)
+  {
+    TwitterUser::find($request->route('id'))->update([
+      'auto_pilot_enabled' => false,
+      'pause_enabled' => false
+    ]);
+
+    return false;
   }
 
   public function sendMail(Request $request, Array $data)

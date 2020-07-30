@@ -1,9 +1,12 @@
 <template>
-  <div>
-    <h1>メールアドレス認証</h1>
-    <p>メールアドレスの認証中です。そのままお待ち下さい。</p>
+  <div class="l-container">
+    <div class="c-panel">
+      <div class="c-panel__content p-verify__content">
+        <h3 class="c-panel__content__header p-verify__content__header">メールアドレス認証</h3>
+        <p>メールアドレスの認証中です。そのままお待ち下さい。</p>
+      </div>
+    </div>
   </div>
-
 </template>
 
 <script>

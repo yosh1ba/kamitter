@@ -1,16 +1,20 @@
 <template>
-  <div>
-    <h1>マイページ</h1>
-    <form @submit.prevent="submit">
-      <div>
-        <button type="submit">twitterアカウント連携</button>
+  <div class="l-container">
+    <div class="l-main">
+      <div class="c-panel p-mypage">
+        <div class="c-panel__content p-mypage__content">
+          <h3 class="c-panel__content__header p-mypage__content__header">マイページ</h3>
+          <Account
+            v-for="account in accounts"
+            :key="account.id"
+            :item="account"
+          />
+          <form @submit.prevent="submit">
+            <button type="submit" class="c-form__btn p-mypage__form__btn">Twitterアカウント連携</button>
+          </form>
+        </div>
       </div>
-    </form>
-    <Account
-      v-for="account in accounts"
-      :key="account.id"
-      :item="account"
-    />
+    </div>
   </div>
 </template>
 
@@ -32,6 +36,10 @@
     },
     methods: {
       async submit() {
+        if(this.accounts.length > 3){
+          alert('登録できるアカウントは最大10個です')
+          return false
+        }
 
         // twitter認証ページのURL取得
         const response = await axios.get('twitter')

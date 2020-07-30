@@ -1,0 +1,7 @@
+.l-main{
+  // position: relative;
+  margin-top: 40px;
+  @include mq('sp') {
+    margin-bottom: 40px;
+  }
+}

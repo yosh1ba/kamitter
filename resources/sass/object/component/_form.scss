@@ -1,0 +1,50 @@
+.c-form{
+  &__item{
+    margin-bottom: 16px;
+    width: 100%;
+    &__label{
+      //display: block;
+    }
+    &__input{
+      border: none;
+      border-bottom: 2px solid $color-border;
+      color: #666;
+      font-size: 1em;
+      height: 50px;
+      transition: border-color 0.3s;
+      width: 100%;
+      @include mq('sp') {
+        height: 30px;
+      }
+      &:focus{
+        border-bottom: 2px solid #c0c0c0;
+        outline: none;
+      }
+    }
+
+  }
+  &__btn{
+    margin: 16px 0;
+    background: $color-accent;
+    border: none;
+    color: $color-font-light;
+    cursor: pointer;
+    height: 50px;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-transform: uppercase;
+    width: 100%;
+    transition: .3s ease-out;
+    &:hover{
+      @include hover;
+    }
+  }
+
+  &__error{
+    margin: 8px 0;
+    color: $color-error;
+    &__msg{
+      line-height: 2;
+    }
+  }
+}

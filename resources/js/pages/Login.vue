@@ -1,22 +1,32 @@
 <template>
-  <div>
-    <h1>ログイン</h1>
-    <form @submit.prevent="login">
-      <div v-if="loginErrors" class="">
-        <ul v-if="loginErrors.email">
-          <li v-for="msg in loginErrors.email" :key="msg" class="">{{ msg }}</li>
-        </ul>
-        <ul v-if="loginErrors.password">
-          <li v-for="msg in loginErrors.password" :key="msg" class="">{{ msg }}</li>
-        </ul>
+  <div class="l-container">
+    <div class="l-main">
+      <div class="c-panel p-login">
+        <div class="c-panel__content p-login__content">
+          <h3 class="c-panel__content__header p-login__content__header">ログイン</h3>
+          <form @submit.prevent="login">
+            <div v-if="loginErrors" class="c-form__error p-login__form__error">
+              <ul v-if="loginErrors.email">
+                <li v-for="msg in loginErrors.email" :key="msg" class="c-form__error__msg p-login__form__error__msg">{{ msg }}</li>
+              </ul>
+              <ul v-if="loginErrors.password">
+                <li v-for="msg in loginErrors.password" :key="msg" class="c-form__error__msg p-login__form__error__msg">{{ msg }}</li>
+              </ul>
+            </div>
+            <div class="c-form__item p-login__form__item">
+              <label for="mail" class="c-form__item__label p-login__form__item__label"></label>
+              <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input p-login__form__item__input">
+            </div>
+            <div class="p-login__form__item">
+              <label for="password" class="c-form__item__label p-login__form__item__label"></label>
+              <input id="password" type="password" placeholder="パスワード" v-model="form.password" class="c-form__item__input p-login__form__item__input">
+            </div>
+            <button type="submit" class="c-form__btn p-login__form__btn">ログイン</button>
+            <p>パスワードを忘れた方は <router-link to="/password/forget">こちら</router-link></p>
+          </form>
+        </div>
       </div>
-      <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email">
-      <input id="password" type="password" placeholder="パスワード" v-model="form.password">
-      <p>パスワードを忘れた方は <router-link to="/password/forget">こちら</router-link></p>
-      <div>
-        <button type="submit">ログイン</button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -42,7 +52,7 @@ export default {
       if (this.apiStatus) {
 
         // トップページに移動する
-        this.$router.push('/')
+        this.$router.push('/mypage')
       }
     },
     // エラー情報をクリアするメソッド

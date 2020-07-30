@@ -11,6 +11,7 @@ const state = {
 const getters = {
   id: state => state.user ? state.user.id : '',
   oauthToken: state => state.user ? state.user.id : '',
+  isAutoPilot: state => state.user ? state.user: ''
 }
 
 const mutations = {

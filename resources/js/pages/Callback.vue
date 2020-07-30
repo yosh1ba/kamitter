@@ -1,5 +1,11 @@
 <template>
-  <p>twitterとの連携を行っています。連携完了後、マイページへ移動します。</p>
+  <div class="l-container">
+    <div class="c-panel">
+      <div class="c-panel__content p-callback__content">
+        <p>twitterとの連携を行っています。連携完了後、マイページへ移動します。</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
