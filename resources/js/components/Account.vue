@@ -108,22 +108,23 @@
         favoriteKeywords:[],  // いいね用キーワード
         emptySearchKeyword:false,  // 検索用キーワードが空かどうか判定（画面描画用条件）
         emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
-        autoPilot:false,
-        pause:false,
+        autoPilot:false,  // 自動運転判定
+        pause:false,  // 一時停止判定
         reserve: {  // 予約ツイート用プロパティ
           tweet : '',  // ツイート内容
           reserved_at : '' // ツイート時間
         },
         config: { // 日時入力コンポーネント用プロパティ
-          enableTime: true,
-          dateFormat: "Y-m-d H:i",
-          time_24hr: true,
-          minDate: "today",
-          defaultDate: "today"
+          enableTime: true, // 未来日時のみ指定可能
+          dateFormat: "Y-m-d H:i",  // 日付フォーマット形式
+          time_24hr: true,  // 24時間形式で表示
+          minDate: "today", // 最小日時
+          defaultDate: "today"  // 既定値
         },
       }
     },
     methods: {
+      // フォロー対象フォームの追加用メソッド
       addTargetForm() {
         const additionalForm = {
           screen_name: '',
@@ -131,6 +132,8 @@
         }
         this.targets.push(additionalForm)
       },
+
+      // フォロー対象フォームの削除用メソッド
       deleteTargetForm(index){
         // クリックした削除ボタンに対応するフォームを削除
         if (this.targets.length === 1){
@@ -190,6 +193,8 @@
 
         this.$store.commit('message/setText', 'ターゲットアカウントが保存されました', { root: true })
       },
+
+      // DBへに保存したフォロー対象アカウントをフォームに展開するメソッド
       async queryTargetForm(){
         // ターゲットアカウントリストの内容を呼び出す
         const response = await axios.get(`/api/twitter/target/${this.item.id}`);
@@ -201,6 +206,8 @@
           }
         }
       },
+
+      // フォロワーサーチキーワードフォーム追加用メソッド
       addSearchKeywordForm() {
         const additionalForm = {
           selected: 'AND', // セレクトボックスの結果が入る(規定値：AND)
@@ -214,10 +221,14 @@
         }
         this.searchKeywords.push(additionalForm)
       },
+
+      // フォロワーサーチキーワードフォーム削除用メソッド
       deleteSearchKeywordForm(index){
         // クリックした削除ボタンに対応するフォームを削除
         this.searchKeywords.splice(index, 1);
       },
+
+      // フォロワーサーチキーワードフォーム保存用メソッド
       async saveSearchKeywordForm(){
         if(this.searchKeywords.length === 0){
           alert('入力必須です')
@@ -260,13 +271,10 @@
           this.$store.commit('error/setMessage', response.data.errors)
           return false
         }
-
-        // if('is_empty' in this.searchKeywords[0]){
-        //   this.searchKeywords.splice(-this.searchKeywords.length)
-        // }
-
         this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
+
+      // DBに格納されているフォロワーサーチキーワードを展開するメソッド
       async querySearchForm(){
         // セレクトボックス表示用定数
         const options = ['AND', 'OR', 'NOT']
@@ -282,6 +290,8 @@
           }
         }
       },
+
+      // いいね用キーワードフォーム追加用メソッド
       addFavoriteKeywordForm() {
         const additionalForm = {
           selected: 'AND', // セレクトボックスの結果が入る(規定値：AND)
@@ -295,10 +305,14 @@
         }
         this.favoriteKeywords.push(additionalForm)
       },
+
+      // いいね用キーワードフォーム削除用メソッド
       deleteFavoriteKeywordForm(index){
         // クリックした削除ボタンに対応するフォームを削除
         this.favoriteKeywords.splice(index, 1);
       },
+
+      // いいね用キーワードフォーム保存用メソッド
       async saveFavoriteKeywordForm(){
         if(this.favoriteKeywords.length === 0){
           alert('入力必須です')
@@ -342,12 +356,10 @@
           return false
         }
 
-        // if('is_empty' in this.favoriteKeywords[0]){
-        //   this.favoriteKeywords.splice(-this.favoriteKeywords.length)
-        // }
-
         this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
+
+      // いいね用キーワードフォーム展開用メソッド
       async queryFavoriteForm(){
         // セレクトボックス表示用定数
         const options = ['AND', 'OR', 'NOT']
@@ -363,6 +375,8 @@
           }
         }
       },
+
+      // 予約ツイート展開用メソッド
       async queryReserve(){
         // 予約ツイートの内容を呼び出す
         const response = await axios.get(`/api/twitter/reserve/${this.item.id}`);
@@ -375,33 +389,8 @@
           this.$set(this.reserve, 'reserved_at', new Date)
         }
       },
-      async queryStateAutoPilot(){
-        const response = await axios.get(`/api/twitter/auto/${this.item.id}`);
 
-        if(response.data.length !== 0) {
-          this.autoPilot = true
-        }
-      },
-      async queryStatePause(){
-        const response = await axios.get(`/api/twitter/pause/${this.item.id}`);
-
-        if(response.data.length !== 0) {
-          this.pause = true
-        }
-      },
-      async autoFollow(){
-        // 自動フォローを開始する(非同期)
-        this.autoPilot = true
-        const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
-      },
-      async autoUnfollow(){
-        // 自動アンフォローを開始する
-        const responsePromise = axios.post(`/api/twitter/unfollow/${this.item.id}`);
-      },
-      async autoFavorite(){
-        // 自動いいねを開始する
-        const responsePromise = axios.post(`/api/twitter/favorite/${this.item.id}`);
-      },
+      // 予約ツイート保存用メソッド
       async reserveTweet(){
         if(this.reserve.tweet !== ''){
           // フォームに入力がある場合はエラーをクリア
@@ -412,28 +401,56 @@
           this.$set(this.reserve, 'message', 'ツイート内容が存在しません')
           return false
         }
-
-
       },
-      async autoTweet(){
-        const responseTweet = axios.post('/api/twitter/tweet');
+
+      // 自動運転状態確認用メソッド
+      async queryStateAutoPilot(){
+        const response = await axios.get(`/api/twitter/auto/${this.item.id}`);
+
+        if(response.data.length !== 0) {
+          this.autoPilot = true
+        }
       },
+
+      // 一時停止状態確認用メソッド
+      async queryStatePause(){
+        const response = await axios.get(`/api/twitter/pause/${this.item.id}`);
+
+        if(response.data.length !== 0) {
+          this.pause = true
+        }
+      },
+
+      // 自動フォロー（自動運用）開始用メソッド
+      async autoFollow(){
+        // 自動フォローを開始する(非同期)
+        this.autoPilot = true
+        const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
+      },
+
+      // 一時停止用メソッド
       async toPause(){
         // 自動処理を一時停止する
         this.pause = true
         const responsePromise = axios.post(`/api/twitter/pause/${this.item.id}`);
       },
+
+      // 処理中使用メソッド
       async toCancel(){
         // 自動処理を中止する
         this.autoPilot = false
         this.pause = false
         const responsePromise = axios.post(`/api/twitter/cancel/${this.item.id}`);
       },
+
+      // 処理再開用メソッド
       async toRestart(){
         // 自動処理を再開する
         this.pause = false
         const responsePromise = axios.post(`/api/twitter/restart/${this.item.id}`);
       },
+
+      // 認証用ユーザー解除用メソッド
       async deleteUser(){
         if(window.confirm('連携を解除してもよろしいですか') === false){
           return false;
@@ -450,6 +467,25 @@
 
         location.reload();
       },
+
+      // 自動アンフォロー開始用メソッド（テスト用）
+      async autoUnfollow(){
+        // 自動アンフォローを開始する
+        const responsePromise = axios.post(`/api/twitter/unfollow/${this.item.id}`);
+      },
+
+      // 自動いいね開始用メソッド（テスト用）
+      async autoFavorite(){
+        // 自動いいねを開始する
+        const responsePromise = axios.post(`/api/twitter/favorite/${this.item.id}`);
+      },
+
+      // 自動ツイートメソッド（テスト用）
+      async autoTweet(){
+        const responseTweet = axios.post('/api/twitter/tweet');
+      },
+
+      // メール送信用メソッド（テスト用）
       async sendMail(){
         const response = await axios.post(`/api/send/mail/${this.item.id}`)
       }
@@ -463,7 +499,9 @@
       this.queryFavoriteForm()
       // ページ表示時に未投稿の予約ツイートを呼び出す
       this.queryReserve()
+      // 自動運転の状態を取得する
       this.queryStateAutoPilot()
+      // 一時停止の状態を確認する
       this.queryStatePause()
     }
   }

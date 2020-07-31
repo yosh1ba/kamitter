@@ -6,8 +6,18 @@ use App\SearchKeywordList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/*
+ * フォロー用キーワード処理クラス
+ */
 class SearchController extends Controller
 {
+  /*
+   * フォロー用キーワード(search_keyword_lists)作成用メソッド
+   * リクエスト用パラメータを引数に取り、レスポンスを返します。
+   *
+   * @param $request フロント側のフォロー用キーワード情報
+   * @return レスポンス
+   */
   public function createSearchKeywordList(Request $request)
   {
 
@@ -36,33 +46,38 @@ class SearchController extends Controller
         // twitter_user_idの値を変数にセット
         $twitter_user_id = $data['twitter_user_id'];
       }
-
     }
-
     $target = new SearchKeywordList;
 
     // 同じtwitter_user_idのデータを一旦削除する
     $target->where('twitter_user_id', $twitter_user_id)->delete();
 
+    // 配列の内容をDBへインサート
     if($arr){
-      // 配列の内容をDBへインサート
       $target->insert($arr);
     }
-
-
-
-    Log::debug($target);
-
     return $target;
   }
 
+  /*
+   * フォロー用キーワード(search_keyword_lists)参照用メソッド
+   * リクエスト用パラメータを引数に取り、設定済みのフォロー用キーワードを返します。
+   * フロント側で利用
+   * @param $request Twitterユーザー情報
+   * @return レスポンス
+   */
   public function querySearchKeywordList(Request $request)
   {
     $response = SearchKeywordList::where('twitter_user_id', $request->route('id'))->select('selected', 'text')->get();
-
     return $response;
   }
 
+  /*
+   * フォロー用Where句作成用メソッド
+   * リクエスト用パラメータを引数に取り、フォロー用Where句を返す
+   * @param $request Twitterユーザー情報
+   * @return レスポンス
+   */
   public function makeWhereConditions(Request $request)
   {
     // サーチキーワードを配列形式で格納
@@ -90,7 +105,6 @@ class SearchController extends Controller
           break;
       }
     }
-
     return $converted_arr;
   }
 

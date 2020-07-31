@@ -44,6 +44,7 @@ export default {
     }
   },
   methods: {
+    // ログイン用メソッド
     async login() {
       // authストアのログイン用メソッドを呼び出す
       await this.$store.dispatch('auth/login', this.form)
@@ -55,6 +56,7 @@ export default {
         this.$router.push('/mypage')
       }
     },
+
     // エラー情報をクリアするメソッド
     clearError(){
       this.$store.commit('auth/setLoginErrorMessages', null)

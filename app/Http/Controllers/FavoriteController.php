@@ -6,20 +6,29 @@ use App\FavoriteKeywordList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/*
+ * いいね用キーワード処理クラス
+ */
 class FavoriteController extends Controller
 {
+  /*
+   * いいね用キーワード(favorite_keyword_lists)作成用メソッド
+   * リクエスト用パラメータを引数に取り、レスポンスを返します。
+   *
+   * @param $request フロント側のいいね用キーワード情報
+   * @return レスポンス
+   */
   public function createFavoriteKeywordList(Request $request)
   {
 
     $arr = [];
     foreach($request->all() as $data) {
+
       if(array_key_exists('is_empty', $data)){
         // twitter_user_idの値を変数にセット
         $twitter_user_id = $data['twitter_user_id'];
         unset($data);
-
         break;
-
       }else {
         // messageプロパティを取り除く
         unset($data['message']);
@@ -36,9 +45,7 @@ class FavoriteController extends Controller
         // twitter_user_idの値を変数にセット
         $twitter_user_id = $data['twitter_user_id'];
       }
-
     }
-
     $target = new FavoriteKeywordList;
 
     // 同じtwitter_user_idのデータを一旦削除する
@@ -48,14 +55,16 @@ class FavoriteController extends Controller
       // 配列の内容をDBへインサート
       $target->insert($arr);
     }
-
-
-
-    Log::debug($target);
-
     return $target;
   }
 
+  /*
+   * いいね用キーワード(favorite_keyword_lists)参照用メソッド
+   * リクエスト用パラメータを引数に取り、設定済みのいいね用キーワードを返します。
+   * フロント側で利用
+   * @param $request Twitterユーザー情報
+   * @return レスポンス
+   */
   public function queryFavoriteKeywordList(Request $request)
   {
     $response = FavoriteKeywordList::where('twitter_user_id', $request->route('id'))->select('selected', 'text')->get();
@@ -63,13 +72,19 @@ class FavoriteController extends Controller
     return $response;
   }
 
+  /*
+   * いいね用Where句作成用メソッド
+   * リクエスト用パラメータを引数に取り、いいね用Where句を返す
+   * @param $request Twitterユーザー情報
+   * @return レスポンス
+   */
   public function makeWhereConditions(Request $request)
   {
     // サーチキーワードを配列形式で格納
     $arr = $this->queryFavoriteKeywordList($request)->toArray();
 
+    // サーチキーワードの検索結果が空の場合はfalseを返す
     if(!$arr){
-      // サーチキーワードの検索結果が空の場合はfalseを返す
       return false;
     }
 
@@ -90,7 +105,6 @@ class FavoriteController extends Controller
           break;
       }
     }
-
     return $converted_arr;
   }
 }

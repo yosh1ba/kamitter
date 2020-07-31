@@ -35,6 +35,7 @@ export default {
     }
   },
   methods: {
+    // パスワード忘れ用メール送信メソッド
     async send(){
       const response = await axios.post('/api/password/email',this.form);
 

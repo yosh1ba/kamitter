@@ -45,6 +45,7 @@ class VerificationController extends Controller
       $this->middleware('throttle:6,1');
     }
 
+    /*メールアドレス認証用メソッド*/
     public function verify(Request $request)
     {
       // 署名付きURLに付与されたユーザーIDからユーザー情報を検索

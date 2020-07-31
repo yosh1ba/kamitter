@@ -35,8 +35,9 @@
       Account
     },
     methods: {
+      // Twitter認証用メソッド
       async submit() {
-        if(this.accounts.length > 3){
+        if(this.accounts.length > 10){
           alert('登録できるアカウントは最大10個です')
           return false
         }
@@ -53,10 +54,11 @@
         // twitter認証ページへリダイレクト
         window.location = response.data.redirect_url
       },
+
+      // 認証済みゆーザー展開用メソッド
       async fetchAccounts(){
         const response = await axios.get(`/api/twitter/user/${this.$store.getters['auth/userid']}`)
         this.accounts = response.data
-        // console.log(this.accounts)
       }
     },
     watch: {

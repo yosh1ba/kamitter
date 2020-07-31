@@ -1,0 +1,19 @@
+.l-container {
+    width: 100%;
+    max-width: $site-width;
+    margin: 0 auto;
+    // padding: 0 124px;
+    padding: 0 32px;
+    &--flud {
+        width: 100%;
+        margin: 0;
+    }
+    @include mq('tab') {
+        min-width: $site-width-tab;
+        padding-left: calc((32 / 560) * 100%);
+        padding-right: calc((32 / 560) * 100%);
+    }
+    @include mq('sp') {
+        min-width: $site-width-sp;
+    }
+}

@@ -51,6 +51,7 @@ export default {
     this.setQuery()
   },
   methods: {
+    // パスワードリセット用メソッド
     async reset(){
       const response = await axios.post(`/api/password/reset/${this.form.token}`, this.form)
 

@@ -66,6 +66,7 @@ export default {
     Loading
   },
   methods: {
+    // ユーザー登録用メソッド
     async register() {
       this.isLoading = true;
       // authストアのユーザ登録用メソッドを呼び出す
@@ -78,6 +79,7 @@ export default {
         this.$router.push('/')
       }
     },
+
     // エラー情報をクリアするメソッド
     clearError(){
       this.$store.commit('auth/setRegisterErrorMessages', null)

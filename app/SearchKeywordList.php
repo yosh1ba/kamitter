@@ -13,9 +13,4 @@ class SearchKeywordList extends Model
     'twitter_user_id'
   ];
 
-//  public function twitter_user()
-//  {
-//    // ツイッターユーザーからアプリユーザーを取得できるようにする
-//    return $this->belongsTo('App\TwitterUser');
-//  }
 }

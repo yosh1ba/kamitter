@@ -21,7 +21,7 @@ class TwitterUser extends Model
 
     public function user()
     {
-      // ツイッターユーザーからアプリユーザーを取得できるようにする
+      // ユーザーからTwitterユーザーを取得できるようにする
       return $this->belongsTo('App\User');
     }
 }

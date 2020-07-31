@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -7,9 +7,11 @@
 
     <!-- StyleSheet -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+{{--    <link rel="stylesheet" href="/public/css/app.css">--}}
 
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}" defer></script>
+{{--    <script src="./public/js/app.js" defer></script>--}}
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">

@@ -22,12 +22,15 @@ class CustomPasswordReset extends Notification
         return ['mail'];
     }
 
+    /*
+     * パスワードリセット用メール送信用メソッド
+     * リクエスト用パラメータを引数に取り、メール送信を行います。
+     */
     public function toMail($notifiable)
     {
         return (new MailMessage)
             ->subject('[神ったー]パスワードリセットのお知らせ') // 件名
             ->line('下のボタンをクリックしてパスワードを再設定してください。')
-            // ->view('emails.passwordreset') // メールテンプレートの指定
             ->action('リセットパスワード',
                 config('app.develop_url') . config('app.reset_pass_url') .
                 config('app.parameter_queryUrl') . url('api/password/reset', $this->token) . '&' . config('app.parameter_token') . $this->token
