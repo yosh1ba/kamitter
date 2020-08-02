@@ -2776,6 +2776,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context8.abrupt("return", false);
 
               case 10:
+                _this8.$store.commit('message/setText', 'ツイートを予約しました', {
+                  root: true
+                });
+
+              case 11:
               case "end":
                 return _context8.stop();
             }

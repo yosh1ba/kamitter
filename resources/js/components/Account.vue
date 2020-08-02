@@ -401,6 +401,8 @@
           this.$set(this.reserve, 'message', 'ツイート内容が存在しません')
           return false
         }
+
+        this.$store.commit('message/setText', 'ツイートを予約しました', { root: true })
       },
 
       // 自動運転状態確認用メソッド
