@@ -426,6 +426,8 @@
         // 自動フォローを開始する(非同期)
         this.autoPilot = true
         const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
+        this.autoPilot = false
+        this.pause = false
       },
 
       // 一時停止用メソッド
@@ -435,7 +437,7 @@
         const responsePromise = axios.post(`/api/twitter/pause/${this.item.id}`);
       },
 
-      // 処理中使用メソッド
+      // 処理中止用メソッド
       async toCancel(){
         // 自動処理を中止する
         this.autoPilot = false
@@ -448,6 +450,7 @@
         // 自動処理を再開する
         this.pause = false
         const responsePromise = axios.post(`/api/twitter/restart/${this.item.id}`);
+        this.autoPilot = false
       },
 
       // 認証用ユーザー解除用メソッド

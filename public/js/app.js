@@ -2852,8 +2852,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 // 自動フォローを開始する(非同期)
                 _this11.autoPilot = true;
                 responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this11.item.id));
+                _this11.autoPilot = false;
+                _this11.pause = false;
 
-              case 2:
+              case 4:
               case "end":
                 return _context11.stop();
             }
@@ -2883,7 +2885,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee12);
       }))();
     },
-    // 処理中使用メソッド
+    // 処理中止用メソッド
     toCancel: function toCancel() {
       var _this13 = this;
 
@@ -2919,8 +2921,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 // 自動処理を再開する
                 _this14.pause = false;
                 responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/restart/".concat(_this14.item.id));
+                _this14.autoPilot = false;
 
-              case 2:
+              case 3:
               case "end":
                 return _context14.stop();
             }
