@@ -32,7 +32,7 @@ Route::prefix('api')
     Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
     // 認証ユーザー取得
-    Route::get('/user', fn() => Auth::user())->name('user');
+    Route::get('/user', (fn() => Auth::user()) )->name('user');
 
     // パスワードリセットメール送信
     Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
