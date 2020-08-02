@@ -533,7 +533,7 @@ class TwitterController extends Controller
    */
   public function createFollowedLists(Request $request, Object $obj){
     $follower = FollowedList::create([
-      'user_id' => $obj->id,
+      'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
       'twitter_user_id' => $request->route('id')
     ]);
@@ -549,7 +549,7 @@ class TwitterController extends Controller
    */
   public function createUnfollowedLists(Request $request, Object $obj){
     $unfollow = UnfollowedList::create([
-      'user_id' => $obj->id,
+      'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
       'twitter_user_id' => $request->route('id')
     ]);

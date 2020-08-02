@@ -19,6 +19,11 @@ class TwitterUser extends Model
       'user_id'
     ];
 
+    protected $casts = [
+      'auto_pilot_enabled' => 'integer',
+      'pause_enabled' => 'integer',
+    ];
+
     public function user()
     {
       // ユーザーからTwitterユーザーを取得できるようにする

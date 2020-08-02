@@ -13,4 +13,6 @@ class Reserve extends Model
     'is_posted',
     'twitter_user_id'
   ];
+
+
 }
