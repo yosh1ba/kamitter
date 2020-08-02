@@ -1127,6 +1127,7 @@ class TwitterController extends Controller
   public function autoTweet()
   {
 
+    Log::debug('自動ツイート');
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す
     $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subSeconds(30), Carbon::now()->addSeconds(30)])
