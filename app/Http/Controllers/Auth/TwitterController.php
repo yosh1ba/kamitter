@@ -90,7 +90,7 @@ class TwitterController extends Controller
             'twitter_oauth_token_secret' => $token_secret,  // アクセストークンシークレット
             'twitter_name' => $user->getName(), // Twitterユーザー名
             'twitter_screen_name' => $user->getNickname(),  // Twitterユーザー名(@マーク以降)
-            'twitter_avatar' => $user->getAvatar(), // アイコン
+            'twitter_avatar' => str_replace('http', 'https', $user->getAvatar()), // アイコン(https化)
           ]
         );
       }
