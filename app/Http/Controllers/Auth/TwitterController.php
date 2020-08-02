@@ -187,36 +187,33 @@ class TwitterController extends Controller
    * フォロワーターゲットリスト(FollowerTargetLists) 作成用メソッド
    * Twitterアカウント情報を引数に取り、レスポンスを返します
    *
-   * @param $user TwitterUsersテーブル情報
    * @param $request TwitterUsersテーブルのID
+   * @param $screen_name Twitter表示名(@以降の名前)
    * @return レスポンス
    */
-  public function createFollowerTargetList(Request $request)
+  public function createFollowerTargetList(Request $request, String $screen_name)
   {
-    // ターゲットアカウント(フロント側で入力された対象アカウント) を取得
-    $twitter_user_id = $this->queryTargetAccountList($request);
-
-    // 対象がない場合は処理をスキップする
-    if($twitter_user_id->count() === 0){
-      return false;
-    }
-
     // APIリクエスト用のパラメータを定義
-    // cursorおよびscreen_nameについては、後述のループ処理にて値を代入する
     $request_params = [];
     $request_params['url'] = 'followers/list.json';
     $request_params['params'] = [
-      'cursor' => '',
+      'cursor' => '-1',
       'count' => '200',
-      'screen_name' => ''
+      'screen_name' => $screen_name
     ];
+
     $target = new FollowerTargetList();
 
     // 同じtwitter_user_idのデータを一旦削除する
     $target->where('twitter_user_id', $request->route('id'))->delete();
 
+
+
+    $count = 1; // ループ回数カウント
+    $limit = '1'; // APIリクエスト可能回数
+
     /*
-      各ターゲットアカウントごとに
+      ターゲットアカウントに対して
       1. フォロワーを取得
       2. 各種条件で絞り込み
         ・自分自身でない
@@ -226,80 +223,73 @@ class TwitterController extends Controller
         ・30日以内にフォロー済みのアカウントは除く
       3. 結果をフォロワーターゲットリストに格納
     */
-    foreach ($twitter_user_id as $data){
+    do {
+      /*
+       * 15回目を実行する前に待機時間を作る
+       * API制限状は15分(900秒)だが、念の為16分(960秒)を待機時間として設定する
+      */
+      if( $limit === '0' ){
+        sleep(960);
+      }
 
-      $count = 1; // ループ回数カウント
-      $limit = '1'; // APIリクエスト可能回数
-      $request_params['params']['screen_name'] = $data->screen_name;  // twitterアカウント名
-      $request_params['params']['cursor'] = '-1'; // APIレスポンスのカーソル
+      /*
+       * アプリケーション認証にてフォロワーリストを取得
+       * $limit にAPIリクエスト可能回数を格納
+       * $followers にフォロワーリストを格納
+       */
+      $response = $this->accessTwitterWithBearerToken($request_params);
+      $limit = $response->header('x-rate-limit-remaining');
+      $followers = $response['users'];
 
-      do {
+      foreach($followers as $follower){
+
+        // 自分自身かどうかを判定
+        $matchedMySelf = $this->judgeMatchedMySelf($request, $follower);
+
+        // プロフィールに日本語が含まれるか判定
+        $includedJapanese = $this->judgeIncludedJapanese($follower);
+
+        // キーワードマッチングを行う
+        $matchedKeywords = $this->judgeMatchedKeywords($request, $follower);
+
+        // アンフォローリストに含まれるアカウントは除く
+        $alreadyUnfollowed = $this->alreadyUnfollowed($request, $follower);
+
+        // すでにフォロー済みのアカウントは除く
+        $alreadyFollowed = $this->alreadyFollowed($request, $follower);
+
         /*
-         * 15回目を実行する前に待機時間を作る
-         * API制限状は15分(900秒)だが、念の為16分(960秒)を待機時間として設定する
-        */
-        if( $limit === '0' ){
-          sleep(960);
+         * ・自分自身でないこと
+         * ・プロフィールに日本語が含まれること
+         * ・キーワードとマッチすること
+         * ・30日以内にフォロー済みでないこと
+         * ・アンフォロー済みでないこと
+         * これらの条件を満たしている場合に、フォロワーターゲットリスト追加用キューに格納する
+         * */
+        if($matchedMySelf === false && $includedJapanese && $matchedKeywords && $alreadyFollowed === false && $alreadyUnfollowed === false){
+
+          $followerQueue[] = [
+            'screen_name' => $follower['screen_name'],
+            'is_followed' => false,
+            'twitter_user_id' => $request->route('id'),
+            'created_at' => now(),
+            'updated_at' => now()
+          ];
         }
+      }
 
-        /*
-         * アプリケーション認証にてフォロワーリストを取得
-         * $limit にAPIリクエスト可能回数を格納
-         * $followers にフォロワーリストを格納
-         */
-        $response = $this->accessTwitterWithBearerToken($request_params);
-        $limit = $response->header('x-rate-limit-remaining');
-        $followers = $response['users'];
+      // キューが存在する場合、フォロワーリストへアカウントを追加する
+      if (isset($followerQueue)){
+        $target->insert($followerQueue);
+        unset($followerQueue);
+        unset($alreadyFollowed);
+      }
+      if (isset($followers)){
+        unset($followers);
+      }
+      $count++;
+    }while ($request_params['params']['cursor'] = $response['next_cursor_str']);  // 全フォロワー分繰り返す
 
-        foreach($followers as $follower){
-
-          // 自分自身かどうかを判定
-          $matchedMySelf = $this->judgeMatchedMySelf($request, $follower);
-
-          // プロフィールに日本語が含まれるか判定
-          $includedJapanese = $this->judgeIncludedJapanese($follower);
-
-          // キーワードマッチングを行う
-          $matchedKeywords = $this->judgeMatchedKeywords($request, $follower);
-
-          // アンフォローリストに含まれるアカウントは除く
-          $alreadyUnfollowed = $this->alreadyUnfollowed($request, $follower);
-
-          // すでにフォロー済みのアカウントは除く
-          $alreadyFollowed = $this->alreadyFollowed($request, $follower);
-
-          /*
-           * ・自分自身でないこと
-           * ・プロフィールに日本語が含まれること
-           * ・キーワードとマッチすること
-           * ・30日以内にフォロー済みでないこと
-           * ・アンフォロー済みでないこと
-           * これらの条件を満たしている場合に、フォロワーターゲットリスト追加用キューに格納する
-           * */
-          if($matchedMySelf === false && $includedJapanese && $matchedKeywords && $alreadyFollowed === false && $alreadyUnfollowed === false){
-
-            $followerQueue[] = [
-              'screen_name' => $follower['screen_name'],
-              'is_followed' => false,
-              'twitter_user_id' => $request->route('id'),
-              'created_at' => now(),
-              'updated_at' => now()
-            ];
-          }
-        }
-
-        // キューが存在する場合、フォロワーリストへアカウントを追加する
-        if (isset($followerQueue)){
-          $target->insert($followerQueue);
-          unset($followerQueue);
-          unset($alreadyFollowed);
-        }
-        if (isset($followers)){
-          unset($followers);
-        }
-        $count++;
-      }while ($request_params['params']['cursor'] = $response['next_cursor_str']);  // 全フォロワー分繰り返す
-    }
     return $response;
   }
 
@@ -747,7 +737,6 @@ class TwitterController extends Controller
    */
   public function queryFollowedLists(Request $request, Int $day)
   {
-    // TODO subDayの中身を変数に直す
     $response = FollowedList::where('twitter_user_id', $request->route('id'))
       ->where('followed_at', '<', Carbon::now()->subDay($day))
       ->select('user_id')
@@ -869,76 +858,82 @@ class TwitterController extends Controller
       'auto_pilot_enabled' => true
     ]);
 
-    // フォロワーターゲットリスト作成
-    if ($restart !== true){
-      $response= $this->createFollowerTargetList($request);
-    }
-
     // 認証済みアカウント情報取得
     $user = $this->queryAuthenticatedUser($request);
 
-    // フォロワーターゲットリスト取得
-    $targets = $this->queryFollowerTargetList($request);
+    // ターゲットアカウントリスト取得
+    $lists = $this->queryTargetAccountList($request);
 
+    // 1ターゲットアカウント毎に自動処理を行う
+    foreach ($lists as $list){
 
-    $request_params = [];
-    $request_params['url'] = 'friendships/create';
-    $request_params['params'] = [
-      'screen_name' => ''
-    ];
-    $count = 0; // APIリクエスト可能回数
-
-    /*
-     * フォロワーターゲットリストのアカウントを順番にフォローしていく。
-     * 以下の通り、ウェイトを設ける。
-     *  ・１アカウントフォローするごとに15秒
-     *  ・15アカウントフォローするごとに16分（この間に自動いいねを行う）
-     * また、5000フォローを超えた場合、自動アンフォローを開始する
-     *
-     * twitterAPIからエラーが返ってきた場合、その時点で処理を終了する
-    */
-    foreach ($targets as $target){
-      // 自動処理無効もしくは一時停止の場合、処理を中止する
-      if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === true){
-        return false;
+      // リスタートで無い場合は、フォロワーターゲットリストを作成する
+      if ($restart !== true){
+        $response = $this->createFollowerTargetList($request, $list->screen_name);
       }
 
-      $request_params['params']['screen_name'] = $target->screen_name;
+      // 未フォローのフォロワーターゲットリストを取得
+      $targets = $this->queryFollowerTargetList($request);
 
-      // 現在のフォロー数を確認する
-      $friends_count = $this->queryFriendsCount($request ,$user);
 
-      // フォロー数が5000人を超えた場合、自動アンフォローを開始する
-      if($friends_count >= 5000){
-        if ($restart !== true){
-          $this->autoUnfollow($request);
-        }else {
-          $this->autoUnfollow($request, true);
+      $request_params = [];
+      $request_params['url'] = 'friendships/create';
+      $request_params['params'] = [
+        'screen_name' => ''
+      ];
+      $count = 0; // APIリクエスト可能回数
+
+      /*
+       * フォロワーターゲットリストのアカウントを順番にフォローしていく。
+       * 以下の通り、ウェイトを設ける。
+       *  ・１アカウントフォローするごとに15秒
+       *  ・15アカウントフォローするごとに16分（この間に自動いいねを行う）
+       * また、5000フォローを超えた場合、自動アンフォローを開始する
+       *
+       * twitterAPIからエラーが返ってきた場合、その時点で処理を終了する
+      */
+      foreach ($targets as $target){
+        // 自動処理無効もしくは一時停止の場合、処理を中止する
+        if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === true){
+          return false;
         }
-      }
 
-      // 15カウントごとにカウントごとに16分(960秒)待機する
-      // このタイミングで自動いいねを行う
-      if( $count !== 0  && ($count % 15) === 0 ){
-        $this->autoFavorite($request);
-        sleep(960);
-      }
-      // twitterAPIへフォローリクエストを送る
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
+        $request_params['params']['screen_name'] = $target->screen_name;
 
-      // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
-      if(!property_exists($response, 'id')){
-        return false;
-      }else {
-        // フォロー成功した場合、フォロー済みリストにもアカウント情報を格納する
-        $this->updateFollowerTargetList($request, $target->screen_name);
-        $this->createFollowedLists($request, $response);
+        // 現在のフォロー数を確認する
+        $friends_count = $this->queryFriendsCount($request ,$user);
+
+        // フォロー数が5000人を超えた場合、自動アンフォローを開始する
+        if($friends_count >= 5000){
+          if ($restart !== true){
+            $this->autoUnfollow($request);
+          }else {
+            $this->autoUnfollow($request, true);
+          }
+        }
+
+        // 15カウントごとにカウントごとに16分(960秒)待機する
+        // このタイミングで自動いいねを行う
+        if( $count !== 0  && ($count % 15) === 0 ){
+          $this->autoFavorite($request);
+          sleep(960);
+        }
+        // twitterAPIへフォローリクエストを送る
+        $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
+
+        // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
+        if(!property_exists($response, 'id')){
+          return false;
+        }else {
+          // フォロー成功した場合、フォロー済みリストにもアカウント情報を格納する
+          $this->updateFollowerTargetList($request, $target->screen_name);
+          $this->createFollowedLists($request, $response);
+        }
+        sleep(15);
+        $count++;
       }
-      sleep(15);
-      $count++;
     }
-
-    // 1ターゲットアカウントの処理が完了した後に完了メールを送信する
+    // 自動処理が完了した後に完了メールを送信する
     $data = [];
     $data['message'] =
       '自動処理が完了しました。
