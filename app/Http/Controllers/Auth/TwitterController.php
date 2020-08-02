@@ -865,6 +865,13 @@ class TwitterController extends Controller
     // ターゲットアカウントリスト取得
     $lists = $this->queryTargetAccountList($request);
 
+    $count = 0; // APIリクエスト可能回数
+
+    // リスタート時は16分間待機する
+    if($restart === true ){
+      sleep(960);
+    }
+
     // 1ターゲットアカウント毎に自動処理を行う
     foreach ($lists as $list){
 
@@ -882,7 +889,6 @@ class TwitterController extends Controller
       $request_params['params'] = [
         'screen_name' => ''
       ];
-      $count = 0; // APIリクエスト可能回数
 
       /*
        * フォロワーターゲットリストのアカウントを順番にフォローしていく。
