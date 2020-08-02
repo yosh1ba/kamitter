@@ -31,6 +31,7 @@ use PhpParser\Node\Expr\Cast\Object_;
 use PHPUnit\Util\Json;
 use Psy\Util\Str;
 use Ramsey\Uuid\Type\Integer;
+use function Psy\debug;
 
 /*
  * Twitter認証用クラス
@@ -1121,18 +1122,20 @@ class TwitterController extends Controller
   /*
    * 予約ツイート投稿用メソッド
    * 予約ツイートを投稿する
-   * @return レスポンス
+   * @return なし
    */
   public function autoTweet()
   {
-    // 時間がきたら実行される
 
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す
-    $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subDay(), Carbon::now()->addDay()])
+    $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subSeconds(30), Carbon::now()->addSeconds(30)])
       ->where('is_posted',false)
       ->get();
 
+    if($reserves->count() === 0){
+      return false;
+    }
     $request_params = [];
     $request_params['url'] = 'statuses/update';
     $request_params['params'] = [
