@@ -27,8 +27,7 @@ class Kernel extends ConsoleKernel
     {
       $schedule->call('App\Http\Controllers\Auth\TwitterController@AutoTweet')
         ->everyMinute()
-        ->name('task-tweet')
-        ->withoutOverlapping();
+        ->name('task-tweet');
     }
 
     /**
