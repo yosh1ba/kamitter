@@ -1153,6 +1153,7 @@ class TwitterController extends Controller
       $this->updateReserves($reserve['id']);
 
     }
+    return false;
   }
 
   /*
