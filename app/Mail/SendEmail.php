@@ -29,7 +29,7 @@ class SendEmail extends Mailable
     public function build()
     {
         return $this->view('emails.result')
-          ->from('mail@yosh1ba.com')  // TODO 送信元メールアドレス修正
+          ->from('mail@yosh1ba.com')
           ->subject($this->data['subject']) // 件名
           ->with('data', $this->data);
     }

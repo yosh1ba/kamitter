@@ -27,8 +27,7 @@ class VerifyEmail extends VerifyEmailBase
 
   protected function verificationUrl($user)
   {
-      // TODO 本番環境ではURLの変更必要
-      $prefix = config('app.develop_url') .config('app.email_verify_url') .config('app.parameter_queryUrl');
+      $prefix = config('app.url') .config('app.email_verify_url') .config('app.parameter_queryUrl');
       $routeName = 'verification.verify';
       $temporarySignedURL = URL::temporarySignedRoute(
           $routeName, Carbon::now()->addMinutes(60),
