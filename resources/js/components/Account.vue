@@ -4,27 +4,57 @@
       <div class="l-flex p-account__info">
         <img :src="item.twitter_avatar" alt="" class="p-account__info__img">
         <p class="p-account__info__name">{{item.twitter_screen_name}}</p>
-        <div class="p-account__info__buttons">
-          <button v-on:click="autoFollow" v-if="!autoPilot" class="c-button__circle p-account__info__buttons__btn--play"><i class="fas fa-play"></i></button>
-          <button v-on:click="toCancel" v-else class="c-button__circle p-account__info__buttons__btn--cancel"><i class="fas fa-stop"></i></button>
-          <transition name="fade">
-            <button v-on:click="toPause" v-if="autoPilot && !pause" class="c-button__circle p-account__info__buttons__btn--pause"><i class="fas fa-pause"></i></button>
-            <button v-on:click="toRestart" v-else-if="autoPilot && pause" class="c-button__circle p-account__info__buttons__btn--restart"><i class="fas fa-reply-all"></i></button>
-          </transition>
-          <button v-on:click="deleteUser" class="c-button__circle p-account__info__buttons__btn--delete"><i class="fas fa-trash"></i></button>
+        <button v-on:click="deleteUser" class="c-button__circle p-account__info__btn--delete"><i class="fas fa-trash"></i></button>
+      </div>
+      <div class="p-account__buttons">
+        <p class="p-account__buttons__head">自動フォロー</p>
+        <input type="checkbox" id="checkbox" v-model="checkUnfollow" class="p-account__buttons__check" :disabled="disableLink">
+        <label for="checkbox" class="p-account__buttons__check__label">アンフォローを一緒に行う</label>
+        <div class="l-flex">
+          <div class="p-account__buttons__btn">
+            <button v-on:click="autoFollow" class="c-button__circle p-account__buttons__btn--play" :disabled="disableAutoFollow"><i class="fas fa-play"></i></button>
+            <p class="p-account__buttons__label">開始</p>
+          </div>
+          <div class="p-account__buttons__btn">
+            <div v-if="!isPaused">
+              <button v-on:click="toPause" class="c-button__circle p-account__buttons__btn--pause" :disabled="disablePause"><i class="fas fa-pause"></i></button>
+              <p class="p-account__buttons__label">一時停止</p>
+            </div>
+            <div v-else-if="isPaused">
+              <button v-on:click="toRestart" class="c-button__circle p-account__buttons__btn--pause" :disabled="disablePause"><i class="fas fa-reply-all"></i></button>
+              <p class="p-account__buttons__label">再開</p>
+            </div>
+          </div>
+          <div class="p-account__buttons__btn">
+            <button v-on:click="toCancel" class="c-button__circle p-account__buttons__btn--cancel" :disabled="disableFollowCancel"><i class="fas fa-stop"></i></button>
+            <p class="p-account__buttons__label">中止</p>
+          </div>
         </div>
       </div>
-      <div class="p-account__info__buttons--sp">
-        <button v-on:click="autoFollow" v-if="!autoPilot" class="c-button__circle p-account__info__buttons__btn--play"><i class="fas fa-play"></i></button>
-        <button v-on:click="toCancel" v-else class="c-button__circle p-account__info__buttons__btn--cancel"><i class="fas fa-stop"></i></button>
-        <transition name="fade">
-          <button v-on:click="toPause" v-if="autoPilot && !pause" class="c-button__circle p-account__info__buttons__btn--pause"><i class="fas fa-pause"></i></button>
-          <button v-on:click="toRestart" v-else-if="autoPilot && pause" class="c-button__circle p-account__info__buttons__btn--restart"><i class="fas fa-reply-all"></i></button>
-        </transition>
-        <button v-on:click="deleteUser" class="c-button__circle p-account__info__buttons__btn--delete"><i class="fas fa-trash"></i></button>
+      <div class="p-account__buttons">
+        <p class="p-account__buttons__head">自動いいね</p>
+        <div class="l-flex">
+          <div class="p-account__buttons__btn">
+            <button v-on:click="autoFavorite" class="c-button__circle p-account__buttons__btn--play" :disabled="disableAutoFavorite"><i class="fas fa-play"></i></button>
+            <p class="p-account__buttons__label">開始</p>
+          </div>
+          <div class="p-account__buttons__btn">
+            <button v-on:click="toCancelFavorite" class="c-button__circle p-account__buttons__btn--cancel" :disabled="disableFavoriteCancel"><i class="fas fa-stop"></i></button>
+            <p class="p-account__buttons__label">中止</p>
+          </div>
+        </div>
       </div>
+<!--      <div class="p-account__buttons&#45;&#45;sp">
+        <button v-on:click="autoFollow" v-if="!disableAutoFollow" class="c-button__circle p-account__buttons__btn&#45;&#45;play"><i class="fas fa-play"></i></button>
+        <button v-on:click="toCancel" v-else class="c-button__circle p-account__buttons__btn&#45;&#45;cancel"><i class="fas fa-stop"></i></button>
+        <transition name="fade">
+          <button v-on:click="toPause" v-if="disableAutoFollow && !disablePause" class="c-button__circle p-account__buttons__btn&#45;&#45;pause"><i class="fas fa-pause"></i></button>
+          <button v-on:click="toRestart" v-else-if="disableAutoFollow && disablePause" class="c-button__circle p-account__buttons__btn&#45;&#45;restart"><i class="fas fa-reply-all"></i></button>
+        </transition>
+        <button v-on:click="deleteUser" class="c-button__circle p-account__buttons__btn&#45;&#45;delete"><i class="fas fa-trash"></i></button>
+      </div>-->
       <!--<button v-on:click="autoUnfollow">自動アンフォロー</button>-->
-      <!--<button v-on:click="autoFavorite">自動いいね</button>-->
+      <button v-on:click="autoFavoriteTest">自動いいね</button>
       <!--<button v-on:click="sendMail">メール送信</button>-->
       <div class="p-account__content__forms">
         <p class="p-account__content__forms__title">フォロー対象アカウント</p>
@@ -89,7 +119,6 @@
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
   import {mapGetters, mapState} from "vuex";
-
   export default {
     name: "Account",
     props: {
@@ -99,7 +128,7 @@
       }
     },
     components: {
-      flatPickr
+      flatPickr,
     },
     data() {
       return {
@@ -108,8 +137,13 @@
         favoriteKeywords:[],  // いいね用キーワード
         emptySearchKeyword:false,  // 検索用キーワードが空かどうか判定（画面描画用条件）
         emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
-        autoPilot:false,  // 自動運転判定
-        pause:false,  // 一時停止判定
+        disableAutoFollow:false,  // 自動フォローボタン不活性判定
+        disablePause:true,  // 一時停止ボタン不活性判定
+        isPaused:false, // 一時停止状態判定
+        disableFollowCancel:true, // 自動フォロー中止ボタン不活性判定
+        checkUnfollow:true, // アンフォロー判定
+        disableAutoFavorite:false,  // 自動いいねボタン不活性判定
+        disableFavoriteCancel:true, // 自動いいね中止ボタン不活性判定
         reserve: {  // 予約ツイート用プロパティ
           tweet : '',  // ツイート内容
           reserved_at : '' // ツイート時間
@@ -144,7 +178,7 @@
       },
       async saveTargetForm(){
         if(this.targets.length === 0){
-          alert('入力必須です')
+          alert('フォロー対象アカウントは入力必須です')
           return false;
         }
         for(let data of this.targets){
@@ -191,7 +225,8 @@
           return false
         }
 
-        this.$store.commit('message/setText', 'ターゲットアカウントが保存されました', { root: true })
+        return response
+        // this.$store.commit('message/setText', 'ターゲットアカウントが保存されました', { root: true })
       },
 
       // DBへに保存したフォロー対象アカウントをフォームに展開するメソッド
@@ -230,10 +265,10 @@
 
       // フォロワーサーチキーワードフォーム保存用メソッド
       async saveSearchKeywordForm(){
-        if(this.searchKeywords.length === 0){
-          alert('入力必須です')
-          return false;
-        }
+        // if(this.searchKeywords.length === 0){
+        //   alert('入力必須です')
+        //   return false;
+        // }
         for(let data of this.searchKeywords){
           this.emptySearchKeyword = false
           if(data.text !== ''){
@@ -271,7 +306,8 @@
           this.$store.commit('error/setMessage', response.data.errors)
           return false
         }
-        this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
+        return response;
+        // this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
 
       // DBに格納されているフォロワーサーチキーワードを展開するメソッド
@@ -315,7 +351,7 @@
       // いいね用キーワードフォーム保存用メソッド
       async saveFavoriteKeywordForm(){
         if(this.favoriteKeywords.length === 0){
-          alert('入力必須です')
+          alert('いいねキーワードを入力して下さい')
           return false;
         }
         for(let data of this.favoriteKeywords){
@@ -356,7 +392,7 @@
           return false
         }
 
-        this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
+        return response
       },
 
       // いいね用キーワードフォーム展開用メソッド
@@ -405,12 +441,21 @@
         this.$store.commit('message/setText', 'ツイートを予約しました', { root: true })
       },
 
-      // 自動運転状態確認用メソッド
-      async queryStateAutoPilot(){
+      // 自動フォロー状態確認用メソッド
+      async queryStateAutoFollow(){
         const response = await axios.get(`/api/twitter/auto/${this.item.id}`);
 
+        /*
+        * 自動フォロー処理中の場合は、
+        *   自動フォローボタン 不活性
+        *   一時停止ボタン     活性
+        *   中止ボタン         活性
+        * という状態にする
+        */
         if(response.data.length !== 0) {
-          this.autoPilot = true
+          this.disableAutoFollow = true
+          this.disablePause = false
+          this.disableFollowCancel = false
         }
       },
 
@@ -418,41 +463,123 @@
       async queryStatePause(){
         const response = await axios.get(`/api/twitter/pause/${this.item.id}`);
 
+        /*
+        * 一時停止中の場合は、
+        *   isPaused = true
+        * とし、再開ボタンに表示を切り替える
+        */
         if(response.data.length !== 0) {
-          this.pause = true
+          this.isPaused = true
+        }
+      },
+
+      // 自動フォロー状態確認用メソッド
+      async queryStateAutoFavorite(){
+        const response = await axios.get(`/api/twitter/auto/favorite/${this.item.id}`);
+
+        /*
+        * 自動いいね処理中の場合は、
+        *   自動いいねボタン 不活性
+        *   中止ボタン         活性
+        * という状態にする
+        */
+        if(response.data.length !== 0) {
+          this.disableAutoFavorite = true
+          this.disableFavoriteCancel = false
         }
       },
 
       // 自動フォロー（自動運用）開始用メソッド
       async autoFollow(){
-        // 自動フォローを開始する(非同期)
-        this.autoPilot = true
-        const responsePromise = axios.post(`/api/twitter/follow/${this.item.id}`);
-        this.autoPilot = false
-        this.pause = false
+
+        // フォロー対象アカウント保存
+        const responseTargets = await this.saveTargetForm()
+        if(!responseTargets){
+          return false
+        }
+
+        // 検索キーワード保存
+        const responseKeywords = await this.saveSearchKeywordForm()
+        if(!responseKeywords){
+          return false
+        }
+
+        // 自動アンフォロー状態更新
+        const responseUnfollow = await axios.post(`/api/twitter/unfollow/update`, {
+          id: this.item.id,
+          unfollow: this.checkUnfollow
+        });
+
+        // 自動フォローを開始する
+        this.disableAutoFollow = true
+        this.disablePause = false
+        this.disableFollowCancel = false
+
+        this.$store.commit('message/setText', '自動フォローを開始しました', { root: true })
+
+        const responsePromise = await axios.post(`/api/twitter/follow/${this.item.id}`);
+
+        this.disableAutoFollow = false
+        this.disablePause = true
+        this.disableFollowCancel = true
       },
 
-      // 一時停止用メソッド
+      // 自動フォロー 一時停止用メソッド
       async toPause(){
         // 自動処理を一時停止する
-        this.pause = true
+        this.isPaused = true
         const responsePromise = axios.post(`/api/twitter/pause/${this.item.id}`);
       },
 
-      // 処理中止用メソッド
+      // 自動フォロー 中止用メソッド
       async toCancel(){
         // 自動処理を中止する
-        this.autoPilot = false
-        this.pause = false
+        this.disableAutoFollow = false
+        this.disablePause = true
+        this.isPaused = false
+        this.disableFollowCancel = true
         const responsePromise = axios.post(`/api/twitter/cancel/${this.item.id}`);
       },
 
-      // 処理再開用メソッド
+      // 自動フォロー 再開用メソッド
       async toRestart(){
         // 自動処理を再開する
-        this.pause = false
+        this.isPaused = false
         const responsePromise = axios.post(`/api/twitter/restart/${this.item.id}`);
-        this.autoPilot = false
+      },
+
+      // 自動いいね開始用メソッド
+      async autoFavorite(){
+
+        // いいねキーワード保存
+        const responseKeywords = await this.saveFavoriteKeywordForm()
+        if(!responseKeywords){
+          return false
+        }
+
+        // 自動いいねを開始する
+        this.disableAutoFavorite = true
+        this.disableFavoriteCancel = false
+        const responsePromise = await axios.post(`/api/twitter/favorite/update`, {
+          id: this.item.id,
+          favorite: true
+        });
+
+        this.$store.commit('message/setText', '自動いいねを開始しました', { root: true })
+
+      },
+
+      // 自動いいね 中止用メソッド
+      async toCancelFavorite(){
+        // 自動いいねを中止する
+        this.disableAutoFavorite = false
+        this.disableFavoriteCancel = true
+        const responsePromise = await axios.post(`/api/twitter/favorite/update`, {
+          id: this.item.id,
+          favorite: false
+        });
+
+        this.$store.commit('message/setText', '自動いいねを中止しました', { root: true })
       },
 
       // 認証用ユーザー解除用メソッド
@@ -479,12 +606,6 @@
         const responsePromise = axios.post(`/api/twitter/unfollow/${this.item.id}`);
       },
 
-      // 自動いいね開始用メソッド（テスト用）
-      async autoFavorite(){
-        // 自動いいねを開始する
-        const responsePromise = axios.post(`/api/twitter/favorite/${this.item.id}`);
-      },
-
       // 自動ツイートメソッド（テスト用）
       async autoTweet(){
         const responseTweet = axios.post('/api/twitter/tweet');
@@ -493,6 +614,10 @@
       // メール送信用メソッド（テスト用）
       async sendMail(){
         const response = await axios.post(`/api/send/mail/${this.item.id}`)
+      },
+
+      async autoFavoriteTest(){
+       const response = await axios.post('/api/favorite/test')
       }
     },
     created() {
@@ -505,9 +630,17 @@
       // ページ表示時に未投稿の予約ツイートを呼び出す
       this.queryReserve()
       // 自動運転の状態を取得する
-      this.queryStateAutoPilot()
+      this.queryStateAutoFollow()
       // 一時停止の状態を確認する
       this.queryStatePause()
+      // 自動いいねの状態を取得する
+      this.queryStateAutoFavorite()
+
+    },
+    computed: {
+      disableLink: function () {
+        return this.disableAutoFollow
+      }
     }
   }
 </script>

@@ -13,16 +13,26 @@
             </ul>
           </div>
           <div class="c-form__item p-reset__form__item">
-            <label for="mail" class="c-form__item__label p-reset__form__item__label"></label>
+            <label for="mail" class="c-form__item__label p-reset__form__item__label">メールアドレス</label>
             <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input p-reset__form__item__input">
           </div>
           <div class="c-form__item p-reset__form__item">
-            <label for="password" class="c-form__item__label p-reset__form__item__label"></label>
-            <input id="password" type="password" placeholder="パスワード" v-model="form.password" class="c-form__item__input p-reset__form__item__input">
+            <label for="password" class="c-form__item__label p-reset__form__item__label">新しいパスワード</label>
+            <div class="u-position--relative">
+              <input id="password" :type="inputType" placeholder="パスワードを入力して下さい" v-model="form.password" class="c-form__item__input p-reset__form__item__input">
+              <i class="far fa-eye c-button__eye" @click="onClick" v-if="!isChecked"></i>
+              <i class="far fa-eye-slash c-button__eye" @click="onClick" v-if="isChecked"></i>
+            </div>
+            <label class="c-form__item__label ">※8-15文字の半角英数字</label>
           </div>
           <div class="c-form__item p-reset__form__item">
-            <label for="password_confirmation" class="c-form__item__label p-reset__form__item__label"></label>
-            <input id="password_confirmation" type="password" placeholder="パスワード再確認" v-model="form.password_confirmation" class="c-form__item__input p-reset__form__item__input">
+            <label for="password_confirmation" class="c-form__item__label p-reset__form__item__label">新しいパスワード再確認</label>
+            <div class="u-position--relative">
+              <input id="password_confirmation" :type="inputTypeConfirm" placeholder="パスワードを再度入力して下さい" v-model="form.password_confirmation" class="c-form__item__input p-reset__form__item__input">
+              <i class="far fa-eye c-button__eye" @click="onClickConfirm" v-if="!isCheckedConfirm"></i>
+              <i class="far fa-eye-slash c-button__eye" @click="onClickConfirm" v-if="isCheckedConfirm"></i>
+            </div>
+            <label class="c-form__item__label ">※8-15文字の半角英数字</label>
           </div>
           <button type="submit" class="c-form__btn p-reset__form__btn">再設定する</button>
         </form>
@@ -44,7 +54,9 @@ export default {
         password_confirmation: '',  // 新しいパスワード確認
         token: ''                   // パスワードリセット実行するための一時的なトークン
       },
-      requestUrl: ''
+      requestUrl: '',
+      isChecked: false,             // パスワード表示切り替え用
+      isCheckedConfirm: false       // パスワード(再確認)表示切り替え用
     }
   },
   created() {
@@ -71,13 +83,27 @@ export default {
     setQuery() { // getリクエストのパラメータを取得する関数
       this.requestUrl = this.$route.query.queryURL || ''; // パスワードリセットAPIのURL
       this.form.token = this.$route.query.token || '';    // パスワードリセットするために必要なToken
-    }
+    },
+    // パスワードの表示、非表示を切り替えるメソッド
+    onClick: function() {
+      this.isChecked = !this.isChecked;
+    },
+    // パスワード(再確認)の表示、非表示を切り替えるメソッド
+    onClickConfirm: function() {
+      this.isCheckedConfirm = !this.isCheckedConfirm;
+    },
   },
   // errorストアのmessageステートを、errorMessagesにセット
   computed: {
     ...mapState('error', {
       errorMessages: 'message'
-    })
+    }),
+    inputType: function () {
+      return this.isChecked ? "text" : "password"
+    },
+    inputTypeConfirm: function () {
+      return this.isCheckedConfirm ? "text" : "password"
+    }
   },
 
 }

@@ -22,6 +22,9 @@
 Route::prefix('api')
   ->group(function () {
 
+    // 自動いいねテスト
+    Route::post('/favorite/test', 'Auth\FavoriteController@autoFavorite');
+
     // 登録
     Route::post('/register', 'Auth\RegisterController@register')->name('register');
 
@@ -68,16 +71,22 @@ Route::prefix('api')
     Route::get('/search/keyword/{id}', 'SearchController@querySearchKeywordList');
 
     // いいねキーワードリスト作成
-    Route::post('/favorite/keyword', 'FavoriteController@createFavoriteKeywordList');
+    Route::post('/favorite/keyword', 'Auth\FavoriteController@createFavoriteKeywordList');
 
     // いいねキーワードリスト読み込み
-    Route::get('/favorite/keyword/{id}', 'FavoriteController@queryFavoriteKeywordList');
+    Route::get('/favorite/keyword/{id}', 'Auth\FavoriteController@queryFavoriteKeywordList');
 
     // 自動フォロー
     Route::post('/twitter/follow/{id}', 'Auth\TwitterController@autoFollow');
 
+    // 自動アンフォロー状態更新
+    Route::post('/twitter/unfollow/update', 'Auth\TwitterController@updateUnfollow');
+
     // 自動アンフォロー
     Route::post('/twitter/unfollow/{id}', 'Auth\TwitterController@autoUnfollow');
+
+    // 自動いいね状態更新
+    Route::post('/twitter/favorite/update', 'Auth\FavoriteController@updateFavorite');
 
     // 自動いいね
     Route::post('/twitter/favorite/{id}', 'Auth\TwitterController@autoFavorite');
@@ -96,6 +105,9 @@ Route::prefix('api')
 
     // メール送信
     Route::post('/send/mail/{id}', 'Auth\TwitterController@sendMail');
+
+    // 自動いいね状態読み込み
+    Route::get('/twitter/auto/favorite/{id}', 'Auth\TwitterController@judgeAutoFavorite');
 
     // 自動運用状態読み込み
     Route::get('/twitter/auto/{id}', 'Auth\TwitterController@judgeAutoPilot');

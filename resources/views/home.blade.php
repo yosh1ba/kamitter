@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name') }}</title>
+    <meta name="description" content="神ったーは、無料で手軽なTwitter自動運用サービスです。">
+    <meta name="keywords" content="Twitter,twitter,ツイッター,自動化,自動フォロー,自動アンフォロー,自動いいね,ツイート予約,予約ツイート,無料">
 
     <!-- StyleSheet -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-{{--    <link rel="stylesheet" href="/public/css/app.css">--}}
 
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}" defer></script>
-{{--    <script src="./public/js/app.js" defer></script>--}}
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
@@ -19,6 +19,6 @@
 
 </head>
 <body>
-<div id="app"></div>
+    <div id="app"></div>
 </body>
 </html>

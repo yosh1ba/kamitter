@@ -3,8 +3,9 @@ import Vue from 'vue'
 import router from './router' // ルーティングの定義をインポートする
 import App from './App.vue' // ルートコンポーネントをインポートする
 import store from './store'
-// import vSelect from 'vue-select'
-// import 'vue-select/dist/vue-select.css';
+import ToggleButton from 'vue-js-toggle-button'
+
+Vue.use(ToggleButton)
 
 const createApp = async () =>{
   await store.dispatch('auth/currentUser');

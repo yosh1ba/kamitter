@@ -1,6 +1,6 @@
 .c-button{
   &__circle {
-    margin-left: 8px;
+
     display: inline-block;
     text-decoration: none;
     width: 30px;
@@ -18,6 +18,12 @@
     & i{
       line-height: 30px;
     }
+    &:disabled{
+      color: #cdcdcd;
+      box-shadow: none;
+      border-bottom: none;
+      border-top: solid 2px #fafafa;
+    }
   }
   &__square {
     width: 60px;
@@ -30,4 +36,21 @@
       @include hover;
     }
   }
+  &__eye{
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 40px !important;
+    cursor: pointer;
+  }
+
+  &--require{
+    background: $color-red;
+    color: $color-font-light;
+    padding: 2px 4px;
+    margin-right: 8px;
+    border-radius: 3px;
+    font-weight: normal;
+    }
+
 }

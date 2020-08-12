@@ -14,12 +14,16 @@
               </ul>
             </div>
             <div class="c-form__item p-login__form__item">
-              <label for="mail" class="c-form__item__label p-login__form__item__label"></label>
-              <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input p-login__form__item__input">
+              <label for="mail" class="c-form__item__label p-login__form__item__label">メールアドレス</label>
+              <input id="mail" type="email" placeholder="メールアドレスを入力して下さい" v-model="form.email" class="c-form__item__input p-login__form__item__input" required aria-required="true">
             </div>
             <div class="p-login__form__item">
-              <label for="password" class="c-form__item__label p-login__form__item__label"></label>
-              <input id="password" type="password" placeholder="パスワード" v-model="form.password" class="c-form__item__input p-login__form__item__input">
+              <label for="password" class="c-form__item__label p-login__form__item__label">パスワード</label>
+              <div class="u-position--relative">
+                <input id="password" :type="inputType" placeholder="パスワードを入力して下さい" v-model="form.password" class="c-form__item__input p-login__form__item__input" required aria-required="true">
+                <i class="far fa-eye c-button__eye" @click="onClick" v-if="!isChecked"></i>
+                <i class="far fa-eye-slash c-button__eye" @click="onClick" v-if="isChecked"></i>
+              </div>
             </div>
             <button type="submit" class="c-form__btn p-login__form__btn">ログイン</button>
             <p>パスワードを忘れた方は <router-link to="/password/forget">こちら</router-link></p>
@@ -40,7 +44,8 @@ export default {
       form: {
         email: '',
         password: '',
-      }
+      },
+      isChecked: false,
     }
   },
   methods: {
@@ -56,6 +61,9 @@ export default {
         this.$router.push('/mypage')
       }
     },
+    onClick: function() {
+      this.isChecked = !this.isChecked;
+    },
 
     // エラー情報をクリアするメソッド
     clearError(){
@@ -68,8 +76,12 @@ export default {
       apiStatus: state => state.auth.apiStatus,
       // ログイン時のエラーメッセージを取得
       loginErrors: state => state.auth.loginErrorMessages
-    })
+    }),
+    inputType: function () {
+      return this.isChecked ? "text" : "password"
+    },
   },
+
   // ページ生成時にエラー情報をクリアする
   created() {
     this.clearError()

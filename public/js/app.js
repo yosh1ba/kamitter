@@ -2082,6 +2082,36 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2110,10 +2140,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       // 検索用キーワードが空かどうか判定（画面描画用条件）
       emptyFavoriteKeyword: false,
       // いいね用キーワードが空かどうか判定（画面描画用条件）
-      autoPilot: false,
-      // 自動運転判定
-      pause: false,
-      // 一時停止判定
+      disableAutoFollow: false,
+      // 自動フォローボタン不活性判定
+      disablePause: true,
+      // 一時停止ボタン不活性判定
+      isPaused: false,
+      // 一時停止状態判定
+      disableFollowCancel: true,
+      // 自動フォロー中止ボタン不活性判定
+      checkUnfollow: true,
+      // アンフォロー判定
+      disableAutoFavorite: false,
+      // 自動いいねボタン不活性判定
+      disableFavoriteCancel: true,
+      // 自動いいね中止ボタン不活性判定
       reserve: {
         // 予約ツイート用プロパティ
         tweet: '',
@@ -2169,7 +2209,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   break;
                 }
 
-                alert('入力必須です');
+                alert('フォロー対象アカウントは入力必須です');
                 return _context.abrupt("return", false);
 
               case 3:
@@ -2286,9 +2326,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context.abrupt("return", false);
 
               case 48:
-                _this.$store.commit('message/setText', 'ターゲットアカウントが保存されました', {
-                  root: true
-                });
+                return _context.abrupt("return", response);
 
               case 49:
               case "end":
@@ -2370,23 +2408,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                if (!(_this3.searchKeywords.length === 0)) {
-                  _context3.next = 3;
-                  break;
-                }
-
-                alert('入力必須です');
-                return _context3.abrupt("return", false);
-
-              case 3:
+                // if(this.searchKeywords.length === 0){
+                //   alert('入力必須です')
+                //   return false;
+                // }
                 _iterator3 = _createForOfIteratorHelper(_this3.searchKeywords);
-                _context3.prev = 4;
+                _context3.prev = 1;
 
                 _iterator3.s();
 
-              case 6:
+              case 3:
                 if ((_step3 = _iterator3.n()).done) {
-                  _context3.next = 18;
+                  _context3.next = 15;
                   break;
                 }
 
@@ -2394,7 +2427,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _this3.emptySearchKeyword = false;
 
                 if (!(data.text !== '')) {
-                  _context3.next = 14;
+                  _context3.next = 11;
                   break;
                 }
 
@@ -2407,37 +2440,37 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 _this3.$set(data, 'message', '');
 
-                _context3.next = 16;
+                _context3.next = 13;
                 break;
 
-              case 14:
+              case 11:
                 // フォームが空欄の場合はエラーを表示する
                 _this3.$set(data, 'message', 'キーワードが存在しません');
 
                 return _context3.abrupt("return", false);
 
-              case 16:
-                _context3.next = 6;
+              case 13:
+                _context3.next = 3;
                 break;
 
-              case 18:
-                _context3.next = 23;
+              case 15:
+                _context3.next = 20;
                 break;
 
-              case 20:
-                _context3.prev = 20;
-                _context3.t0 = _context3["catch"](4);
+              case 17:
+                _context3.prev = 17;
+                _context3.t0 = _context3["catch"](1);
 
                 _iterator3.e(_context3.t0);
 
-              case 23:
-                _context3.prev = 23;
+              case 20:
+                _context3.prev = 20;
 
                 _iterator3.f();
 
-                return _context3.finish(23);
+                return _context3.finish(20);
 
-              case 26:
+              case 23:
                 // 検索キーワードが一つも設定されていない場合、
                 if (_this3.searchKeywords.length === 0) {
                   _this3.emptySearchKeyword = true;
@@ -2449,14 +2482,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 } // フォームの入力チェック完了後、サーチキーワードリストの作成を行う
 
 
-                _context3.next = 29;
+                _context3.next = 26;
                 return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/search/keyword', _this3.searchKeywords);
 
-              case 29:
+              case 26:
                 response = _context3.sent;
 
                 if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
-                  _context3.next = 34;
+                  _context3.next = 31;
                   break;
                 }
 
@@ -2466,17 +2499,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
                 return _context3.abrupt("return", false);
 
-              case 34:
-                _this3.$store.commit('message/setText', 'キーワードが保存されました', {
-                  root: true
-                });
+              case 31:
+                return _context3.abrupt("return", response);
 
-              case 35:
+              case 32:
               case "end":
                 return _context3.stop();
             }
           }
-        }, _callee3, null, [[4, 20, 23, 26]]);
+        }, _callee3, null, [[1, 17, 20, 23]]);
       }))();
     },
     // DBに格納されているフォロワーサーチキーワードを展開するメソッド
@@ -2560,7 +2591,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   break;
                 }
 
-                alert('入力必須です');
+                alert('いいねキーワードを入力して下さい');
                 return _context5.abrupt("return", false);
 
               case 3:
@@ -2652,9 +2683,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 return _context5.abrupt("return", false);
 
               case 34:
-                _this5.$store.commit('message/setText', 'キーワードが保存されました', {
-                  root: true
-                });
+                return _context5.abrupt("return", response);
 
               case 35:
               case "end":
@@ -2788,8 +2817,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee8);
       }))();
     },
-    // 自動運転状態確認用メソッド
-    queryStateAutoPilot: function queryStateAutoPilot() {
+    // 自動フォロー状態確認用メソッド
+    queryStateAutoFollow: function queryStateAutoFollow() {
       var _this9 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee9() {
@@ -2804,8 +2833,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 2:
                 response = _context9.sent;
 
+                /*
+                * 自動フォロー処理中の場合は、
+                *   自動フォローボタン 不活性
+                *   一時停止ボタン     活性
+                *   中止ボタン         活性
+                * という状態にする
+                */
                 if (response.data.length !== 0) {
-                  _this9.autoPilot = true;
+                  _this9.disableAutoFollow = true;
+                  _this9.disablePause = false;
+                  _this9.disableFollowCancel = false;
                 }
 
               case 4:
@@ -2832,8 +2870,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               case 2:
                 response = _context10.sent;
 
+                /*
+                * 一時停止中の場合は、
+                *   isPaused = true
+                * とし、再開ボタンに表示を切り替える
+                */
                 if (response.data.length !== 0) {
-                  _this10.pause = true;
+                  _this10.isPaused = true;
                 }
 
               case 4:
@@ -2844,21 +2887,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee10);
       }))();
     },
-    // 自動フォロー（自動運用）開始用メソッド
-    autoFollow: function autoFollow() {
+    // 自動フォロー状態確認用メソッド
+    queryStateAutoFavorite: function queryStateAutoFavorite() {
       var _this11 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee11() {
-        var responsePromise;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee11$(_context11) {
           while (1) {
             switch (_context11.prev = _context11.next) {
               case 0:
-                // 自動フォローを開始する(非同期)
-                _this11.autoPilot = true;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this11.item.id));
-                _this11.autoPilot = false;
-                _this11.pause = false;
+                _context11.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/auto/favorite/".concat(_this11.item.id));
+
+              case 2:
+                response = _context11.sent;
+
+                /*
+                * 自動いいね処理中の場合は、
+                *   自動いいねボタン 不活性
+                *   中止ボタン         活性
+                * という状態にする
+                */
+                if (response.data.length !== 0) {
+                  _this11.disableAutoFavorite = true;
+                  _this11.disableFavoriteCancel = false;
+                }
 
               case 4:
               case "end":
@@ -2868,21 +2922,71 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee11);
       }))();
     },
-    // 一時停止用メソッド
-    toPause: function toPause() {
+    // 自動フォロー（自動運用）開始用メソッド
+    autoFollow: function autoFollow() {
       var _this12 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee12() {
-        var responsePromise;
+        var responseTargets, responseKeywords, responseUnfollow, responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee12$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
               case 0:
-                // 自動処理を一時停止する
-                _this12.pause = true;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/pause/".concat(_this12.item.id));
+                _context12.next = 2;
+                return _this12.saveTargetForm();
 
               case 2:
+                responseTargets = _context12.sent;
+
+                if (responseTargets) {
+                  _context12.next = 5;
+                  break;
+                }
+
+                return _context12.abrupt("return", false);
+
+              case 5:
+                _context12.next = 7;
+                return _this12.saveSearchKeywordForm();
+
+              case 7:
+                responseKeywords = _context12.sent;
+
+                if (responseKeywords) {
+                  _context12.next = 10;
+                  break;
+                }
+
+                return _context12.abrupt("return", false);
+
+              case 10:
+                _context12.next = 12;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/update", {
+                  id: _this12.item.id,
+                  unfollow: _this12.checkUnfollow
+                });
+
+              case 12:
+                responseUnfollow = _context12.sent;
+                // 自動フォローを開始する
+                _this12.disableAutoFollow = true;
+                _this12.disablePause = false;
+                _this12.disableFollowCancel = false;
+
+                _this12.$store.commit('message/setText', '自動フォローを開始しました', {
+                  root: true
+                });
+
+                _context12.next = 19;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this12.item.id));
+
+              case 19:
+                responsePromise = _context12.sent;
+                _this12.disableAutoFollow = false;
+                _this12.disablePause = true;
+                _this12.disableFollowCancel = true;
+
+              case 23:
               case "end":
                 return _context12.stop();
             }
@@ -2890,8 +2994,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee12);
       }))();
     },
-    // 処理中止用メソッド
-    toCancel: function toCancel() {
+    // 自動フォロー 一時停止用メソッド
+    toPause: function toPause() {
       var _this13 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee13() {
@@ -2900,12 +3004,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context13.prev = _context13.next) {
               case 0:
-                // 自動処理を中止する
-                _this13.autoPilot = false;
-                _this13.pause = false;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/cancel/".concat(_this13.item.id));
+                // 自動処理を一時停止する
+                _this13.isPaused = true;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/pause/".concat(_this13.item.id));
 
-              case 3:
+              case 2:
               case "end":
                 return _context13.stop();
             }
@@ -2913,8 +3016,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee13);
       }))();
     },
-    // 処理再開用メソッド
-    toRestart: function toRestart() {
+    // 自動フォロー 中止用メソッド
+    toCancel: function toCancel() {
       var _this14 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee14() {
@@ -2923,12 +3026,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context14.prev = _context14.next) {
               case 0:
-                // 自動処理を再開する
-                _this14.pause = false;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/restart/".concat(_this14.item.id));
-                _this14.autoPilot = false;
+                // 自動処理を中止する
+                _this14.disableAutoFollow = false;
+                _this14.disablePause = true;
+                _this14.isPaused = false;
+                _this14.disableFollowCancel = true;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/cancel/".concat(_this14.item.id));
 
-              case 3:
+              case 5:
               case "end":
                 return _context14.stop();
             }
@@ -2936,49 +3041,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee14);
       }))();
     },
-    // 認証用ユーザー解除用メソッド
-    deleteUser: function deleteUser() {
+    // 自動フォロー 再開用メソッド
+    toRestart: function toRestart() {
       var _this15 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee15() {
-        var response;
+        var responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee15$(_context15) {
           while (1) {
             switch (_context15.prev = _context15.next) {
               case 0:
-                if (!(window.confirm('連携を解除してもよろしいですか') === false)) {
-                  _context15.next = 2;
-                  break;
-                }
-
-                return _context15.abrupt("return", false);
+                // 自動処理を再開する
+                _this15.isPaused = false;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/restart/".concat(_this15.item.id));
 
               case 2:
-                _context15.next = 4;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/user/delete/".concat(_this15.item.id));
-
-              case 4:
-                response = _context15.sent;
-
-                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
-                  _context15.next = 9;
-                  break;
-                }
-
-                _this15.$store.commit('error/setCode', response.status);
-
-                _this15.$store.commit('error/setMessage', response.data.errors);
-
-                return _context15.abrupt("return", false);
-
-              case 9:
-                _this15.$store.commit('message/setText', '認証が解除されました', {
-                  root: true
-                });
-
-                location.reload();
-
-              case 11:
               case "end":
                 return _context15.stop();
             }
@@ -2986,20 +3063,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee15);
       }))();
     },
-    // 自動アンフォロー開始用メソッド（テスト用）
-    autoUnfollow: function autoUnfollow() {
+    // 自動いいね開始用メソッド
+    autoFavorite: function autoFavorite() {
       var _this16 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee16() {
-        var responsePromise;
+        var responseKeywords, responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee16$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
               case 0:
-                // 自動アンフォローを開始する
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this16.item.id));
+                _context16.next = 2;
+                return _this16.saveFavoriteKeywordForm();
 
-              case 1:
+              case 2:
+                responseKeywords = _context16.sent;
+
+                if (responseKeywords) {
+                  _context16.next = 5;
+                  break;
+                }
+
+                return _context16.abrupt("return", false);
+
+              case 5:
+                // 自動いいねを開始する
+                _this16.disableAutoFavorite = true;
+                _this16.disableFavoriteCancel = false;
+                _context16.next = 9;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/update", {
+                  id: _this16.item.id,
+                  favorite: true
+                });
+
+              case 9:
+                responsePromise = _context16.sent;
+
+                _this16.$store.commit('message/setText', '自動いいねを開始しました', {
+                  root: true
+                });
+
+              case 11:
               case "end":
                 return _context16.stop();
             }
@@ -3007,8 +3111,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee16);
       }))();
     },
-    // 自動いいね開始用メソッド（テスト用）
-    autoFavorite: function autoFavorite() {
+    // 自動いいね 中止用メソッド
+    toCancelFavorite: function toCancelFavorite() {
       var _this17 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee17() {
@@ -3017,10 +3121,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context17.prev = _context17.next) {
               case 0:
-                // 自動いいねを開始する
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/".concat(_this17.item.id));
+                // 自動いいねを中止する
+                _this17.disableAutoFavorite = false;
+                _this17.disableFavoriteCancel = true;
+                _context17.next = 4;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/update", {
+                  id: _this17.item.id,
+                  favorite: false
+                });
 
-              case 1:
+              case 4:
+                responsePromise = _context17.sent;
+
+                _this17.$store.commit('message/setText', '自動いいねを中止しました', {
+                  root: true
+                });
+
+              case 6:
               case "end":
                 return _context17.stop();
             }
@@ -3028,17 +3145,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee17);
       }))();
     },
-    // 自動ツイートメソッド（テスト用）
-    autoTweet: function autoTweet() {
+    // 認証用ユーザー解除用メソッド
+    deleteUser: function deleteUser() {
+      var _this18 = this;
+
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee18() {
-        var responseTweet;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
-                responseTweet = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/twitter/tweet');
+                if (!(window.confirm('連携を解除してもよろしいですか') === false)) {
+                  _context18.next = 2;
+                  break;
+                }
 
-              case 1:
+                return _context18.abrupt("return", false);
+
+              case 2:
+                _context18.next = 4;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/user/delete/".concat(_this18.item.id));
+
+              case 4:
+                response = _context18.sent;
+
+                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
+                  _context18.next = 9;
+                  break;
+                }
+
+                _this18.$store.commit('error/setCode', response.status);
+
+                _this18.$store.commit('error/setMessage', response.data.errors);
+
+                return _context18.abrupt("return", false);
+
+              case 9:
+                _this18.$store.commit('message/setText', '認証が解除されました', {
+                  root: true
+                });
+
+                location.reload();
+
+              case 11:
               case "end":
                 return _context18.stop();
             }
@@ -3046,28 +3195,88 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee18);
       }))();
     },
-    // メール送信用メソッド（テスト用）
-    sendMail: function sendMail() {
-      var _this18 = this;
+    // 自動アンフォロー開始用メソッド（テスト用）
+    autoUnfollow: function autoUnfollow() {
+      var _this19 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee19() {
-        var response;
+        var responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee19$(_context19) {
           while (1) {
             switch (_context19.prev = _context19.next) {
               case 0:
-                _context19.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/send/mail/".concat(_this18.item.id));
+                // 自動アンフォローを開始する
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this19.item.id));
 
-              case 2:
-                response = _context19.sent;
-
-              case 3:
+              case 1:
               case "end":
                 return _context19.stop();
             }
           }
         }, _callee19);
+      }))();
+    },
+    // 自動ツイートメソッド（テスト用）
+    autoTweet: function autoTweet() {
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee20() {
+        var responseTweet;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee20$(_context20) {
+          while (1) {
+            switch (_context20.prev = _context20.next) {
+              case 0:
+                responseTweet = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/twitter/tweet');
+
+              case 1:
+              case "end":
+                return _context20.stop();
+            }
+          }
+        }, _callee20);
+      }))();
+    },
+    // メール送信用メソッド（テスト用）
+    sendMail: function sendMail() {
+      var _this20 = this;
+
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee21() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee21$(_context21) {
+          while (1) {
+            switch (_context21.prev = _context21.next) {
+              case 0:
+                _context21.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/send/mail/".concat(_this20.item.id));
+
+              case 2:
+                response = _context21.sent;
+
+              case 3:
+              case "end":
+                return _context21.stop();
+            }
+          }
+        }, _callee21);
+      }))();
+    },
+    autoFavoriteTest: function autoFavoriteTest() {
+      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee22() {
+        var response;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee22$(_context22) {
+          while (1) {
+            switch (_context22.prev = _context22.next) {
+              case 0:
+                _context22.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/favorite/test');
+
+              case 2:
+                response = _context22.sent;
+
+              case 3:
+              case "end":
+                return _context22.stop();
+            }
+          }
+        }, _callee22);
       }))();
     }
   },
@@ -3081,9 +3290,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
     this.queryReserve(); // 自動運転の状態を取得する
 
-    this.queryStateAutoPilot(); // 一時停止の状態を確認する
+    this.queryStateAutoFollow(); // 一時停止の状態を確認する
 
-    this.queryStatePause();
+    this.queryStatePause(); // 自動いいねの状態を取得する
+
+    this.queryStateAutoFavorite();
+  },
+  computed: {
+    disableLink: function disableLink() {
+      return this.disableAutoFollow;
+    }
   }
 });
 
@@ -3596,6 +3812,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'Login',
@@ -3604,7 +3824,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       form: {
         email: '',
         password: ''
-      }
+      },
+      isChecked: false
     };
   },
   methods: {
@@ -3635,12 +3856,15 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee);
       }))();
     },
+    onClick: function onClick() {
+      this.isChecked = !this.isChecked;
+    },
     // エラー情報をクリアするメソッド
     clearError: function clearError() {
       this.$store.commit('auth/setLoginErrorMessages', null);
     }
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
     // APIのレスポンスが正常かどうかを判断
     apiStatus: function apiStatus(state) {
       return state.auth.apiStatus;
@@ -3649,7 +3873,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     loginErrors: function loginErrors(state) {
       return state.auth.loginErrorMessages;
     }
-  })),
+  })), {}, {
+    inputType: function inputType() {
+      return this.isChecked ? "text" : "password";
+    }
+  }),
   // ページ生成時にエラー情報をクリアする
   created: function created() {
     this.clearError();
@@ -4001,6 +4229,16 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4017,7 +4255,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         token: '' // パスワードリセット実行するための一時的なトークン
 
       },
-      requestUrl: ''
+      requestUrl: '',
+      isChecked: false,
+      // パスワード表示切り替え用
+      isCheckedConfirm: false // パスワード(再確認)表示切り替え用
+
     };
   },
   created: function created() {
@@ -4074,12 +4316,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.requestUrl = this.$route.query.queryURL || ''; // パスワードリセットAPIのURL
 
       this.form.token = this.$route.query.token || ''; // パスワードリセットするために必要なToken
+    },
+    // パスワードの表示、非表示を切り替えるメソッド
+    onClick: function onClick() {
+      this.isChecked = !this.isChecked;
+    },
+    // パスワード(再確認)の表示、非表示を切り替えるメソッド
+    onClickConfirm: function onClickConfirm() {
+      this.isCheckedConfirm = !this.isCheckedConfirm;
     }
   },
   // errorストアのmessageステートを、errorMessagesにセット
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('error', {
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])('error', {
     errorMessages: 'message'
-  }))
+  })), {}, {
+    inputType: function inputType() {
+      return this.isChecked ? "text" : "password";
+    },
+    inputTypeConfirm: function inputTypeConfirm() {
+      return this.isCheckedConfirm ? "text" : "password";
+    }
+  })
 });
 
 /***/ }),
@@ -4157,6 +4414,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -4171,7 +4439,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         password_confirmation: ''
       },
       isLoading: false,
-      fullPage: true
+      fullPage: true,
+      isChecked: false,
+      // パスワード表示切り替え用
+      isCheckedConfirm: false // パスワード(再確認)表示切り替え用
+
     };
   },
   components: {
@@ -4208,12 +4480,20 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee);
       }))();
     },
+    // パスワードの表示、非表示を切り替えるメソッド
+    onClick: function onClick() {
+      this.isChecked = !this.isChecked;
+    },
+    // パスワード(再確認)の表示、非表示を切り替えるメソッド
+    onClickConfirm: function onClickConfirm() {
+      this.isCheckedConfirm = !this.isCheckedConfirm;
+    },
     // エラー情報をクリアするメソッド
     clearError: function clearError() {
       this.$store.commit('auth/setRegisterErrorMessages', null);
     }
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
     // APIのレスポンスが正常かどうかを判断
     apiStatus: function apiStatus(state) {
       return state.auth.apiStatus;
@@ -4222,7 +4502,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     registerErrors: function registerErrors(state) {
       return state.auth.registerErrorMessages;
     }
-  })),
+  })), {}, {
+    inputType: function inputType() {
+      return this.isChecked ? "text" : "password";
+    },
+    inputTypeConfirm: function inputTypeConfirm() {
+      return this.isCheckedConfirm ? "text" : "password";
+    }
+  }),
   // ページ生成時にエラー情報をクリアする
   created: function created() {
     this.clearError();
@@ -43679,6 +43966,865 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-js-toggle-button/dist/index.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/vue-js-toggle-button/dist/index.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else {}
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/dist/";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(8)
+
+var Component = __webpack_require__(6)(
+  /* script */
+  __webpack_require__(1),
+  /* template */
+  __webpack_require__(7),
+  /* scopeId */
+  "data-v-25adc6c0",
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(3);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+var DEFAULT_COLOR_CHECKED = '#75c791';
+var DEFAULT_COLOR_UNCHECKED = '#bfcbd9';
+var DEFAULT_LABEL_CHECKED = 'on';
+var DEFAULT_LABEL_UNCHECKED = 'off';
+var DEFAULT_SWITCH_COLOR = '#fff';
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'ToggleButton',
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    },
+    name: {
+      type: String
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    tag: {
+      type: String
+    },
+    sync: {
+      type: Boolean,
+      default: false
+    },
+    speed: {
+      type: Number,
+      default: 300
+    },
+    color: {
+      type: [String, Object],
+      validator: function validator(value) {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* isString */])(value) || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["b" /* has */])(value, 'checked') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["b" /* has */])(value, 'unchecked') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["b" /* has */])(value, 'disabled');
+      }
+    },
+    switchColor: {
+      type: [String, Object],
+      validator: function validator(value) {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* isString */])(value) || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["b" /* has */])(value, 'checked') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["b" /* has */])(value, 'unchecked');
+      }
+    },
+    cssColors: {
+      type: Boolean,
+      default: false
+    },
+    labels: {
+      type: [Boolean, Object],
+      default: false,
+      validator: function validator(value) {
+        return (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object' ? value.checked || value.unchecked : typeof value === 'boolean';
+      }
+    },
+    height: {
+      type: Number,
+      default: 22
+    },
+    width: {
+      type: Number,
+      default: 50
+    },
+    margin: {
+      type: Number,
+      default: 3
+    },
+    fontSize: {
+      type: Number
+    }
+  },
+  computed: {
+    className: function className() {
+      var toggled = this.toggled,
+          disabled = this.disabled;
+
+
+      return ['vue-js-switch', {
+        toggled: toggled,
+        disabled: disabled
+      }];
+    },
+    coreStyle: function coreStyle() {
+      return {
+        width: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.width),
+        height: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.height),
+        backgroundColor: this.cssColors ? null : this.disabled ? this.colorDisabled : this.colorCurrent,
+        borderRadius: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(Math.round(this.height / 2))
+      };
+    },
+    buttonRadius: function buttonRadius() {
+      return this.height - this.margin * 2;
+    },
+    distance: function distance() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.width - this.height + this.margin);
+    },
+    buttonStyle: function buttonStyle() {
+      var transition = 'transform ' + this.speed + 'ms';
+      var margin = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.margin);
+
+      var transform = this.toggled ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["d" /* translate3d */])(this.distance, margin) : __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["d" /* translate3d */])(margin, margin);
+
+      var background = this.switchColor ? this.switchColorCurrent : null;
+
+      return {
+        width: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.buttonRadius),
+        height: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.buttonRadius),
+        transition: transition,
+        transform: transform,
+        background: background
+      };
+    },
+    labelStyle: function labelStyle() {
+      return {
+        lineHeight: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.height),
+        fontSize: this.fontSize ? __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["c" /* px */])(this.fontSize) : null
+      };
+    },
+    colorChecked: function colorChecked() {
+      var color = this.color;
+
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["e" /* isObject */])(color)) {
+        return color || DEFAULT_COLOR_CHECKED;
+      }
+
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(color, 'checked', DEFAULT_COLOR_CHECKED);
+    },
+    colorUnchecked: function colorUnchecked() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.color, 'unchecked', DEFAULT_COLOR_UNCHECKED);
+    },
+    colorDisabled: function colorDisabled() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.color, 'disabled', this.colorCurrent);
+    },
+    colorCurrent: function colorCurrent() {
+      return this.toggled ? this.colorChecked : this.colorUnchecked;
+    },
+    labelChecked: function labelChecked() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.labels, 'checked', DEFAULT_LABEL_CHECKED);
+    },
+    labelUnchecked: function labelUnchecked() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.labels, 'unchecked', DEFAULT_LABEL_UNCHECKED);
+    },
+    switchColorChecked: function switchColorChecked() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.switchColor, 'checked', DEFAULT_SWITCH_COLOR);
+    },
+    switchColorUnchecked: function switchColorUnchecked() {
+      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["f" /* get */])(this.switchColor, 'unchecked', DEFAULT_SWITCH_COLOR);
+    },
+    switchColorCurrent: function switchColorCurrent() {
+      var switchColor = this.switchColor;
+
+
+      if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__utils__["e" /* isObject */])(this.switchColor)) {
+        return this.switchColor || DEFAULT_SWITCH_COLOR;
+      }
+
+      return this.toggled ? this.switchColorChecked : this.switchColorUnchecked;
+    }
+  },
+  watch: {
+    value: function value(_value) {
+      if (this.sync) {
+        this.toggled = !!_value;
+      }
+    }
+  },
+  data: function data() {
+    return {
+      toggled: !!this.value
+    };
+  },
+
+  methods: {
+    toggle: function toggle(event) {
+      var toggled = !this.toggled;
+
+      if (!this.sync) {
+        this.toggled = toggled;
+      }
+
+      this.$emit('input', toggled);
+      this.$emit('change', {
+        value: toggled,
+        tag: this.tag,
+        srcEvent: event
+      });
+    }
+  }
+});
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Button_vue__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Button_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Button_vue__);
+/* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "ToggleButton", function() { return __WEBPACK_IMPORTED_MODULE_0__Button_vue___default.a; });
+
+
+var installed = false;
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  install: function install(Vue) {
+    if (installed) {
+      return;
+    }
+
+    Vue.component('ToggleButton', __WEBPACK_IMPORTED_MODULE_0__Button_vue___default.a);
+    installed = true;
+  }
+});
+
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return isString; });
+/* unused harmony export isBoolean */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return isObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return has; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return get; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return px; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return translate3d; });
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var isString = function isString(value) {
+  return typeof value === 'string';
+};
+
+var isBoolean = function isBoolean(value) {
+  return typeof value === 'boolean';
+};
+
+var isObject = function isObject(value) {
+  return (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object';
+};
+
+var has = function has(object, key) {
+  return isObject(object) && object.hasOwnProperty(key);
+};
+
+var get = function get(object, key, defaultValue) {
+  return has(object, key) ? object[key] : defaultValue;
+};
+
+var px = function px(value) {
+  return value + 'px';
+};
+
+var translate3d = function translate3d(x, y) {
+  var z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '0px';
+
+  return 'translate3d(' + x + ', ' + y + ', ' + z + ')';
+};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(5)();
+// imports
+
+
+// module
+exports.push([module.i, ".vue-js-switch[data-v-25adc6c0]{display:inline-block;position:relative;vertical-align:middle;user-select:none;font-size:10px;cursor:pointer}.vue-js-switch .v-switch-input[data-v-25adc6c0]{opacity:0;position:absolute;width:1px;height:1px}.vue-js-switch .v-switch-label[data-v-25adc6c0]{position:absolute;top:0;font-weight:600;color:#fff;z-index:1}.vue-js-switch .v-switch-label.v-left[data-v-25adc6c0]{left:10px}.vue-js-switch .v-switch-label.v-right[data-v-25adc6c0]{right:10px}.vue-js-switch .v-switch-core[data-v-25adc6c0]{display:block;position:relative;box-sizing:border-box;outline:0;margin:0;transition:border-color .3s,background-color .3s;user-select:none}.vue-js-switch .v-switch-core .v-switch-button[data-v-25adc6c0]{display:block;position:absolute;overflow:hidden;top:0;left:0;border-radius:100%;background-color:#fff;z-index:2}.vue-js-switch.disabled[data-v-25adc6c0]{pointer-events:none;opacity:.6}", ""]);
+
+// exports
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function() {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for(var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if(item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+// this module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  scopeId,
+  cssModules
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  // inject cssModules
+  if (cssModules) {
+    var computed = Object.create(options.computed || null)
+    Object.keys(cssModules).forEach(function (key) {
+      var module = cssModules[key]
+      computed[key] = function () { return module }
+    })
+    options.computed = computed
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('label', {
+    class: _vm.className
+  }, [_c('input', {
+    staticClass: "v-switch-input",
+    attrs: {
+      "type": "checkbox",
+      "name": _vm.name,
+      "disabled": _vm.disabled
+    },
+    domProps: {
+      "checked": _vm.value
+    },
+    on: {
+      "change": function($event) {
+        $event.stopPropagation();
+        return _vm.toggle($event)
+      }
+    }
+  }), _vm._v(" "), _c('div', {
+    staticClass: "v-switch-core",
+    style: (_vm.coreStyle)
+  }, [_c('div', {
+    staticClass: "v-switch-button",
+    style: (_vm.buttonStyle)
+  })]), _vm._v(" "), (_vm.labels) ? [(_vm.toggled) ? _c('span', {
+    staticClass: "v-switch-label v-left",
+    style: (_vm.labelStyle)
+  }, [_vm._t("checked", [
+    [_vm._v(_vm._s(_vm.labelChecked))]
+  ])], 2) : _c('span', {
+    staticClass: "v-switch-label v-right",
+    style: (_vm.labelStyle)
+  }, [_vm._t("unchecked", [
+    [_vm._v(_vm._s(_vm.labelUnchecked))]
+  ])], 2)] : _vm._e()], 2)
+},staticRenderFns: []}
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(4);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(9)("2283861f", content, true);
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+  MIT License http://www.opensource.org/licenses/mit-license.php
+  Author Tobias Koppers @sokra
+  Modified by Evan You @yyx990803
+*/
+
+var hasDocument = typeof document !== 'undefined'
+
+if (typeof DEBUG !== 'undefined' && DEBUG) {
+  if (!hasDocument) {
+    throw new Error(
+    'vue-style-loader cannot be used in a non-browser environment. ' +
+    "Use { target: 'node' } in your Webpack config to indicate a server-rendering environment."
+  ) }
+}
+
+var listToStyles = __webpack_require__(10)
+
+/*
+type StyleObject = {
+  id: number;
+  parts: Array<StyleObjectPart>
+}
+
+type StyleObjectPart = {
+  css: string;
+  media: string;
+  sourceMap: ?string
+}
+*/
+
+var stylesInDom = {/*
+  [id: number]: {
+    id: number,
+    refs: number,
+    parts: Array<(obj?: StyleObjectPart) => void>
+  }
+*/}
+
+var head = hasDocument && (document.head || document.getElementsByTagName('head')[0])
+var singletonElement = null
+var singletonCounter = 0
+var isProduction = false
+var noop = function () {}
+
+// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+// tags it will allow on a page
+var isOldIE = typeof navigator !== 'undefined' && /msie [6-9]\b/.test(navigator.userAgent.toLowerCase())
+
+module.exports = function (parentId, list, _isProduction) {
+  isProduction = _isProduction
+
+  var styles = listToStyles(parentId, list)
+  addStylesToDom(styles)
+
+  return function update (newList) {
+    var mayRemove = []
+    for (var i = 0; i < styles.length; i++) {
+      var item = styles[i]
+      var domStyle = stylesInDom[item.id]
+      domStyle.refs--
+      mayRemove.push(domStyle)
+    }
+    if (newList) {
+      styles = listToStyles(parentId, newList)
+      addStylesToDom(styles)
+    } else {
+      styles = []
+    }
+    for (var i = 0; i < mayRemove.length; i++) {
+      var domStyle = mayRemove[i]
+      if (domStyle.refs === 0) {
+        for (var j = 0; j < domStyle.parts.length; j++) {
+          domStyle.parts[j]()
+        }
+        delete stylesInDom[domStyle.id]
+      }
+    }
+  }
+}
+
+function addStylesToDom (styles /* Array<StyleObject> */) {
+  for (var i = 0; i < styles.length; i++) {
+    var item = styles[i]
+    var domStyle = stylesInDom[item.id]
+    if (domStyle) {
+      domStyle.refs++
+      for (var j = 0; j < domStyle.parts.length; j++) {
+        domStyle.parts[j](item.parts[j])
+      }
+      for (; j < item.parts.length; j++) {
+        domStyle.parts.push(addStyle(item.parts[j]))
+      }
+      if (domStyle.parts.length > item.parts.length) {
+        domStyle.parts.length = item.parts.length
+      }
+    } else {
+      var parts = []
+      for (var j = 0; j < item.parts.length; j++) {
+        parts.push(addStyle(item.parts[j]))
+      }
+      stylesInDom[item.id] = { id: item.id, refs: 1, parts: parts }
+    }
+  }
+}
+
+function createStyleElement () {
+  var styleElement = document.createElement('style')
+  styleElement.type = 'text/css'
+  head.appendChild(styleElement)
+  return styleElement
+}
+
+function addStyle (obj /* StyleObjectPart */) {
+  var update, remove
+  var styleElement = document.querySelector('style[data-vue-ssr-id~="' + obj.id + '"]')
+
+  if (styleElement) {
+    if (isProduction) {
+      // has SSR styles and in production mode.
+      // simply do nothing.
+      return noop
+    } else {
+      // has SSR styles but in dev mode.
+      // for some reason Chrome can't handle source map in server-rendered
+      // style tags - source maps in <style> only works if the style tag is
+      // created and inserted dynamically. So we remove the server rendered
+      // styles and inject new ones.
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  if (isOldIE) {
+    // use singleton mode for IE9.
+    var styleIndex = singletonCounter++
+    styleElement = singletonElement || (singletonElement = createStyleElement())
+    update = applyToSingletonTag.bind(null, styleElement, styleIndex, false)
+    remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true)
+  } else {
+    // use multi-style-tag mode in all other cases
+    styleElement = createStyleElement()
+    update = applyToTag.bind(null, styleElement)
+    remove = function () {
+      styleElement.parentNode.removeChild(styleElement)
+    }
+  }
+
+  update(obj)
+
+  return function updateStyle (newObj /* StyleObjectPart */) {
+    if (newObj) {
+      if (newObj.css === obj.css &&
+          newObj.media === obj.media &&
+          newObj.sourceMap === obj.sourceMap) {
+        return
+      }
+      update(obj = newObj)
+    } else {
+      remove()
+    }
+  }
+}
+
+var replaceText = (function () {
+  var textStore = []
+
+  return function (index, replacement) {
+    textStore[index] = replacement
+    return textStore.filter(Boolean).join('\n')
+  }
+})()
+
+function applyToSingletonTag (styleElement, index, remove, obj) {
+  var css = remove ? '' : obj.css
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = replaceText(index, css)
+  } else {
+    var cssNode = document.createTextNode(css)
+    var childNodes = styleElement.childNodes
+    if (childNodes[index]) styleElement.removeChild(childNodes[index])
+    if (childNodes.length) {
+      styleElement.insertBefore(cssNode, childNodes[index])
+    } else {
+      styleElement.appendChild(cssNode)
+    }
+  }
+}
+
+function applyToTag (styleElement, obj) {
+  var css = obj.css
+  var media = obj.media
+  var sourceMap = obj.sourceMap
+
+  if (media) {
+    styleElement.setAttribute('media', media)
+  }
+
+  if (sourceMap) {
+    // https://developer.chrome.com/devtools/docs/javascript-debugging
+    // this makes source maps inside style tags work properly in Chrome
+    css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */'
+    // http://stackoverflow.com/a/26603875
+    css += '\n/*# sourceMappingURL=data:application/json;base64,' + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + ' */'
+  }
+
+  if (styleElement.styleSheet) {
+    styleElement.styleSheet.cssText = css
+  } else {
+    while (styleElement.firstChild) {
+      styleElement.removeChild(styleElement.firstChild)
+    }
+    styleElement.appendChild(document.createTextNode(css))
+  }
+}
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+/**
+ * Translates the list format produced by css-loader into something
+ * easier to manipulate.
+ */
+module.exports = function listToStyles (parentId, list) {
+  var styles = []
+  var newStyles = {}
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i]
+    var id = item[0]
+    var css = item[1]
+    var media = item[2]
+    var sourceMap = item[3]
+    var part = {
+      id: parentId + ':' + i,
+      css: css,
+      media: media,
+      sourceMap: sourceMap
+    }
+    if (!newStyles[id]) {
+      styles.push(newStyles[id] = { id: id, parts: [part] })
+    } else {
+      newStyles[id].parts.push(part)
+    }
+  }
+  return styles
+}
+
+
+/***/ })
+/******/ ]);
+});
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/App.vue?vue&type=template&id=f348271a&":
 /*!*******************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/App.vue?vue&type=template&id=f348271a& ***!
@@ -43736,127 +44882,188 @@ var render = function() {
         ]),
         _vm._v(" "),
         _c(
-          "div",
-          { staticClass: "p-account__info__buttons" },
-          [
-            !_vm.autoPilot
-              ? _c(
-                  "button",
-                  {
-                    staticClass:
-                      "c-button__circle p-account__info__buttons__btn--play",
-                    on: { click: _vm.autoFollow }
-                  },
-                  [_c("i", { staticClass: "fas fa-play" })]
-                )
-              : _c(
-                  "button",
-                  {
-                    staticClass:
-                      "c-button__circle p-account__info__buttons__btn--cancel",
-                    on: { click: _vm.toCancel }
-                  },
-                  [_c("i", { staticClass: "fas fa-stop" })]
-                ),
-            _vm._v(" "),
-            _c("transition", { attrs: { name: "fade" } }, [
-              _vm.autoPilot && !_vm.pause
-                ? _c(
-                    "button",
-                    {
-                      staticClass:
-                        "c-button__circle p-account__info__buttons__btn--pause",
-                      on: { click: _vm.toPause }
-                    },
-                    [_c("i", { staticClass: "fas fa-pause" })]
-                  )
-                : _vm.autoPilot && _vm.pause
-                ? _c(
-                    "button",
-                    {
-                      staticClass:
-                        "c-button__circle p-account__info__buttons__btn--restart",
-                      on: { click: _vm.toRestart }
-                    },
-                    [_c("i", { staticClass: "fas fa-reply-all" })]
-                  )
-                : _vm._e()
-            ]),
-            _vm._v(" "),
-            _c(
-              "button",
-              {
-                staticClass:
-                  "c-button__circle p-account__info__buttons__btn--delete",
-                on: { click: _vm.deleteUser }
-              },
-              [_c("i", { staticClass: "fas fa-trash" })]
-            )
-          ],
-          1
+          "button",
+          {
+            staticClass: "c-button__circle p-account__info__btn--delete",
+            on: { click: _vm.deleteUser }
+          },
+          [_c("i", { staticClass: "fas fa-trash" })]
         )
       ]),
       _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "p-account__info__buttons--sp" },
-        [
-          !_vm.autoPilot
-            ? _c(
-                "button",
-                {
-                  staticClass:
-                    "c-button__circle p-account__info__buttons__btn--play",
-                  on: { click: _vm.autoFollow }
-                },
-                [_c("i", { staticClass: "fas fa-play" })]
-              )
-            : _c(
-                "button",
-                {
-                  staticClass:
-                    "c-button__circle p-account__info__buttons__btn--cancel",
-                  on: { click: _vm.toCancel }
-                },
-                [_c("i", { staticClass: "fas fa-stop" })]
-              ),
+      _c("div", { staticClass: "p-account__buttons" }, [
+        _c("p", { staticClass: "p-account__buttons__head" }, [
+          _vm._v("自動フォロー")
+        ]),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.checkUnfollow,
+              expression: "checkUnfollow"
+            }
+          ],
+          staticClass: "p-account__buttons__check",
+          attrs: {
+            type: "checkbox",
+            id: "checkbox",
+            disabled: _vm.disableLink
+          },
+          domProps: {
+            checked: Array.isArray(_vm.checkUnfollow)
+              ? _vm._i(_vm.checkUnfollow, null) > -1
+              : _vm.checkUnfollow
+          },
+          on: {
+            change: function($event) {
+              var $$a = _vm.checkUnfollow,
+                $$el = $event.target,
+                $$c = $$el.checked ? true : false
+              if (Array.isArray($$a)) {
+                var $$v = null,
+                  $$i = _vm._i($$a, $$v)
+                if ($$el.checked) {
+                  $$i < 0 && (_vm.checkUnfollow = $$a.concat([$$v]))
+                } else {
+                  $$i > -1 &&
+                    (_vm.checkUnfollow = $$a
+                      .slice(0, $$i)
+                      .concat($$a.slice($$i + 1)))
+                }
+              } else {
+                _vm.checkUnfollow = $$c
+              }
+            }
+          }
+        }),
+        _vm._v(" "),
+        _c(
+          "label",
+          {
+            staticClass: "p-account__buttons__check__label",
+            attrs: { for: "checkbox" }
+          },
+          [_vm._v("アンフォローを一緒に行う")]
+        ),
+        _vm._v(" "),
+        _c("div", { staticClass: "l-flex" }, [
+          _c("div", { staticClass: "p-account__buttons__btn" }, [
+            _c(
+              "button",
+              {
+                staticClass: "c-button__circle p-account__buttons__btn--play",
+                attrs: { disabled: _vm.disableAutoFollow },
+                on: { click: _vm.autoFollow }
+              },
+              [_c("i", { staticClass: "fas fa-play" })]
+            ),
+            _vm._v(" "),
+            _c("p", { staticClass: "p-account__buttons__label" }, [
+              _vm._v("開始")
+            ])
+          ]),
           _vm._v(" "),
-          _c("transition", { attrs: { name: "fade" } }, [
-            _vm.autoPilot && !_vm.pause
-              ? _c(
-                  "button",
-                  {
-                    staticClass:
-                      "c-button__circle p-account__info__buttons__btn--pause",
-                    on: { click: _vm.toPause }
-                  },
-                  [_c("i", { staticClass: "fas fa-pause" })]
-                )
-              : _vm.autoPilot && _vm.pause
-              ? _c(
-                  "button",
-                  {
-                    staticClass:
-                      "c-button__circle p-account__info__buttons__btn--restart",
-                    on: { click: _vm.toRestart }
-                  },
-                  [_c("i", { staticClass: "fas fa-reply-all" })]
-                )
+          _c("div", { staticClass: "p-account__buttons__btn" }, [
+            !_vm.isPaused
+              ? _c("div", [
+                  _c(
+                    "button",
+                    {
+                      staticClass:
+                        "c-button__circle p-account__buttons__btn--pause",
+                      attrs: { disabled: _vm.disablePause },
+                      on: { click: _vm.toPause }
+                    },
+                    [_c("i", { staticClass: "fas fa-pause" })]
+                  ),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "p-account__buttons__label" }, [
+                    _vm._v("一時停止")
+                  ])
+                ])
+              : _vm.isPaused
+              ? _c("div", [
+                  _c(
+                    "button",
+                    {
+                      staticClass:
+                        "c-button__circle p-account__buttons__btn--pause",
+                      attrs: { disabled: _vm.disablePause },
+                      on: { click: _vm.toRestart }
+                    },
+                    [_c("i", { staticClass: "fas fa-reply-all" })]
+                  ),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "p-account__buttons__label" }, [
+                    _vm._v("再開")
+                  ])
+                ])
               : _vm._e()
           ]),
           _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass:
-                "c-button__circle p-account__info__buttons__btn--delete",
-              on: { click: _vm.deleteUser }
-            },
-            [_c("i", { staticClass: "fas fa-trash" })]
-          )
-        ],
-        1
-      ),
+          _c("div", { staticClass: "p-account__buttons__btn" }, [
+            _c(
+              "button",
+              {
+                staticClass: "c-button__circle p-account__buttons__btn--cancel",
+                attrs: { disabled: _vm.disableFollowCancel },
+                on: { click: _vm.toCancel }
+              },
+              [_c("i", { staticClass: "fas fa-stop" })]
+            ),
+            _vm._v(" "),
+            _c("p", { staticClass: "p-account__buttons__label" }, [
+              _vm._v("中止")
+            ])
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "p-account__buttons" }, [
+        _c("p", { staticClass: "p-account__buttons__head" }, [
+          _vm._v("自動いいね")
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "l-flex" }, [
+          _c("div", { staticClass: "p-account__buttons__btn" }, [
+            _c(
+              "button",
+              {
+                staticClass: "c-button__circle p-account__buttons__btn--play",
+                attrs: { disabled: _vm.disableAutoFavorite },
+                on: { click: _vm.autoFavorite }
+              },
+              [_c("i", { staticClass: "fas fa-play" })]
+            ),
+            _vm._v(" "),
+            _c("p", { staticClass: "p-account__buttons__label" }, [
+              _vm._v("開始")
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "p-account__buttons__btn" }, [
+            _c(
+              "button",
+              {
+                staticClass: "c-button__circle p-account__buttons__btn--cancel",
+                attrs: { disabled: _vm.disableFavoriteCancel },
+                on: { click: _vm.toCancelFavorite }
+              },
+              [_c("i", { staticClass: "fas fa-stop" })]
+            ),
+            _vm._v(" "),
+            _c("p", { staticClass: "p-account__buttons__label" }, [
+              _vm._v("中止")
+            ])
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("button", { on: { click: _vm.autoFavoriteTest } }, [
+        _vm._v("自動いいね")
+      ]),
       _vm._v(" "),
       _c(
         "div",
@@ -43980,7 +45187,7 @@ var render = function() {
                     _vm._l(searchKeyword.options, function(option) {
                       return _c("option", [
                         _vm._v(
-                          "\n            " + _vm._s(option) + "\n          "
+                          "\n              " + _vm._s(option) + "\n            "
                         )
                       ])
                     }),
@@ -44096,7 +45303,7 @@ var render = function() {
                     _vm._l(favoriteKeyword.options, function(option) {
                       return _c("option", [
                         _vm._v(
-                          "\n            " + _vm._s(option) + "\n          "
+                          "\n              " + _vm._s(option) + "\n            "
                         )
                       ])
                     }),
@@ -44638,10 +45845,15 @@ var render = function() {
                 : _vm._e(),
               _vm._v(" "),
               _c("div", { staticClass: "c-form__item p-login__form__item" }, [
-                _c("label", {
-                  staticClass: "c-form__item__label p-login__form__item__label",
-                  attrs: { for: "mail" }
-                }),
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "c-form__item__label p-login__form__item__label",
+                    attrs: { for: "mail" }
+                  },
+                  [_vm._v("メールアドレス")]
+                ),
                 _vm._v(" "),
                 _c("input", {
                   directives: [
@@ -44656,7 +45868,9 @@ var render = function() {
                   attrs: {
                     id: "mail",
                     type: "email",
-                    placeholder: "メールアドレス"
+                    placeholder: "メールアドレスを入力して下さい",
+                    required: "",
+                    "aria-required": "true"
                   },
                   domProps: { value: _vm.form.email },
                   on: {
@@ -44671,36 +45885,139 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "p-login__form__item" }, [
-                _c("label", {
-                  staticClass: "c-form__item__label p-login__form__item__label",
-                  attrs: { for: "password" }
-                }),
-                _vm._v(" "),
-                _c("input", {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.form.password,
-                      expression: "form.password"
-                    }
-                  ],
-                  staticClass: "c-form__item__input p-login__form__item__input",
-                  attrs: {
-                    id: "password",
-                    type: "password",
-                    placeholder: "パスワード"
+                _c(
+                  "label",
+                  {
+                    staticClass:
+                      "c-form__item__label p-login__form__item__label",
+                    attrs: { for: "password" }
                   },
-                  domProps: { value: _vm.form.password },
-                  on: {
-                    input: function($event) {
-                      if ($event.target.composing) {
-                        return
-                      }
-                      _vm.$set(_vm.form, "password", $event.target.value)
-                    }
-                  }
-                })
+                  [_vm._v("パスワード")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "u-position--relative" }, [
+                  _vm.inputType === "checkbox"
+                    ? _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.password,
+                            expression: "form.password"
+                          }
+                        ],
+                        staticClass:
+                          "c-form__item__input p-login__form__item__input",
+                        attrs: {
+                          id: "password",
+                          placeholder: "パスワードを入力して下さい",
+                          required: "",
+                          "aria-required": "true",
+                          type: "checkbox"
+                        },
+                        domProps: {
+                          checked: Array.isArray(_vm.form.password)
+                            ? _vm._i(_vm.form.password, null) > -1
+                            : _vm.form.password
+                        },
+                        on: {
+                          change: function($event) {
+                            var $$a = _vm.form.password,
+                              $$el = $event.target,
+                              $$c = $$el.checked ? true : false
+                            if (Array.isArray($$a)) {
+                              var $$v = null,
+                                $$i = _vm._i($$a, $$v)
+                              if ($$el.checked) {
+                                $$i < 0 &&
+                                  _vm.$set(
+                                    _vm.form,
+                                    "password",
+                                    $$a.concat([$$v])
+                                  )
+                              } else {
+                                $$i > -1 &&
+                                  _vm.$set(
+                                    _vm.form,
+                                    "password",
+                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                  )
+                              }
+                            } else {
+                              _vm.$set(_vm.form, "password", $$c)
+                            }
+                          }
+                        }
+                      })
+                    : _vm.inputType === "radio"
+                    ? _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.password,
+                            expression: "form.password"
+                          }
+                        ],
+                        staticClass:
+                          "c-form__item__input p-login__form__item__input",
+                        attrs: {
+                          id: "password",
+                          placeholder: "パスワードを入力して下さい",
+                          required: "",
+                          "aria-required": "true",
+                          type: "radio"
+                        },
+                        domProps: { checked: _vm._q(_vm.form.password, null) },
+                        on: {
+                          change: function($event) {
+                            return _vm.$set(_vm.form, "password", null)
+                          }
+                        }
+                      })
+                    : _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.form.password,
+                            expression: "form.password"
+                          }
+                        ],
+                        staticClass:
+                          "c-form__item__input p-login__form__item__input",
+                        attrs: {
+                          id: "password",
+                          placeholder: "パスワードを入力して下さい",
+                          required: "",
+                          "aria-required": "true",
+                          type: _vm.inputType
+                        },
+                        domProps: { value: _vm.form.password },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(_vm.form, "password", $event.target.value)
+                          }
+                        }
+                      }),
+                  _vm._v(" "),
+                  !_vm.isChecked
+                    ? _c("i", {
+                        staticClass: "far fa-eye c-button__eye",
+                        on: { click: _vm.onClick }
+                      })
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.isChecked
+                    ? _c("i", {
+                        staticClass: "far fa-eye-slash c-button__eye",
+                        on: { click: _vm.onClick }
+                      })
+                    : _vm._e()
+                ])
               ]),
               _vm._v(" "),
               _c(
@@ -44885,7 +46202,7 @@ var render = function() {
                   attrs: {
                     id: "mail",
                     type: "email",
-                    placeholder: "メールアドレス"
+                    placeholder: "メールアドレスを入力して下さい"
                   },
                   domProps: { value: _vm.form.email },
                   on: {
@@ -44989,10 +46306,14 @@ var render = function() {
               : _vm._e(),
             _vm._v(" "),
             _c("div", { staticClass: "c-form__item p-reset__form__item" }, [
-              _c("label", {
-                staticClass: "c-form__item__label p-reset__form__item__label",
-                attrs: { for: "mail" }
-              }),
+              _c(
+                "label",
+                {
+                  staticClass: "c-form__item__label p-reset__form__item__label",
+                  attrs: { for: "mail" }
+                },
+                [_vm._v("メールアドレス")]
+              ),
               _vm._v(" "),
               _c("input", {
                 directives: [
@@ -45022,73 +46343,279 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "c-form__item p-reset__form__item" }, [
-              _c("label", {
-                staticClass: "c-form__item__label p-reset__form__item__label",
-                attrs: { for: "password" }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.form.password,
-                    expression: "form.password"
-                  }
-                ],
-                staticClass: "c-form__item__input p-reset__form__item__input",
-                attrs: {
-                  id: "password",
-                  type: "password",
-                  placeholder: "パスワード"
+              _c(
+                "label",
+                {
+                  staticClass: "c-form__item__label p-reset__form__item__label",
+                  attrs: { for: "password" }
                 },
-                domProps: { value: _vm.form.password },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(_vm.form, "password", $event.target.value)
-                  }
-                }
-              })
+                [_vm._v("新しいパスワード")]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: "u-position--relative" }, [
+                _vm.inputType === "checkbox"
+                  ? _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password,
+                          expression: "form.password"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password",
+                        placeholder: "パスワードを入力して下さい",
+                        type: "checkbox"
+                      },
+                      domProps: {
+                        checked: Array.isArray(_vm.form.password)
+                          ? _vm._i(_vm.form.password, null) > -1
+                          : _vm.form.password
+                      },
+                      on: {
+                        change: function($event) {
+                          var $$a = _vm.form.password,
+                            $$el = $event.target,
+                            $$c = $$el.checked ? true : false
+                          if (Array.isArray($$a)) {
+                            var $$v = null,
+                              $$i = _vm._i($$a, $$v)
+                            if ($$el.checked) {
+                              $$i < 0 &&
+                                _vm.$set(
+                                  _vm.form,
+                                  "password",
+                                  $$a.concat([$$v])
+                                )
+                            } else {
+                              $$i > -1 &&
+                                _vm.$set(
+                                  _vm.form,
+                                  "password",
+                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                )
+                            }
+                          } else {
+                            _vm.$set(_vm.form, "password", $$c)
+                          }
+                        }
+                      }
+                    })
+                  : _vm.inputType === "radio"
+                  ? _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password,
+                          expression: "form.password"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password",
+                        placeholder: "パスワードを入力して下さい",
+                        type: "radio"
+                      },
+                      domProps: { checked: _vm._q(_vm.form.password, null) },
+                      on: {
+                        change: function($event) {
+                          return _vm.$set(_vm.form, "password", null)
+                        }
+                      }
+                    })
+                  : _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password,
+                          expression: "form.password"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password",
+                        placeholder: "パスワードを入力して下さい",
+                        type: _vm.inputType
+                      },
+                      domProps: { value: _vm.form.password },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.form, "password", $event.target.value)
+                        }
+                      }
+                    }),
+                _vm._v(" "),
+                !_vm.isChecked
+                  ? _c("i", {
+                      staticClass: "far fa-eye c-button__eye",
+                      on: { click: _vm.onClick }
+                    })
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.isChecked
+                  ? _c("i", {
+                      staticClass: "far fa-eye-slash c-button__eye",
+                      on: { click: _vm.onClick }
+                    })
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              _c("label", { staticClass: "c-form__item__label " }, [
+                _vm._v("※8-15文字の半角英数字")
+              ])
             ]),
             _vm._v(" "),
             _c("div", { staticClass: "c-form__item p-reset__form__item" }, [
-              _c("label", {
-                staticClass: "c-form__item__label p-reset__form__item__label",
-                attrs: { for: "password_confirmation" }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.form.password_confirmation,
-                    expression: "form.password_confirmation"
-                  }
-                ],
-                staticClass: "c-form__item__input p-reset__form__item__input",
-                attrs: {
-                  id: "password_confirmation",
-                  type: "password",
-                  placeholder: "パスワード再確認"
+              _c(
+                "label",
+                {
+                  staticClass: "c-form__item__label p-reset__form__item__label",
+                  attrs: { for: "password_confirmation" }
                 },
-                domProps: { value: _vm.form.password_confirmation },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
-                    }
-                    _vm.$set(
-                      _vm.form,
-                      "password_confirmation",
-                      $event.target.value
-                    )
-                  }
-                }
-              })
+                [_vm._v("新しいパスワード再確認")]
+              ),
+              _vm._v(" "),
+              _c("div", { staticClass: "u-position--relative" }, [
+                _vm.inputTypeConfirm === "checkbox"
+                  ? _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password_confirmation,
+                          expression: "form.password_confirmation"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password_confirmation",
+                        placeholder: "パスワードを再度入力して下さい",
+                        type: "checkbox"
+                      },
+                      domProps: {
+                        checked: Array.isArray(_vm.form.password_confirmation)
+                          ? _vm._i(_vm.form.password_confirmation, null) > -1
+                          : _vm.form.password_confirmation
+                      },
+                      on: {
+                        change: function($event) {
+                          var $$a = _vm.form.password_confirmation,
+                            $$el = $event.target,
+                            $$c = $$el.checked ? true : false
+                          if (Array.isArray($$a)) {
+                            var $$v = null,
+                              $$i = _vm._i($$a, $$v)
+                            if ($$el.checked) {
+                              $$i < 0 &&
+                                _vm.$set(
+                                  _vm.form,
+                                  "password_confirmation",
+                                  $$a.concat([$$v])
+                                )
+                            } else {
+                              $$i > -1 &&
+                                _vm.$set(
+                                  _vm.form,
+                                  "password_confirmation",
+                                  $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                                )
+                            }
+                          } else {
+                            _vm.$set(_vm.form, "password_confirmation", $$c)
+                          }
+                        }
+                      }
+                    })
+                  : _vm.inputTypeConfirm === "radio"
+                  ? _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password_confirmation,
+                          expression: "form.password_confirmation"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password_confirmation",
+                        placeholder: "パスワードを再度入力して下さい",
+                        type: "radio"
+                      },
+                      domProps: {
+                        checked: _vm._q(_vm.form.password_confirmation, null)
+                      },
+                      on: {
+                        change: function($event) {
+                          return _vm.$set(
+                            _vm.form,
+                            "password_confirmation",
+                            null
+                          )
+                        }
+                      }
+                    })
+                  : _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.form.password_confirmation,
+                          expression: "form.password_confirmation"
+                        }
+                      ],
+                      staticClass:
+                        "c-form__item__input p-reset__form__item__input",
+                      attrs: {
+                        id: "password_confirmation",
+                        placeholder: "パスワードを再度入力して下さい",
+                        type: _vm.inputTypeConfirm
+                      },
+                      domProps: { value: _vm.form.password_confirmation },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.form,
+                            "password_confirmation",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                _vm._v(" "),
+                !_vm.isCheckedConfirm
+                  ? _c("i", {
+                      staticClass: "far fa-eye c-button__eye",
+                      on: { click: _vm.onClickConfirm }
+                    })
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.isCheckedConfirm
+                  ? _c("i", {
+                      staticClass: "far fa-eye-slash c-button__eye",
+                      on: { click: _vm.onClickConfirm }
+                    })
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              _c("label", { staticClass: "c-form__item__label " }, [
+                _vm._v("※8-15文字の半角英数字")
+              ])
             ]),
             _vm._v(" "),
             _c(
@@ -45231,11 +46758,7 @@ var render = function() {
                   "div",
                   { staticClass: "c-form__item p-signup__form__item" },
                   [
-                    _c("label", {
-                      staticClass:
-                        "c-form__item__label p-signup__form__item__label",
-                      attrs: { for: "name" }
-                    }),
+                    _vm._m(0),
                     _vm._v(" "),
                     _c("input", {
                       directives: [
@@ -45251,7 +46774,9 @@ var render = function() {
                       attrs: {
                         id: "name",
                         type: "text",
-                        placeholder: "ユーザー名"
+                        placeholder: "例）ウェブ太郎",
+                        required: "",
+                        "aria-required": "true"
                       },
                       domProps: { value: _vm.form.name },
                       on: {
@@ -45262,7 +46787,11 @@ var render = function() {
                           _vm.$set(_vm.form, "name", $event.target.value)
                         }
                       }
-                    })
+                    }),
+                    _vm._v(" "),
+                    _c("label", { staticClass: "c-form__item__label--under" }, [
+                      _vm._v("※10文字以下")
+                    ])
                   ]
                 ),
                 _vm._v(" "),
@@ -45270,11 +46799,7 @@ var render = function() {
                   "div",
                   { staticClass: "c-form__item p-signup__form__item" },
                   [
-                    _c("label", {
-                      staticClass:
-                        "c-form__item__label p-signup__form__item__label",
-                      attrs: { for: "mail" }
-                    }),
+                    _vm._m(1),
                     _vm._v(" "),
                     _c("input", {
                       directives: [
@@ -45290,7 +46815,9 @@ var render = function() {
                       attrs: {
                         id: "mail",
                         type: "email",
-                        placeholder: "メールアドレス"
+                        placeholder: "例）test@test.com",
+                        required: "",
+                        "aria-required": "true"
                       },
                       domProps: { value: _vm.form.email },
                       on: {
@@ -45309,38 +46836,143 @@ var render = function() {
                   "div",
                   { staticClass: "c-form__item p-signup__form__item" },
                   [
-                    _c("label", {
-                      staticClass:
-                        "c-form__item__label p-signup__form__item__label",
-                      attrs: { for: "password" }
-                    }),
+                    _vm._m(2),
                     _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.form.password,
-                          expression: "form.password"
-                        }
-                      ],
-                      staticClass:
-                        "c-form__item__input p-signup__form__item__input",
-                      attrs: {
-                        id: "password",
-                        type: "password",
-                        placeholder: "パスワード"
-                      },
-                      domProps: { value: _vm.form.password },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.form, "password", $event.target.value)
-                        }
-                      }
-                    })
+                    _c("div", { staticClass: "u-position--relative" }, [
+                      _vm.inputType === "checkbox"
+                        ? _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password,
+                                expression: "form.password"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password",
+                              placeholder: "パスワードを入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: "checkbox"
+                            },
+                            domProps: {
+                              checked: Array.isArray(_vm.form.password)
+                                ? _vm._i(_vm.form.password, null) > -1
+                                : _vm.form.password
+                            },
+                            on: {
+                              change: function($event) {
+                                var $$a = _vm.form.password,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = null,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      _vm.$set(
+                                        _vm.form,
+                                        "password",
+                                        $$a.concat([$$v])
+                                      )
+                                  } else {
+                                    $$i > -1 &&
+                                      _vm.$set(
+                                        _vm.form,
+                                        "password",
+                                        $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1))
+                                      )
+                                  }
+                                } else {
+                                  _vm.$set(_vm.form, "password", $$c)
+                                }
+                              }
+                            }
+                          })
+                        : _vm.inputType === "radio"
+                        ? _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password,
+                                expression: "form.password"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password",
+                              placeholder: "パスワードを入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: "radio"
+                            },
+                            domProps: {
+                              checked: _vm._q(_vm.form.password, null)
+                            },
+                            on: {
+                              change: function($event) {
+                                return _vm.$set(_vm.form, "password", null)
+                              }
+                            }
+                          })
+                        : _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password,
+                                expression: "form.password"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password",
+                              placeholder: "パスワードを入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: _vm.inputType
+                            },
+                            domProps: { value: _vm.form.password },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.form,
+                                  "password",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          }),
+                      _vm._v(" "),
+                      !_vm.isChecked
+                        ? _c("i", {
+                            staticClass: "far fa-eye c-button__eye",
+                            on: { click: _vm.onClick }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.isChecked
+                        ? _c("i", {
+                            staticClass: "far fa-eye-slash c-button__eye",
+                            on: { click: _vm.onClick }
+                          })
+                        : _vm._e()
+                    ]),
+                    _vm._v(" "),
+                    _c("label", { staticClass: "c-form__item__label--under" }, [
+                      _vm._v("※8-15文字の半角英数字")
+                    ])
                   ]
                 ),
                 _vm._v(" "),
@@ -45348,42 +46980,157 @@ var render = function() {
                   "div",
                   { staticClass: "c-form__item p-signup__form__item" },
                   [
-                    _c("label", {
-                      staticClass:
-                        "c-form__item__label p-signup__form__item__label",
-                      attrs: { for: "password_confirmation" }
-                    }),
+                    _vm._m(3),
                     _vm._v(" "),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.form.password_confirmation,
-                          expression: "form.password_confirmation"
-                        }
-                      ],
-                      staticClass:
-                        "c-form__item__input p-signup__form__item__input",
-                      attrs: {
-                        id: "password_confirmation",
-                        type: "password",
-                        placeholder: "パスワード再確認"
-                      },
-                      domProps: { value: _vm.form.password_confirmation },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(
-                            _vm.form,
-                            "password_confirmation",
-                            $event.target.value
-                          )
-                        }
-                      }
-                    })
+                    _c("div", { staticClass: "u-position--relative" }, [
+                      _vm.inputTypeConfirm === "checkbox"
+                        ? _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password_confirmation,
+                                expression: "form.password_confirmation"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password_confirmation",
+                              placeholder: "パスワードを再度入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: "checkbox"
+                            },
+                            domProps: {
+                              checked: Array.isArray(
+                                _vm.form.password_confirmation
+                              )
+                                ? _vm._i(_vm.form.password_confirmation, null) >
+                                  -1
+                                : _vm.form.password_confirmation
+                            },
+                            on: {
+                              change: function($event) {
+                                var $$a = _vm.form.password_confirmation,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = null,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      _vm.$set(
+                                        _vm.form,
+                                        "password_confirmation",
+                                        $$a.concat([$$v])
+                                      )
+                                  } else {
+                                    $$i > -1 &&
+                                      _vm.$set(
+                                        _vm.form,
+                                        "password_confirmation",
+                                        $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1))
+                                      )
+                                  }
+                                } else {
+                                  _vm.$set(
+                                    _vm.form,
+                                    "password_confirmation",
+                                    $$c
+                                  )
+                                }
+                              }
+                            }
+                          })
+                        : _vm.inputTypeConfirm === "radio"
+                        ? _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password_confirmation,
+                                expression: "form.password_confirmation"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password_confirmation",
+                              placeholder: "パスワードを再度入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: "radio"
+                            },
+                            domProps: {
+                              checked: _vm._q(
+                                _vm.form.password_confirmation,
+                                null
+                              )
+                            },
+                            on: {
+                              change: function($event) {
+                                return _vm.$set(
+                                  _vm.form,
+                                  "password_confirmation",
+                                  null
+                                )
+                              }
+                            }
+                          })
+                        : _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.form.password_confirmation,
+                                expression: "form.password_confirmation"
+                              }
+                            ],
+                            staticClass:
+                              "c-form__item__input p-signup__form__item__input",
+                            attrs: {
+                              id: "password_confirmation",
+                              placeholder: "パスワードを再度入力して下さい",
+                              required: "",
+                              "aria-required": "true",
+                              type: _vm.inputTypeConfirm
+                            },
+                            domProps: { value: _vm.form.password_confirmation },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.form,
+                                  "password_confirmation",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          }),
+                      _vm._v(" "),
+                      !_vm.isCheckedConfirm
+                        ? _c("i", {
+                            staticClass: "far fa-eye c-button__eye",
+                            on: { click: _vm.onClickConfirm }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.isCheckedConfirm
+                        ? _c("i", {
+                            staticClass: "far fa-eye-slash c-button__eye",
+                            on: { click: _vm.onClickConfirm }
+                          })
+                        : _vm._e()
+                    ]),
+                    _vm._v(" "),
+                    _c("label", { staticClass: "c-form__item__label--under" }, [
+                      _vm._v("※8-15文字の半角英数字")
+                    ])
                   ]
                 ),
                 _vm._v(" "),
@@ -45404,7 +47151,72 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "label",
+      {
+        staticClass: "c-form__item__label p-signup__form__item__label",
+        attrs: { for: "name" }
+      },
+      [
+        _c("span", { staticClass: "c-button--require" }, [_vm._v("必須")]),
+        _vm._v("ユーザー名")
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "label",
+      {
+        staticClass: "c-form__item__label p-signup__form__item__label",
+        attrs: { for: "mail" }
+      },
+      [
+        _c("span", { staticClass: "c-button--require" }, [_vm._v("必須")]),
+        _vm._v("メールアドレス")
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "label",
+      {
+        staticClass: "c-form__item__label p-signup__form__item__label",
+        attrs: { for: "password" }
+      },
+      [
+        _c("span", { staticClass: "c-button--require" }, [_vm._v("必須")]),
+        _vm._v("パスワード")
+      ]
+    )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "label",
+      {
+        staticClass: "c-form__item__label p-signup__form__item__label",
+        attrs: { for: "password_confirmation" }
+      },
+      [
+        _c("span", { staticClass: "c-button--require" }, [_vm._v("必須")]),
+        _vm._v("パスワード再確認")
+      ]
+    )
+  }
+]
 render._withStripped = true
 
 
@@ -61887,6 +63699,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _router__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./router */ "./resources/js/router.js");
 /* harmony import */ var _App_vue__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./App.vue */ "./resources/js/App.vue");
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store */ "./resources/js/store/index.js");
+/* harmony import */ var vue_js_toggle_button__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! vue-js-toggle-button */ "./node_modules/vue-js-toggle-button/dist/index.js");
+/* harmony import */ var vue_js_toggle_button__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(vue_js_toggle_button__WEBPACK_IMPORTED_MODULE_6__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -61899,8 +63713,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
  // ルートコンポーネントをインポートする
 
- // import vSelect from 'vue-select'
-// import 'vue-select/dist/vue-select.css';
+
+
+vue__WEBPACK_IMPORTED_MODULE_2___default.a.use(vue_js_toggle_button__WEBPACK_IMPORTED_MODULE_6___default.a);
 
 var createApp = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {

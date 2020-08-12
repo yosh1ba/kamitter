@@ -21,11 +21,12 @@ class CreateTwitterUsersTable extends Migration
           $table->string('twitter_name')->nullable();
           $table->string('twitter_screen_name')->nullable();
           $table->string('twitter_avatar')->nullable();
-          $table->boolean('auto_pilot_enabled')->default(false);
+          $table->boolean('auto_follow_enabled')->default(false);
+          $table->boolean('auto_unfollow_enabled')->default(true);
           $table->boolean('pause_enabled')->default(false);
-//          $table->boolean('auto_follow_enabled')->default(false);
-//          $table->boolean('auto_unfollow_enabled')->default(false);
-//          $table->boolean('auto_like_enabled')->default(false);
+          $table->boolean('auto_favorite_enabled')->default(false);
+          $table->dateTime('auto_favorite_enabled_at')->nullable();
+          $table->boolean('is_waited')->default(false);
           $table->unsignedBigInteger('user_id');
           $table->timestamps();
         });

@@ -28,6 +28,10 @@ class Kernel extends ConsoleKernel
       $schedule->call('App\Http\Controllers\Auth\TwitterController@AutoTweet')
         ->everyMinute()
         ->name('task-tweet');
+
+      $schedule->call('App\Http\Controllers\Auth\FavoriteController@autoFavorite')
+        ->everyFifteenMinutes()
+        ->name('task-favorite');
     }
 
     /**

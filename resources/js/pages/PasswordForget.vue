@@ -12,7 +12,7 @@
             </div>
             <div class="c-form__item p-forget__form__item">
               <label for="mail" class="c-form__item__label p-forget__form__item__label"></label>
-              <input id="mail" type="email" placeholder="メールアドレス" v-model="form.email" class="c-form__item__input ">
+              <input id="mail" type="email" placeholder="メールアドレスを入力して下さい" v-model="form.email" class="c-form__item__input ">
             </div>
             <button type="submit" class="c-form__btn p-forget__form__btn">再設定用メールを送信する</button>
           </form>

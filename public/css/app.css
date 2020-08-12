@@ -502,6 +502,7 @@ a:hover {
 
 .l-main {
   margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 @media screen and (max-width: 559px) {
@@ -526,6 +527,17 @@ a:hover {
   width: 100%;
 }
 
+.c-form__item__label {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.c-form__item__label--under {
+  font-size: 1.4rem;
+  margin-left: 4px;
+  color: #666666;
+}
+
 .c-form__item__input {
   border: none;
   border-bottom: 2px solid #e9e9e9;
@@ -534,11 +546,13 @@ a:hover {
   height: 50px;
   transition: border-color 0.3s;
   width: 100%;
+  margin-left: 4px;
 }
 
 @media screen and (max-width: 559px) {
   .c-form__item__input {
     height: 30px;
+    margin-top: 8px;
   }
 }
 
@@ -613,7 +627,6 @@ a:hover {
 }
 
 .c-button__circle {
-  margin-left: 8px;
   display: inline-block;
   text-decoration: none;
   width: 30px;
@@ -634,6 +647,13 @@ a:hover {
   line-height: 30px;
 }
 
+.c-button__circle:disabled {
+  color: #cdcdcd;
+  box-shadow: none;
+  border-bottom: none;
+  border-top: solid 2px #fafafa;
+}
+
 .c-button__square {
   width: 60px;
   padding: 2px 0;
@@ -645,6 +665,23 @@ a:hover {
 
 .c-button__square:hover {
   opacity: .7;
+}
+
+.c-button__eye {
+  position: absolute;
+  top: 0;
+  right: 0;
+  line-height: 40px !important;
+  cursor: pointer;
+}
+
+.c-button--require {
+  background: #c82a20;
+  color: #fafafa;
+  padding: 2px 4px;
+  margin-right: 8px;
+  border-radius: 3px;
+  font-weight: normal;
 }
 
 .c-hr {
@@ -856,39 +893,71 @@ a:hover {
   margin-left: 16px;
 }
 
-@media screen and (max-width: 559px) {
-  .p-account__info__buttons {
-    display: none;
-  }
+.p-account__info__btn--delete {
+  margin-left: 8px;
 }
 
-.p-account__info__buttons--sp {
+.p-account__buttons {
+  margin-bottom: 16px;
+}
+
+.p-account__buttons--sp {
   display: none;
 }
 
 @media screen and (max-width: 559px) {
-  .p-account__info__buttons--sp {
+  .p-account__buttons--sp {
     display: block;
     margin-bottom: 8px;
   }
 }
 
-.p-account__info__buttons__btn--play {
+.p-account__buttons__head {
+  padding-top: 4px;
+  font-weight: bold;
+}
+
+.p-account__buttons__check {
+  margin-left: 16px;
+  margin-top: 8px;
+}
+
+.p-account__buttons__check__label {
+  font-size: 1.4rem;
+}
+
+.p-account__buttons__label {
+  margin-top: 4px;
+  font-size: 1.4rem;
+}
+
+.p-account__buttons__btn {
+  margin: 8px 16px 0 0;
+  text-align: center;
+  width: 60px;
+}
+
+.p-account__buttons__btn__lead {
+  text-align: center;
+  margin-right: 16px;
+}
+
+.p-account__buttons__btn--play {
   color: #3eb370;
 }
 
 @media screen and (max-width: 559px) {
-  .p-account__info__buttons__btn--play {
+  .p-account__buttons__btn--play {
     margin-left: 0;
   }
 }
 
-.p-account__info__buttons__btn--cancel {
+.p-account__buttons__btn--cancel {
   color: #c82a20;
 }
 
 @media screen and (max-width: 559px) {
-  .p-account__info__buttons__btn--cancel {
+  .p-account__buttons__btn--cancel {
     margin-left: 0;
   }
 }
@@ -957,6 +1026,10 @@ a:hover {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+.u-position--relative {
+  position: relative;
 }
 
 /*!

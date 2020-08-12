@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\FollowedList;
 use App\FollowerTargetList;
-use App\Http\Controllers\FavoriteController;
 use App\Mail\SendEmail;
 use App\Reserve;
 use App\TargetAccountList;
@@ -28,6 +27,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Abraham\TwitterOAuth\TwitterOAuth;
 use phpDocumentor\Reflection\Types\Boolean;
 use PhpParser\Node\Expr\Cast\Object_;
+use PhpParser\Node\Scalar\String_;
 use PHPUnit\Util\Json;
 use Psy\Util\Str;
 use Ramsey\Uuid\Type\Integer;
@@ -50,8 +50,6 @@ class TwitterController extends Controller
     // JSON形式でリダイレクトURLを返す
     return response()->json([
       'redirect_url' => $redirect->getTargetUrl(),
-      // 'redirect_url' => Socialite::driver('twitter')->redirect()->getTargetUrl(),
-
     ]);
   }
 
@@ -130,8 +128,11 @@ class TwitterController extends Controller
       $this->sendMail($request, $data);
 
       TwitterUser::find($request->route('id'))->update([
-        'auto_pilot_enabled' => false,
-        'pause_enabled' => false
+        'auto_follow_enabled' => false,
+        'auto_unfollow_enabled' => false,
+        'pause_enabled' => false,
+        'auto_favorite_enabled' => false,
+        'is_waited' => false
       ]);
       exit();
     }
@@ -148,7 +149,7 @@ class TwitterController extends Controller
    * @param $request TwitterUsersテーブルのID
    * @return レスポンス
    */
-  public function accessTwitterWithAccessToken(Array $user, Array $arr,String $context = 'post',Request $request = null)
+  public function accessTwitterWithAccessToken(Array $user, Array $arr,string $context = 'post',Request $request = null)
   {
 
     $client_id = config('app.twitter_client_id');;
@@ -176,8 +177,61 @@ class TwitterController extends Controller
       $this->sendMail($request, $data);
 
       TwitterUser::find($request->route('id'))->update([
-        'auto_pilot_enabled' => false,
-        'pause_enabled' => false
+        'auto_follow_enabled' => false,
+        'auto_unfollow_enabled' => false,
+        'pause_enabled' => false,
+        'auto_favorite_enabled' => false,
+        'is_waited' => false
+      ]);
+      exit();
+    }
+    return $content;
+  }
+
+  /*
+   * アクセストークンを利用してTwitterAPIにアクセスするメソッドです。
+   * リクエスト用パラメータを引数に取り、レスポンスを返します。
+   * Httpリクエスト($request)ではなく、Stringで引数を受け取ります。
+   *
+   * @param $user TwitterUsersテーブル情報
+   * @param $arr リクエスト用パラメータ
+   * @param $context GET or POTの判定
+   * @param $id TwitterUsersテーブルのID
+   * @return レスポンス
+   */
+  public function accessTwitterWithAccessTokenAsString(Array $user, Array $arr,string $context = 'post', string $id)
+  {
+
+    $client_id = config('app.twitter_client_id');;
+    $client_secret = config('app.twitter_client_secret');
+    $access_token = $user[0]['twitter_oauth_token'];
+    $access_token_secret = $user[0]['twitter_oauth_token_secret'];
+
+    $connection = new TwitterOAuth($client_id, $client_secret, $access_token, $access_token_secret);
+
+    // GETかPOSTどちらかでアクセスする
+    if($context === 'get'){
+      $content = $connection->get($arr['url'],$arr['params']);
+    }else{
+      $content = $connection->post($arr['url'],$arr['params']);
+    }
+
+    // エラーが発生した場合、処理を停止する
+    if(isset($content->errors)){
+      $data = [];
+      $data['message'] =
+        '自動処理が停止しました。
+      アカウントをご確認下さい。
+      ';
+      $data['subject'] = '[神ったー]自動処理停止のお知らせ';
+      $this->sendMailAsString($id, $data);
+
+      TwitterUser::find($id)->update([
+        'auto_follow_enabled' => false,
+        'auto_unfollow_enabled' => false,
+        'pause_enabled' => false,
+        'auto_favorite_enabled' => false,
+        'is_waited' => false
       ]);
       exit();
     }
@@ -230,7 +284,7 @@ class TwitterController extends Controller
        * API制限状は15分(900秒)だが、念の為16分(960秒)を待機時間として設定する
       */
       if( $limit === '0' ){
-        sleep(960);
+        $this->waitProcess($request);
       }
 
       /*
@@ -595,7 +649,8 @@ class TwitterController extends Controller
   {
 
     // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
-    return TwitterUser::where('user_id', $request->route('id'))->get();
+    return TwitterUser::LinkedUsers($request->route('id'))->get();
+    // return TwitterUser::where('user_id', $request->route('id'))->get();
   }
 
   /*
@@ -667,7 +722,7 @@ class TwitterController extends Controller
 
   /*
    * 自動運用判定用メソッド
-   * TwitterUsersテーブルのIDを引数に取り、自動運用が有効かどうか(auto_pilot_enabled)を返す
+   * TwitterUsersテーブルのIDを引数に取り、自動運用が有効かどうか(auto_follow_enabled)を返す
    * @param $request  Twitterアカウント情報
    * @return true or false
    */
@@ -675,7 +730,7 @@ class TwitterController extends Controller
   {
     $target = TwitterUser::find($request->route('id'));
 
-    if($target->auto_pilot_enabled === 1){
+    if($target->auto_follow_enabled === 1){
       return true;
     } else {
       return false;
@@ -693,6 +748,23 @@ class TwitterController extends Controller
     $target = TwitterUser::find($request->route('id'));
 
     if($target->pause_enabled === 1){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /*
+   * 自動いいね判定用メソッド
+   * TwitterUsersテーブルのIDを引数に取り、自動いいねが有効かどうか(auto_favorite_enabled)を返す
+   * @param $request  Twitterアカウント情報
+   * @return true or false
+   */
+  public function judgeAutoFavorite(Request $request)
+  {
+    $target = TwitterUser::find($request->route('id'));
+
+    if($target->auto_favorite_enabled === 1){
       return true;
     } else {
       return false;
@@ -844,8 +916,7 @@ class TwitterController extends Controller
    * 自動運用メソッド
    * ユーザー情報を引数に取り、自動運用を行う
    * 　・自動フォロー
-   * 　・自動アンフォロー（フォロー数が5000を超えた場合)
-   * 　・自動いいね（スキマ時間）
+   * 　・自動アンフォロー（フォロー数が5000を超え、フロント側の自動アンフォローにチェックがある場合)
    * これらの処理を一連で行う
    * @param $request  Twitterアカウント情報
    * @param $restart  一時停止から再開した場合の判定
@@ -853,11 +924,20 @@ class TwitterController extends Controller
    */
   public function autoFollow(Request $request,$restart = null)
   {
-
-    // 自動運用判定用カラム(auto_pilot_enabled)をtrueにする
+    // 自動運用判定用カラム(auto_follow_enabled)をtrueにする
+    // 待機状態判定用カラム(is_waited)をfalseにする
     TwitterUser::find($request->route('id'))->update([
-      'auto_pilot_enabled' => true
+      'auto_follow_enabled' => true,
+      'is_waited' => false
     ]);
+
+    /*
+     * 自動アンフォローの設定を取得
+     *  0 ：行わない
+     *  1 ：行う
+     */
+    $enable_unfollow = TwitterUser::where('id', $request->route('id'))
+      ->get(['auto_unfollow_enabled'])[0]->auto_unfollow_enabled;
 
     // 認証済みアカウント情報取得
     $user = $this->queryAuthenticatedUser($request);
@@ -869,7 +949,7 @@ class TwitterController extends Controller
 
     // リスタート時は16分間待機する
     if($restart === true ){
-      sleep(960);
+      $this->waitProcess($request);
     }
 
     // 1ターゲットアカウント毎に自動処理を行う
@@ -910,8 +990,8 @@ class TwitterController extends Controller
         // 現在のフォロー数を確認する
         $friends_count = $this->queryFriendsCount($request ,$user);
 
-        // フォロー数が5000人を超えた場合、自動アンフォローを開始する
-        if($friends_count >= 5000){
+        // フォロー数が5000人を超え、自動アンフォローがONの場合は自動アンフォローの処理を解する
+        if($friends_count >= 100 && $enable_unfollow === 1){
           if ($restart !== true){
             $this->autoUnfollow($request);
           }else {
@@ -920,10 +1000,8 @@ class TwitterController extends Controller
         }
 
         // 15カウントごとにカウントごとに16分(960秒)待機する
-        // このタイミングで自動いいねを行う
         if( $count !== 0  && ($count % 15) === 0 ){
-          $this->autoFavorite($request);
-          sleep(960);
+          $this->waitProcess($request);
         }
         // twitterAPIへフォローリクエストを送る
         $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
@@ -943,14 +1021,14 @@ class TwitterController extends Controller
     // 自動処理が完了した後に完了メールを送信する
     $data = [];
     $data['message'] =
-      '自動処理が完了しました。
+      '自動フォロー、アンフォロー処理が完了しました。
       ご確認をお願い致します。
       ';
     $data['subject'] = '[神ったー]自動処理完了のお知らせ';
     $this->sendMail($request, $data);
 
     TwitterUser::find($request->route('id'))->update([
-      'auto_pilot_enabled' => false,
+      'auto_follow_enabled' => false,
       'pause_enabled' => false
     ]);
     return response()->json($response);
@@ -1023,78 +1101,6 @@ class TwitterController extends Controller
       }
       sleep(15);
 
-    }
-    return false;
-  }
-
-  /*
-   * 自動いいね用メソッド
-   * ユーザー情報を引数に取り、自動いいねを行う
-   * @param $request  Twitterアカウント情報
-   * @return 無し
-   */
-  public function autoFavorite(Request $request)
-  {
-    $user = $this->queryAuthenticatedUser($request);
-
-    // いいね用キーワード取得
-    $favorite = new FavoriteController;
-    $condition = $favorite->makeWhereConditions($request);
-
-    // いいね用キーワードがない場合、処理をスキップする
-    if($condition === false){
-      return false;
-    }
-    $query = '';
-
-    // AND, OR, NOTそれぞれを用いて検索用クエリを作成する
-    if(isset($condition['AND'])){
-      $query = '(';
-      foreach ($condition['AND'] as $data){
-        $query = $query .' '. $data[0];
-      }
-      $query = $query. ')';
-    }
-
-    if(isset($condition['OR'])){
-      foreach ($condition['OR'] as $data){
-        $query = $query .' OR '. $data[0];
-      }
-    }
-
-    if(isset($condition['NOT'])){
-      foreach ($condition['NOT'] as $data){
-        $query = $query .' -'. $data[0];
-      }
-    }
-
-    $query = $query . ' exclude:retweets -filter:replies';  // リツイート、リプライを除く
-
-    $request_params = [];
-    $request_params['url'] = 'search/tweets'; // ツイート検索
-    $request_params['params'] = [
-      'q' => $query,
-      'count' => 10,
-      'result_type' => 'recent'
-    ];
-
-    // ツイートを検索する
-    $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, 'get', $request);
-
-    $request_params = [];
-    $request_params['url'] = 'favorites/create';  // いいねを付ける
-    $request_params['params'] = [
-      'id' => '',
-    ];
-
-    foreach ($response->statuses as $tweet){
-      // 自動処理無効もしくは一時停止の場合、処理を中止する
-      if($this->judgeAutoPilot($request) === false || $this->judgePaused($request) === true){
-        return false;
-      }
-      $request_params['params']['id'] = $tweet->id;
-      $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
-      sleep(10);  // 10秒待機する
     }
     return false;
   }
@@ -1219,8 +1225,52 @@ class TwitterController extends Controller
   public function toCancel(Request $request)
   {
     TwitterUser::find($request->route('id'))->update([
-      'auto_pilot_enabled' => false,
+      'auto_follow_enabled' => false,
       'pause_enabled' => false
+    ]);
+
+    return false;
+  }
+
+  /*
+   * 自動アンフォロー更新用メソッド
+   * ユーザー情報とフロント側の自動アンフォローのチェックの値を引数に取り、
+   * 　・自動アンフォロー判定用カラム
+   * を変更する
+   * @param $request  Twitterアカウント情報、自動アンフォローチェック状態
+   * @return なし
+  */
+  public function updateUnfollow(Request $request)
+  {
+    $data = $request->all();
+
+    TwitterUser::find($data['id'])->update([
+      'auto_unfollow_enabled' => $data['unfollow'],
+    ]);
+
+    return false;
+  }
+
+  /*
+   * 自動処理待機メソッド
+   * ユーザー情報と待機時間(int)を引数に取り、
+   * 　・待機判定用カラム
+   * を変更する。
+   * Twitter APIリクエスト制限回避に用いる。(待機時間を960秒をデフォルトとする)
+   * @param $request  Twitterアカウント情報
+   * @return なし
+  */
+  public function waitProcess(Request $request, int $time = 960)
+  {
+    TwitterUser::find($request->route('id'))->update([
+      'is_waited' => true,
+    ]);
+
+    // 指定時間だけ待機
+    sleep($time);
+
+    TwitterUser::find($request->route('id'))->update([
+      'is_waited' => false,
     ]);
 
     return false;
@@ -1237,6 +1287,29 @@ class TwitterController extends Controller
   {
     // Twitterユーザー取得
     $target = TwitterUser::find($request->route('id'));
+    $user = $target->user;
+
+    // メールに必要な情報を$dataに追記し、sedMailメソッドを呼び出す
+    $data['name'] = $user['name'];
+    $data['target'] = $target['twitter_screen_name'];
+    Mail::to($user['email'])
+      ->send(new SendEmail($data));
+
+    return false;
+  }
+
+  /*
+   * メール送信準備用メソッド
+   * ユーザー情報とメール送信用情報を引数に取り、メールを送信用メソッドを読み出す
+   * TwitterユーザーIDを文字列で受け取る
+   * @param $id  TwitterゆーザーID
+   * @param $data メール送信用情報
+   * @return なし
+   */
+  public function sendMailAsString(String $id, Array $data)
+  {
+    // Twitterユーザー取得
+    $target = TwitterUser::find($id);
     $user = $target->user;
 
     // メールに必要な情報を$dataに追記し、sedMailメソッドを呼び出す

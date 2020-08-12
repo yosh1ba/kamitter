@@ -20,30 +20,57 @@
     &__name{
       margin-left: 16px;
     }
-
-    &__buttons{
+    &__btn{
+      &--delete {
+        margin-left: 8px;
+      }
+    }
+  }
+  &__buttons{
+    margin-bottom: 16px;
+    @include mq('sp') {
+      // display: none;
+    }
+    &--sp{
+      display: none;
       @include mq('sp') {
-        display: none;
+        display: block;
+        margin-bottom: 8px;
       }
-      &--sp{
-        display: none;
+    }
+    &__head {
+      padding-top: 4px;
+      font-weight: bold;
+    }
+    &__check {
+      margin-left: 16px;
+      margin-top: 8px;
+      &__label{
+        font-size: 1.4rem;
+      }
+    }
+    &__label {
+      margin-top: 4px;
+      font-size: 1.4rem;
+    }
+    &__btn{
+      margin: 8px 16px 0 0;
+      text-align: center;
+      width: 60px;
+      &__lead{
+        text-align: center;
+        margin-right: 16px;
+      }
+      &--play{
+        color: $color-green;
         @include mq('sp') {
-          display: block;
-          margin-bottom: 8px;
+          margin-left: 0;
         }
       }
-      &__btn{
-        &--play{
-          color: $color-green;
-          @include mq('sp') {
-            margin-left: 0;
-          }
-        }
-        &--cancel{
-          color: $color-red;
-          @include mq('sp') {
-            margin-left: 0;
-          }
+      &--cancel{
+        color: $color-red;
+        @include mq('sp') {
+          margin-left: 0;
         }
       }
     }
