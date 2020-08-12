@@ -68,7 +68,9 @@ class SearchController extends Controller
    */
   public function querySearchKeywordList(Request $request)
   {
-    $response = SearchKeywordList::where('twitter_user_id', $request->route('id'))->select('selected', 'text')->get();
+    $response = SearchKeywordList::OfTwitterUserId($request->route('id'))
+      ->select('selected', 'text')
+      ->get();
     return $response;
   }
 

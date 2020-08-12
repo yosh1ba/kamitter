@@ -83,15 +83,14 @@ class TwitterController extends Controller
           'user_id' => $user_id // ログイン中のユーザーID
         ]);
 
-        $twitter_user->update(
-          [
-            'twitter_oauth_token' => $token,  // アクセストークン
-            'twitter_oauth_token_secret' => $token_secret,  // アクセストークンシークレット
-            'twitter_name' => $user->getName(), // Twitterユーザー名
-            'twitter_screen_name' => $user->getNickname(),  // Twitterユーザー名(@マーク以降)
-            'twitter_avatar' => str_replace('http', 'https', $user->getAvatar()), // アイコン(https化)
-          ]
-        );
+        $update_column = [
+          'twitter_oauth_token' => $token,  // アクセストークン
+          'twitter_oauth_token_secret' => $token_secret,  // アクセストークンシークレット
+          'twitter_name' => $user->getName(), // Twitterユーザー名
+          'twitter_screen_name' => $user->getNickname(),  // Twitterユーザー名(@マーク以降)
+          'twitter_avatar' => str_replace('http', 'https', $user->getAvatar()), // アイコン(https化)
+        ];
+        $twitter_user->update($update_column);
       }
       return response()->json($user);
 
@@ -127,13 +126,18 @@ class TwitterController extends Controller
       $data['subject'] = '[神ったー]自動処理停止のお知らせ';
       $this->sendMail($request, $data);
 
-      TwitterUser::find($request->route('id'))->update([
-        'auto_follow_enabled' => false,
-        'auto_unfollow_enabled' => false,
-        'pause_enabled' => false,
-        'auto_favorite_enabled' => false,
-        'is_waited' => false
-      ]);
+//      $update_column = [
+//        'auto_follow_enabled' => false,
+//        'auto_unfollow_enabled' => false,
+//        'pause_enabled' => false,
+//        'auto_favorite_enabled' => false,
+//        'is_waited' => false
+//      ];
+//      TwitterUser::find($request->route('id'))->update($update_column);
+
+      TwitterUser::find($request->route('id'))
+        ->UpdateState('error');
+
       exit();
     }
     return $response;
@@ -176,13 +180,18 @@ class TwitterController extends Controller
       $data['subject'] = '[神ったー]自動処理停止のお知らせ';
       $this->sendMail($request, $data);
 
-      TwitterUser::find($request->route('id'))->update([
-        'auto_follow_enabled' => false,
-        'auto_unfollow_enabled' => false,
-        'pause_enabled' => false,
-        'auto_favorite_enabled' => false,
-        'is_waited' => false
-      ]);
+//      $update_column = [
+//        'auto_follow_enabled' => false,
+//        'auto_unfollow_enabled' => false,
+//        'pause_enabled' => false,
+//        'auto_favorite_enabled' => false,
+//        'is_waited' => false
+//      ];
+//      TwitterUser::find($request->route('id'))->update($update_column);
+
+      TwitterUser::find($request->route('id'))
+        ->UpdateState('error');
+
       exit();
     }
     return $content;
@@ -226,13 +235,15 @@ class TwitterController extends Controller
       $data['subject'] = '[神ったー]自動処理停止のお知らせ';
       $this->sendMailAsString($id, $data);
 
-      TwitterUser::find($id)->update([
-        'auto_follow_enabled' => false,
-        'auto_unfollow_enabled' => false,
-        'pause_enabled' => false,
-        'auto_favorite_enabled' => false,
-        'is_waited' => false
-      ]);
+//      TwitterUser::find($id)->update([
+//        'auto_follow_enabled' => false,
+//        'pause_enabled' => false,
+//        'auto_favorite_enabled' => false,
+//        'is_waited' => false
+//      ]);
+
+      TwitterUser::find($id)->UpdateState('error');
+
       exit();
     }
     return $content;
@@ -260,9 +271,7 @@ class TwitterController extends Controller
     $target = new FollowerTargetList();
 
     // 同じtwitter_user_idのデータを一旦削除する
-    $target->where('twitter_user_id', $request->route('id'))->delete();
-
-
+    $target->OfTwitterUserId($request->route('id'))->delete();
 
     $count = 1; // ループ回数カウント
     $limit = '1'; // APIリクエスト可能回数
@@ -481,10 +490,15 @@ class TwitterController extends Controller
   {
 
     // FollowedLists(フォロー済みリスト)の中で、30日以内にフォロー済みのカウントの場合はfalseを返す
-    $target = FollowedList::where('twitter_user_id', $request->route('id'))
-      ->where('screen_name', $follower['screen_name'])
-      ->where('followed_at', '>', Carbon::now()->subMonth())
+    $target =FollowedList::OfTwitterUserId($request->route('id'))
+      ->OfScreenName($follower['screen_name'])
+      ->FollowedWithinAMonth()
       ->get();
+
+//    $target = FollowedList::where('twitter_user_id', $request->route('id'))
+//      ->where('screen_name', $follower['screen_name'])
+//      ->where('followed_at', '>', Carbon::now()->subMonth())
+//      ->get();
      if ($target->isEmpty()){
        return false;
      }else{
@@ -503,9 +517,10 @@ class TwitterController extends Controller
   public function alreadyUnfollowed(Request $request, Array $follower)
   {
     // UnfollowedLists(アンフォローリスト)に一致するものがあれば、falseを返す
-    $target = UnfollowedList::where('twitter_user_id', $request->route('id'))
-      ->where('screen_name', $follower['screen_name'])
+    $target = UnfollowedList::OfTwitterUserId($request->route('id'))
+      ->OfScreenName($follower['screen_name'])
       ->get();
+
     if ($target->isEmpty()){
       return false;
     }else{
@@ -570,7 +585,8 @@ class TwitterController extends Controller
     $target = new TargetAccountList;
 
     // 同じtwitter_user_idのデータを一旦削除する
-    $target->where('twitter_user_id', $twitter_user_id)->delete();
+    $target->OfTwitterUserId($twitter_user_id)
+      ->delete();
 
     // 配列の内容をDBへインサート
     $target->insert($arr);
@@ -586,11 +602,15 @@ class TwitterController extends Controller
    * @return レスポンス
    */
   public function createFollowedLists(Request $request, Object $obj){
-    $follower = FollowedList::create([
+
+    $create_column = [
       'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
       'twitter_user_id' => $request->route('id')
-    ]);
+    ];
+
+    $follower = FollowedList::create($create_column);
+
     return $follower;
   }
 
@@ -602,11 +622,14 @@ class TwitterController extends Controller
    * @return レスポンス
    */
   public function createUnfollowedLists(Request $request, Object $obj){
-    $unfollow = UnfollowedList::create([
+
+    $create_column = [
       'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
       'twitter_user_id' => $request->route('id')
-    ]);
+    ];
+
+    $unfollow = UnfollowedList::create($create_column);
     return $unfollow;
   }
 
@@ -618,11 +641,15 @@ class TwitterController extends Controller
    * @return なし
    */
   public function updateFollowerTargetList(Request $request, String $screen_name){
-    $target = new FollowerTargetList();
+    //$target = new FollowerTargetList();
 
-    $target->where('twitter_user_id', $request->route('id'))
-      ->where('screen_name', $screen_name)
+    FollowerTargetList::OfTwitterUserId($request->route('id'))
+      ->OfScreenName($screen_name)
       ->update(['is_followed' => true]);
+
+//    $target->where('twitter_user_id', $request->route('id'))
+//      ->where('screen_name', $screen_name)
+//      ->update(['is_followed' => true]);
   }
 
   /*
@@ -634,8 +661,9 @@ class TwitterController extends Controller
   public function updateReserves(String $id){
     $target = new Reserve();
 
-    $target->where('id', $id)
-      ->update(['is_posted' => true]);
+    $update_column = ['is_posted' => true];
+    $target->find($id)
+      ->update($update_column);
   }
 
   /*
@@ -649,8 +677,8 @@ class TwitterController extends Controller
   {
 
     // ログインしているユーザーに紐付くtwitter_usersテーブル情報を返す
-    return TwitterUser::LinkedUsers($request->route('id'))->get();
-    // return TwitterUser::where('user_id', $request->route('id'))->get();
+    return TwitterUser::OfUserId($request->route('id'))->get();
+
   }
 
   /*
@@ -663,7 +691,7 @@ class TwitterController extends Controller
   public function queryTargetAccountList(Request $request)
   {
 
-    $response = TargetAccountList::where('twitter_user_id', $request->route('id'))->select('screen_name')->get();
+    $response = TargetAccountList::OfTwitterUserId($request->route('id'))->select('screen_name')->get();
     return $response;
   }
 
@@ -677,9 +705,14 @@ class TwitterController extends Controller
   public function queryFollowerTargetList(Request $request)
   {
 
-    $response = FollowerTargetList::where('twitter_user_id', $request->route('id'))
-      ->where('is_followed', false)
-      ->select('screen_name')->get();
+    $response = FollowerTargetList::OfTwitterUserId($request->route('id'))
+      ->NotFollowed()
+      ->select('screen_name')
+      ->get();
+
+//    $response = FollowerTargetList::where('twitter_user_id', $request->route('id'))
+//      ->where('is_followed', false)
+//      ->select('screen_name')->get();
     return $response;
   }
 
@@ -690,7 +723,8 @@ class TwitterController extends Controller
    * @param $request  Twitterアカウント情報
    * @return レスポンス
    */
-  public function queryAuthenticatedUser(Request $request)
+  // TODO モデルへ移行したため削除してもよい
+  /*public function queryAuthenticatedUser(Request $request)
   {
 
     $response = TwitterUser::where('id', $request->route('id'))->select(
@@ -699,7 +733,7 @@ class TwitterController extends Controller
       'twitter_oauth_token_secret'
     )->get();
     return $response;
-  }
+  }*/
 
   /*
    * Twitterユーザー情報参照用メソッド
@@ -709,7 +743,8 @@ class TwitterController extends Controller
    * @param $request  Twitterアカウント情報
    * @return レスポンス
    */
-  public function queryAuthenticatedUserAsString(String $id)
+  // TODO モデルへ移行したため削除してもよい
+  /*public function queryAuthenticatedUserAsString(String $id)
   {
 
     $response = TwitterUser::where('id', $id)->select(
@@ -718,7 +753,7 @@ class TwitterController extends Controller
       'twitter_oauth_token_secret'
     )->get();
     return $response;
-  }
+  }*/
 
   /*
    * 自動運用判定用メソッド
@@ -810,10 +845,15 @@ class TwitterController extends Controller
    */
   public function queryFollowedLists(Request $request, Int $day)
   {
-    $response = FollowedList::where('twitter_user_id', $request->route('id'))
-      ->where('followed_at', '<', Carbon::now()->subDay($day))
+    $response = FollowedList::OfTwitterUserId($request->route('id'))
+      ->FollowedSomeDaysAgo($day)
       ->select('user_id')
       ->get();
+
+//    $response = FollowedList::where('twitter_user_id', $request->route('id'))
+//      ->where('followed_at', '<', Carbon::now()->subDay($day))
+//      ->select('user_id')
+//      ->get();
 
     return $response;
   }
@@ -906,8 +946,8 @@ class TwitterController extends Controller
    * @return レスポンス
    */
   public function queryReserve(Request $request){
-    $response = Reserve::where('twitter_user_id', $request->route('id'))
-      ->where('is_posted', false) // 未投稿を対象とする
+    $response = Reserve::OfTwitterUserId($request->route('id'))
+      ->NeverPosted() // 未投稿を対象とする
       ->get();
     return $response;
   }
@@ -924,26 +964,25 @@ class TwitterController extends Controller
    */
   public function autoFollow(Request $request,$restart = null)
   {
-    // 自動運用判定用カラム(auto_follow_enabled)をtrueにする
-    // 待機状態判定用カラム(is_waited)をfalseにする
-    TwitterUser::find($request->route('id'))->update([
+    /*
+    * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
+    * 待機状態判定用カラム(is_waited)をfalseにする
+    */
+    $update_column = [
       'auto_follow_enabled' => true,
       'is_waited' => false
-    ]);
+    ];
+    TwitterUser::find($request->route('id'))->update($update_column);
 
-    /*
-     * 自動アンフォローの設定を取得
-     *  0 ：行わない
-     *  1 ：行う
-     */
-    $enable_unfollow = TwitterUser::where('id', $request->route('id'))
-      ->get(['auto_unfollow_enabled'])[0]->auto_unfollow_enabled;
+    // 自動アンフォローの判定値を取得
+    $enable_unfollow = TwitterUser::find($request->route('id'))
+      ->get()[0]->auto_unfollow_enabled;
 
     // 認証済みアカウント情報取得
-    $user = $this->queryAuthenticatedUser($request);
+    $user = TwitterUser::find($request->route('id'))->get();
 
     // ターゲットアカウントリスト取得
-    $lists = $this->queryTargetAccountList($request);
+    $lists = TargetAccountList::OfTwitterUserId($request->route('id'))->select('screen_name')->get();
 
     $count = 0; // APIリクエスト可能回数
 
@@ -1027,10 +1066,16 @@ class TwitterController extends Controller
     $data['subject'] = '[神ったー]自動処理完了のお知らせ';
     $this->sendMail($request, $data);
 
-    TwitterUser::find($request->route('id'))->update([
-      'auto_follow_enabled' => false,
-      'pause_enabled' => false
-    ]);
+    TwitterUser::find($request->route('id'))
+      ->UpdateState('follow');
+
+//    $update_column = [
+//      'auto_follow_enabled' => false,
+//      'pause_enabled' => false
+//    ];
+//
+//    TwitterUser::find($request->route('id'))->update($update_column);
+
     return response()->json($response);
   }
 
@@ -1078,7 +1123,8 @@ class TwitterController extends Controller
       'id' => ''
     ];
 
-    $user = $this->queryAuthenticatedUser($request);
+    $user = TwitterUser::find($request->route('id'))->get();
+    // $user = $this->queryAuthenticatedUser($request);
 
     /*
      * $result_targetsの全てについて、アンフォローを実施
@@ -1119,14 +1165,23 @@ class TwitterController extends Controller
 
     // DBへ格納
     // すでに登録されている場合は上書き
-    $response = Reserve::updateOrCreate(
-      ['twitter_user_id' => $tweet['twitter_user_id']],
-      [
-        'reserved_at' => date('Y-m-d H:i:s', strtotime($tweet['reserved_at'])),
-        'tweet' => $tweet['tweet'],
-        'is_posted' => false
-      ]
-    );
+    $target_column = [ 'twitter_user_id' => $tweet['twitter_user_id'] ];
+    $update_column = [
+      'reserved_at' => date('Y-m-d H:i:s', strtotime($tweet['reserved_at'])),
+      'tweet' => $tweet['tweet'],
+      'is_posted' => false
+    ];
+
+    $response = Reserve::updateOrCreate($target_column, $update_column);
+
+//    $response = Reserve::updateOrCreate(
+//      ['twitter_user_id' => $tweet['twitter_user_id']],
+//      [
+//        'reserved_at' => date('Y-m-d H:i:s', strtotime($tweet['reserved_at'])),
+//        'tweet' => $tweet['tweet'],
+//        'is_posted' => false
+//      ]
+//    );
 
     return response()->json($response);
   }
@@ -1140,9 +1195,13 @@ class TwitterController extends Controller
   {
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す
-    $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subSeconds(30), Carbon::now()->addSeconds(30)])
-      ->where('is_posted',false)
+    $reserves = Reserve::ReservedAtNow()
+      ->NeverPosted()
       ->get();
+
+//    $reserves = Reserve::whereBetween('reserved_at', [Carbon::now()->subSeconds(30), Carbon::now()->addSeconds(30)])
+//      ->where('is_posted',false)
+//      ->get();
 
     if($reserves->count() === 0){
       return false;
@@ -1156,7 +1215,8 @@ class TwitterController extends Controller
     // 該当した予約ツイートについて投稿を行う
     foreach ($reserves as $reserve){
       $request_params['params']['status'] = $reserve['tweet'];
-      $user = $this->queryAuthenticatedUserAsString($reserve['twitter_user_id']);
+      $user = TwitterUser::find($id)->get();
+      // $user = $this->queryAuthenticatedUserAsString($reserve['twitter_user_id']);
       $response = $this->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $reserve['twitter_user_id']);
 
       // 投稿済み判定用カラムを変更する
@@ -1175,8 +1235,10 @@ class TwitterController extends Controller
   public function deleteAuthenticatedUser(Request $request)
   {
 
-    $response = TwitterUser::where('id', $request->route('id'))
+    $response = TwitterUser::find($request->route('id'))
       ->delete();
+//    $response = TwitterUser::where('id', $request->route('id'))
+//      ->delete();
     return $response;
   }
 
@@ -1188,9 +1250,9 @@ class TwitterController extends Controller
    */
   public function toPause(Request $request)
   {
-    TwitterUser::find($request->route('id'))->update([
-      'pause_enabled' => true
-    ]);
+    $update_column = ['pause_enabled' => true];
+    TwitterUser::find($request->route('id'))
+      ->update($update_column);
 
     return false;
   }
@@ -1204,9 +1266,10 @@ class TwitterController extends Controller
    */
   public function toRestart(Request $request)
   {
-    TwitterUser::find($request->route('id'))->update([
-      'pause_enabled' => false
-    ]);
+    $update_column = ['pause_enabled' => false];
+    TwitterUser::find($request->route('id'))
+      ->update($update_column);
+
     // 自動処理再開
     $this->autoFollow($request, (bool)TRUE);
 
@@ -1224,10 +1287,15 @@ class TwitterController extends Controller
    */
   public function toCancel(Request $request)
   {
-    TwitterUser::find($request->route('id'))->update([
-      'auto_follow_enabled' => false,
-      'pause_enabled' => false
-    ]);
+//    $update_column = [
+//      'auto_follow_enabled' => false,
+//      'pause_enabled' => false
+//    ];
+//
+//    TwitterUser::find($request->route('id'))
+//      ->update($update_column);
+    TwitterUser::find($request->route('id'))
+      ->UpdateState('follow');
 
     return false;
   }
@@ -1244,9 +1312,8 @@ class TwitterController extends Controller
   {
     $data = $request->all();
 
-    TwitterUser::find($data['id'])->update([
-      'auto_unfollow_enabled' => $data['unfollow'],
-    ]);
+    $update_column = [ 'auto_unfollow_enabled' => $data['unfollow'] ];
+    TwitterUser::find($data['id'])->update($update_column);
 
     return false;
   }

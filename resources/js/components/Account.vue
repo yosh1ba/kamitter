@@ -519,9 +519,6 @@
 
         const responsePromise = await axios.post(`/api/twitter/follow/${this.item.id}`);
 
-        this.disableAutoFollow = false
-        this.disablePause = true
-        this.disableFollowCancel = true
       },
 
       // 自動フォロー 一時停止用メソッド

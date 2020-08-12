@@ -2982,11 +2982,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
               case 19:
                 responsePromise = _context12.sent;
-                _this12.disableAutoFollow = false;
-                _this12.disablePause = true;
-                _this12.disableFollowCancel = true;
 
-              case 23:
+              case 20:
               case "end":
                 return _context12.stop();
             }
