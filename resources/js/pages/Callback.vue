@@ -9,7 +9,6 @@
 </template>
 
 <script>
-  import {OK} from "../util";
   import {mapState} from "vuex";
 
   export default {

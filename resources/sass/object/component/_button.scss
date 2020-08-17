@@ -1,6 +1,5 @@
 .c-button{
   &__circle {
-
     display: inline-block;
     text-decoration: none;
     width: 30px;
@@ -27,6 +26,7 @@
   }
   &__square {
     width: 60px;
+    height: 27px;
     padding: 2px 0;
     text-align: center;
     text-decoration: none;
@@ -34,6 +34,18 @@
     background: #d6d6d6;
     &:hover{
       @include hover;
+    }
+    &:disabled{
+      color: #cdcdcd;
+      box-shadow: none;
+      border-bottom: none;
+      border-top: solid 2px #fafafa;
+      &:hover{
+        opacity: 1;
+      }
+    }
+    @include mq('sp') {
+      height: 38px;
     }
   }
   &__eye{
@@ -51,6 +63,8 @@
     margin-right: 8px;
     border-radius: 3px;
     font-weight: normal;
+    @include mq('sp') {
+      font-size: 1.4rem;
     }
-
+  }
 }

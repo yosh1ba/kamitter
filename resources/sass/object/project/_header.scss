@@ -6,14 +6,10 @@
     
     &__content {
         margin: 0 auto;
-        //max-width: 1100px;
         padding: 16px 0 16px 0;
         justify-content: space-between;
         @include mq('tab') {
             justify-content: space-between;
-        }
-        @include mq('sp') {
-            //padding: 16px 16px;
         }
     }
 
@@ -38,7 +34,6 @@
 
 .p-nav{
     &__item{
-
         &__link {
             color: $color-font-light;
         }

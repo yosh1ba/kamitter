@@ -16,9 +16,15 @@
     }
     &__img{
       width: 50px;
+      @include mq('sp') {
+        width: 80px;
+      }
     }
     &__name{
       margin-left: 16px;
+      @include mq('sp') {
+        margin-left: 8px;
+      }
     }
     &__btn{
       &--delete {
@@ -28,9 +34,6 @@
   }
   &__buttons{
     margin-bottom: 16px;
-    @include mq('sp') {
-      // display: none;
-    }
     &--sp{
       display: none;
       @include mq('sp') {
@@ -81,6 +84,11 @@
       border: $color-dark 1px solid;
       padding: 2px 4px;
       margin-bottom: 8px;
+      width: 275px;
+      @include mq('sp') {
+        width: 190px;
+        line-height: 32px;
+      }
     }
     &__keyword{
       border-radius: 3px;
@@ -89,6 +97,7 @@
       margin-bottom: 8px;
       @include mq('sp') {
         width: 45%;
+        line-height: 32px;
       }
     }
     &__textarea{
@@ -99,6 +108,9 @@
     }
     &__btn {
       margin-left: 8px;
+      @include mq('sp') {
+        height: 38px;
+      }
     }
     &__msg{
       display: block;
@@ -110,6 +122,15 @@
       padding: 2px 4px;
       margin-bottom: 8px;
       appearance: auto;
+      @include mq('sp') {
+        padding: 6px 4px;
+      }
+    }
+    &__icon {
+      &--reserved {
+        color: $color-green;
+        margin-right: 4px;
+      }
     }
   }
 }

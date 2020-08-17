@@ -15,15 +15,9 @@
 |
 */
 
-
-
-
 // 同一オリジンAPI
 Route::prefix('api')
   ->group(function () {
-
-    // 自動いいねテスト
-    Route::post('/favorite/test', 'Auth\FavoriteController@autoFavorite');
 
     // 登録
     Route::post('/register', 'Auth\RegisterController@register')->name('register');
@@ -35,7 +29,6 @@ Route::prefix('api')
     Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
 
     // 認証ユーザー取得
-    //Route::get('/user', (fn() => Auth::user()) )->name('user');
     Route::get('/user', function(){
       return Auth::user();
     } )->name('user');
@@ -56,13 +49,13 @@ Route::prefix('api')
     Route::get('/twitter/user/{id}', 'Auth\TwitterController@queryLinkedUsers');
 
     // ターゲットアカウント存在チェック
-    Route::post('/twitter/target/check', 'Auth\TwitterController@checkTargetAccountList');
+    Route::post('/twitter/target/check', 'TargetController@checkTargetAccountList');
 
     // ターゲットアカウントリスト作成
-    Route::post('/twitter/target', 'Auth\TwitterController@createTargetAccountList');
+    Route::post('/twitter/target', 'TargetController@createTargetAccountList');
 
     // ターゲットアカウントリスト読み込み
-    Route::get('/twitter/target/{id}', 'Auth\TwitterController@queryTargetAccountList');
+    Route::get('/twitter/target/{id}', 'TargetController@queryTargetAccountList');
 
     // サーチキーワードリスト作成
     Route::post('/search/keyword', 'SearchController@createSearchKeywordList');
@@ -71,58 +64,55 @@ Route::prefix('api')
     Route::get('/search/keyword/{id}', 'SearchController@querySearchKeywordList');
 
     // いいねキーワードリスト作成
-    Route::post('/favorite/keyword', 'Auth\FavoriteController@createFavoriteKeywordList');
+    Route::post('/favorite/keyword', 'FavoriteController@createFavoriteKeywordList');
 
     // いいねキーワードリスト読み込み
-    Route::get('/favorite/keyword/{id}', 'Auth\FavoriteController@queryFavoriteKeywordList');
+    Route::get('/favorite/keyword/{id}', 'FavoriteController@queryFavoriteKeywordList');
 
     // 自動フォロー
-    Route::post('/twitter/follow/{id}', 'Auth\TwitterController@autoFollow');
+    Route::post('/twitter/follow/{id}', 'FollowController@autoFollow');
 
     // 自動アンフォロー状態更新
-    Route::post('/twitter/unfollow/update', 'Auth\TwitterController@updateUnfollow');
-
-    // 自動アンフォロー
-    Route::post('/twitter/unfollow/{id}', 'Auth\TwitterController@autoUnfollow');
+    Route::post('/twitter/unfollow/update', 'StateController@updateUnfollow');
 
     // 自動いいね状態更新
-    Route::post('/twitter/favorite/update', 'Auth\FavoriteController@updateFavorite');
+    Route::post('/twitter/favorite/update', 'StateController@updateFavorite');
 
     // 自動いいね
-    Route::post('/twitter/favorite/{id}', 'Auth\TwitterController@autoFavorite');
+    Route::post('/twitter/favorite/{id}', 'FavoriteController@autoFavorite');
 
     // ツイート予約
-    Route::post('/twitter/reserve', 'Auth\TwitterController@reserveTweet');
+    Route::post('/twitter/reserve', 'ReserveController@reserveTweet');
 
-    // ツイート
-    Route::post('/twitter/tweet', 'Auth\TwitterController@AutoTweet');
+    // ツイート予約削除
+    Route::post('/twitter/reserve/delete', 'ReserveController@deleteReserveTweet');
 
     // ツイート予約読み込み
-    Route::get('/twitter/reserve/{id}', 'Auth\TwitterController@queryReserve');
+    Route::get('/twitter/reserve/{id}', 'ReserveController@queryReserve');
 
     // twitter認証ユーザ削除
     Route::post('/twitter/user/delete/{id}', 'Auth\TwitterController@deleteAuthenticatedUser');
 
     // メール送信
-    Route::post('/send/mail/{id}', 'Auth\TwitterController@sendMail');
+    Route::post('/send/mail/{id}', 'MailController@sendMail');
 
     // 自動いいね状態読み込み
-    Route::get('/twitter/auto/favorite/{id}', 'Auth\TwitterController@judgeAutoFavorite');
+    Route::get('/twitter/auto/favorite/{id}', 'JudgeController@judgeAutoFavorite');
 
     // 自動運用状態読み込み
-    Route::get('/twitter/auto/{id}', 'Auth\TwitterController@judgeAutoPilot');
+    Route::get('/twitter/auto/{id}', 'JudgeController@judgeAutoPilot');
 
     // 一時停止状態読み込み
-    Route::get('/twitter/pause/{id}', 'Auth\TwitterController@judgePaused');
+    Route::get('/twitter/pause/{id}', 'JudgeController@judgePaused');
 
     // 自動処理を一時停止する
-    Route::post('/twitter/pause/{id}', 'Auth\TwitterController@toPause');
+    Route::post('/twitter/pause/{id}', 'StateController@toPause');
 
     // 自動処理を再開する
-    Route::post('/twitter/restart/{id}', 'Auth\TwitterController@toRestart');
+    Route::post('/twitter/restart/{id}', 'StateController@toRestart');
 
     // 自動処理を中止する
-    Route::post('/twitter/cancel/{id}', 'Auth\TwitterController@toCancel');
+    Route::post('/twitter/cancel/{id}', 'StateController@toCancel');
 
   });
 
@@ -132,21 +122,8 @@ Route::prefix('api')
   // Twitterユーザの登録
   Route::get('/twitter/register', 'Auth\TwitterController@handleProviderCallback');
 
-
-  Route::middleware('verified')->group(function() {
-
-    // 本登録ユーザーだけ表示できるページ
-    Route::get('verified',  function(){
-
-        return '本登録が完了してます！';
-
-    });
-
-});
-
-// APIのURL以外のリクエストに対してはindexテンプレートを返す
-// 画面遷移はフロントエンドのVueRouterが制御する
-//Route::get('/{any?}', fn() => view('home'))->where('any', '.+');
-  Route::get('/{any?}', function (){
+  // APIのURL以外のリクエストに対してはindexテンプレートを返す
+  // 画面遷移はフロントエンドのVueRouterが制御する
+  Route::get('/{any?}', function () {
     return view('home');
   })->where('any', '.+');

@@ -22,6 +22,4 @@ const createApp = async () =>{
 
 }
 
-// SyncManager(store, router);
-
 createApp();

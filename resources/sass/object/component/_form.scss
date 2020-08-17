@@ -5,6 +5,9 @@
     &__label{
       font-size: 1.4rem;
       font-weight: bold;
+      @include mq('sp') {
+        font-size: 1.6rem;
+      }
       &--under {
         font-size: 1.4rem;
         margin-left: 4px;

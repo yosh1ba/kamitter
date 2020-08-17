@@ -44,18 +44,6 @@
           </div>
         </div>
       </div>
-<!--      <div class="p-account__buttons&#45;&#45;sp">
-        <button v-on:click="autoFollow" v-if="!disableAutoFollow" class="c-button__circle p-account__buttons__btn&#45;&#45;play"><i class="fas fa-play"></i></button>
-        <button v-on:click="toCancel" v-else class="c-button__circle p-account__buttons__btn&#45;&#45;cancel"><i class="fas fa-stop"></i></button>
-        <transition name="fade">
-          <button v-on:click="toPause" v-if="disableAutoFollow && !disablePause" class="c-button__circle p-account__buttons__btn&#45;&#45;pause"><i class="fas fa-pause"></i></button>
-          <button v-on:click="toRestart" v-else-if="disableAutoFollow && disablePause" class="c-button__circle p-account__buttons__btn&#45;&#45;restart"><i class="fas fa-reply-all"></i></button>
-        </transition>
-        <button v-on:click="deleteUser" class="c-button__circle p-account__buttons__btn&#45;&#45;delete"><i class="fas fa-trash"></i></button>
-      </div>-->
-      <!--<button v-on:click="autoUnfollow">自動アンフォロー</button>-->
-      <button v-on:click="autoFavoriteTest">自動いいね</button>
-      <!--<button v-on:click="sendMail">メール送信</button>-->
       <div class="p-account__content__forms">
         <p class="p-account__content__forms__title">フォロー対象アカウント</p>
         <div v-for="(target, index) in targets" class="p-account__form">
@@ -65,7 +53,6 @@
 
         </div>
         <button v-on:click="addTargetForm" class="c-button__square">追加</button>
-        <button v-on:click="saveTargetForm" class="c-button__square">保存</button>
       </div>
       <div class="p-account__content__forms">
         <p class="p-account__content__forms__title">検索キーワード</p>
@@ -80,7 +67,6 @@
           <button v-on:click="deleteSearchKeywordForm(index)" class="c-button__square p-account__form__btn">削除</button>
         </div>
         <button v-on:click="addSearchKeywordForm" class="c-button__square">追加</button>
-        <button v-on:click="saveSearchKeywordForm" class="c-button__square">保存</button>
       </div>
       <div class="p-account__content__forms">
         <p class="p-account__content__forms__title">いいねキーワード</p>
@@ -95,18 +81,20 @@
           <button v-on:click="deleteFavoriteKeywordForm(index)" class="c-button__square p-account__form__btn">削除</button>
         </div>
         <button v-on:click="addFavoriteKeywordForm" class="c-button__square">追加</button>
-        <button v-on:click="saveFavoriteKeywordForm" class="c-button__square">保存</button>
       </div>
-
       <div class="p-account__content__forms">
         <p class="p-account__content__forms__title">ツイート予約</p>
-        <flat-pickr v-model="reserve.reserved_at" :config="config"></flat-pickr>
-        <div>
-          <span class="p-account__form__msg">{{reserve.message}}</span>
-          <textarea name="" id="" rows="7" maxlength="140" v-model="reserve.tweet" class="p-account__form__textarea"></textarea>
+        <div v-for="(reserveTweet, index) in reserveTweets" v-if="!emptyReserveTweet" class="p-account__form u-margin__bottom--8">
+          <div class="l-flex">
+            <flat-pickr v-model="reserveTweet.reserved_at" :config="config" :disabled="reserveTweet.is_reserved"></flat-pickr>
+            <span v-if="reserveTweet.is_reserved"><i class="far fa-check-circle p-account__form__icon--reserved"></i>予約済み</span>
+          </div>
+          <span class="p-account__form__msg">{{reserveTweet.message}}</span>
+          <textarea name="" id="" rows="7" maxlength="140" v-model="reserveTweet.tweet" class="p-account__form__textarea" :disabled="reserveTweet.is_reserved"></textarea>
+          <button v-on:click="reserve(index)" class="c-button__square" :disabled="reserveTweet.is_reserved">予約</button>
+          <button v-on:click="deleteReserve(index)" class="c-button__square p-account__form__btn">削除</button>
         </div>
-        <button v-on:click="reserveTweet" class="c-button__square">予約</button>
-        <!--<button v-on:click="autoTweet" class="c-button__square p-account__form__btn">自動ツイートテスト</button>-->
+        <button v-on:click="addReserveTweetForm" class="c-button__square">追加</button>
       </div>
       <hr class="c-hr">
     </div>
@@ -118,7 +106,6 @@
   import {OK} from "../util";
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
-  import {mapGetters, mapState} from "vuex";
   export default {
     name: "Account",
     props: {
@@ -135,8 +122,10 @@
         targets: [],  // ターゲットアカウント
         searchKeywords: [],  // 検索用キーワード
         favoriteKeywords:[],  // いいね用キーワード
+        reserveTweets:[], // 予約ツイート
         emptySearchKeyword:false,  // 検索用キーワードが空かどうか判定（画面描画用条件）
         emptyFavoriteKeyword:false,  // いいね用キーワードが空かどうか判定（画面描画用条件）
+        emptyReserveTweet:false,  // 予約ツイート用キーワードが空かどうか判定（画面描画用条件）
         disableAutoFollow:false,  // 自動フォローボタン不活性判定
         disablePause:true,  // 一時停止ボタン不活性判定
         isPaused:false, // 一時停止状態判定
@@ -144,10 +133,6 @@
         checkUnfollow:true, // アンフォロー判定
         disableAutoFavorite:false,  // 自動いいねボタン不活性判定
         disableFavoriteCancel:true, // 自動いいね中止ボタン不活性判定
-        reserve: {  // 予約ツイート用プロパティ
-          tweet : '',  // ツイート内容
-          reserved_at : '' // ツイート時間
-        },
         config: { // 日時入力コンポーネント用プロパティ
           enableTime: true, // 未来日時のみ指定可能
           dateFormat: "Y-m-d H:i",  // 日付フォーマット形式
@@ -173,6 +158,9 @@
         if (this.targets.length === 1){
           alert('ターゲットを空にはできません')
         }else {
+          if(window.confirm('削除してもよろしいですか') === false){
+            return false;
+          }
           this.targets.splice(index, 1);
         }
       },
@@ -226,7 +214,6 @@
         }
 
         return response
-        // this.$store.commit('message/setText', 'ターゲットアカウントが保存されました', { root: true })
       },
 
       // DBへに保存したフォロー対象アカウントをフォームに展開するメソッド
@@ -259,16 +246,15 @@
 
       // フォロワーサーチキーワードフォーム削除用メソッド
       deleteSearchKeywordForm(index){
+        if(window.confirm('削除してもよろしいですか') === false){
+          return false;
+        }
         // クリックした削除ボタンに対応するフォームを削除
         this.searchKeywords.splice(index, 1);
       },
 
       // フォロワーサーチキーワードフォーム保存用メソッド
       async saveSearchKeywordForm(){
-        // if(this.searchKeywords.length === 0){
-        //   alert('入力必須です')
-        //   return false;
-        // }
         for(let data of this.searchKeywords){
           this.emptySearchKeyword = false
           if(data.text !== ''){
@@ -307,7 +293,6 @@
           return false
         }
         return response;
-        // this.$store.commit('message/setText', 'キーワードが保存されました', { root: true })
       },
 
       // DBに格納されているフォロワーサーチキーワードを展開するメソッド
@@ -345,6 +330,9 @@
       // いいね用キーワードフォーム削除用メソッド
       deleteFavoriteKeywordForm(index){
         // クリックした削除ボタンに対応するフォームを削除
+        if(window.confirm('削除してもよろしいですか') === false){
+          return false;
+        }
         this.favoriteKeywords.splice(index, 1);
       },
 
@@ -412,31 +400,73 @@
         }
       },
 
+      // 予約ツイートフォーム追加用メソッド
+      addReserveTweetForm() {
+        const additionalForm = {
+          unique_key: this.getUniqueKey(),
+          tweet : '',  // ツイート内容
+          reserved_at :  new Date,  // ツイート時間
+          is_reserved : false
+        }
+        this.reserveTweets.push(additionalForm)
+      },
+
+      // 予約ツイートフォーム削除用メソッド
+      async deleteReserve(index){
+        if(window.confirm('削除してもよろしいですか') === false){
+          return false;
+        }
+
+        // クリックした削除ボタンに対応するフォームを削除
+        if(this.reserveTweets[index].is_reserved){
+          // 予約済みの場合はDBからも削除する
+          await axios.post(`/api/twitter/reserve/delete`, this.reserveTweets[index]);
+        }
+        this.reserveTweets.splice(index, 1);
+        this.$store.commit('message/setText', '予約を削除しました', { root: true })
+      },
+
       // 予約ツイート展開用メソッド
       async queryReserve(){
         // 予約ツイートの内容を呼び出す
         const response = await axios.get(`/api/twitter/reserve/${this.item.id}`);
 
         //　未投稿の予約ツイートが存在する場合、フォームに展開する
+        // ターゲットアカウントリストが存在する場合、フォームに展開する
         if(response.data.length !== 0){
-          this.$set(this.reserve, 'tweet', response.data[0].tweet)
-          this.$set(this.reserve, 'reserved_at', response.data[0].reserved_at)
-        } else {
-          this.$set(this.reserve, 'reserved_at', new Date)
+          for (let data of response.data){
+            data.is_reserved = true   // 予約済みフラグを追加
+            this.reserveTweets.push(data)
+          }
         }
+        this.$set(this.reserveTweets, 'is_reserved', true);
       },
 
       // 予約ツイート保存用メソッド
-      async reserveTweet(){
-        if(this.reserve.tweet !== ''){
+      async reserve(index){
+        if(this.reserveTweets[index].tweet !== ''){
+
+          // 予約時刻は現在時刻より5分後以降の日時となるようにする
+          let dt = new Date();
+          if(this.reserveTweets[index].reserved_at <= dt.setMinutes(dt.getMinutes() + 5)){
+            this.$set(this.reserveTweets[index], 'message', '5分後以降の日時を指定して下さい')
+            return false
+          }
+
           // フォームに入力がある場合はエラーをクリア
-          this.$set(this.reserve, 'message', '')
-          this.reserve.twitter_user_id = this.item.id;
-          const response = await axios.post(`/api/twitter/reserve`, this.reserve);
+          this.$set(this.reserveTweets[index], 'message', '');
+
+          // 認証アカウントIDをセット
+          this.reserveTweets[index].twitter_user_id = this.item.id;
+
+          await axios.post(`/api/twitter/reserve`, this.reserveTweets[index]);
         }else{
-          this.$set(this.reserve, 'message', 'ツイート内容が存在しません')
+          this.$set(this.reserveTweets[index], 'message', 'ツイート内容が存在しません')
           return false
         }
+
+        // 予約済み判定用フラグをtrueにする
+        this.$set(this.reserveTweets[index], 'is_reserved', true);
 
         this.$store.commit('message/setText', 'ツイートを予約しました', { root: true })
       },
@@ -496,6 +526,12 @@
         const responseTargets = await this.saveTargetForm()
         if(!responseTargets){
           return false
+        }
+
+        if(this.searchKeywords.length === 0){
+          if(window.confirm('対象の全フォロワーをフォローしますがよろしいですか') === false){
+            return false;
+          }
         }
 
         // 検索キーワード保存
@@ -597,25 +633,14 @@
         location.reload();
       },
 
-      // 自動アンフォロー開始用メソッド（テスト用）
-      async autoUnfollow(){
-        // 自動アンフォローを開始する
-        const responsePromise = axios.post(`/api/twitter/unfollow/${this.item.id}`);
+      /*
+      ユニークキー生成用メソッド
+      現在時刻の16進数と乱数を用いてランダムな文字列を生成する
+      */
+      getUniqueKey(){
+        let strong = 1000;
+        return new Date().getTime().toString(16)  + Math.floor(strong*Math.random()).toString(16)
       },
-
-      // 自動ツイートメソッド（テスト用）
-      async autoTweet(){
-        const responseTweet = axios.post('/api/twitter/tweet');
-      },
-
-      // メール送信用メソッド（テスト用）
-      async sendMail(){
-        const response = await axios.post(`/api/send/mail/${this.item.id}`)
-      },
-
-      async autoFavoriteTest(){
-       const response = await axios.post('/api/favorite/test')
-      }
     },
     created() {
       // ページ表示時にターゲットアカウントリストの内容を呼び出す

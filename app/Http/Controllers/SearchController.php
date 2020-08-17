@@ -4,11 +4,8 @@ namespace App\Http\Controllers;
 
 use App\SearchKeywordList;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
-/*
- * フォロー用キーワード処理クラス
- */
+// 自動フォロー用キーワード処理コントローラー
 class SearchController extends Controller
 {
   /*
@@ -20,7 +17,6 @@ class SearchController extends Controller
    */
   public function createSearchKeywordList(Request $request)
   {
-
     $arr = [];
     foreach($request->all() as $data) {
       if(array_key_exists('is_empty', $data)){
@@ -47,10 +43,10 @@ class SearchController extends Controller
         $twitter_user_id = $data['twitter_user_id'];
       }
     }
-    $target = new SearchKeywordList;
 
     // 同じtwitter_user_idのデータを一旦削除する
-    $target->where('twitter_user_id', $twitter_user_id)->delete();
+    $target = new SearchKeywordList;
+    $target->OfTwitterUserId($twitter_user_id)->delete();
 
     // 配列の内容をDBへインサート
     if($arr){
@@ -109,5 +105,4 @@ class SearchController extends Controller
     }
     return $converted_arr;
   }
-
 }

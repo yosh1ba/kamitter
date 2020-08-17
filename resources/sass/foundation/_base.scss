@@ -12,11 +12,10 @@ body {
     overflow: hidden;
     min-height: 100vh;
     position: relative;
-    // padding-bottom: 40px;
 
     background-color: #fafafa;
     @include mq('sp') {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
     }
 }
 

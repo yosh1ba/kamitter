@@ -2,6 +2,7 @@
 
   namespace App\Traits;
 
+  // モデルで使用するトレイトを定義
   trait TwitterUserInfo
   {
     // 各モデルで利用するための、twitter_user_idに関するwhere句

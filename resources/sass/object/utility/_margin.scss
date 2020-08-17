@@ -1,0 +1,17 @@
+.u-margin{
+  &__bottom {
+    &--8{
+      margin-bottom: 8px;
+    }
+  }
+  &__left {
+    &--0{
+      margin-left: 0;
+    }
+  }
+  &__right {
+    &--8{
+      margin-right: 8px;
+    }
+  }
+}

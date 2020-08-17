@@ -1984,7 +1984,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_flatpickr_component__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_flatpickr_component__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var flatpickr_dist_flatpickr_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flatpickr/dist/flatpickr.css */ "./node_modules/flatpickr/dist/flatpickr.css");
 /* harmony import */ var flatpickr_dist_flatpickr_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flatpickr_dist_flatpickr_css__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -2100,19 +2099,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
 
 
 
@@ -2136,10 +2122,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       // 検索用キーワード
       favoriteKeywords: [],
       // いいね用キーワード
+      reserveTweets: [],
+      // 予約ツイート
       emptySearchKeyword: false,
       // 検索用キーワードが空かどうか判定（画面描画用条件）
       emptyFavoriteKeyword: false,
       // いいね用キーワードが空かどうか判定（画面描画用条件）
+      emptyReserveTweet: false,
+      // 予約ツイート用キーワードが空かどうか判定（画面描画用条件）
       disableAutoFollow: false,
       // 自動フォローボタン不活性判定
       disablePause: true,
@@ -2154,13 +2144,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       // 自動いいねボタン不活性判定
       disableFavoriteCancel: true,
       // 自動いいね中止ボタン不活性判定
-      reserve: {
-        // 予約ツイート用プロパティ
-        tweet: '',
-        // ツイート内容
-        reserved_at: '' // ツイート時間
-
-      },
       config: {
         // 日時入力コンポーネント用プロパティ
         enableTime: true,
@@ -2191,6 +2174,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       if (this.targets.length === 1) {
         alert('ターゲットを空にはできません');
       } else {
+        if (window.confirm('削除してもよろしいですか') === false) {
+          return false;
+        }
+
         this.targets.splice(index, 1);
       }
     },
@@ -2394,7 +2381,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     },
     // フォロワーサーチキーワードフォーム削除用メソッド
     deleteSearchKeywordForm: function deleteSearchKeywordForm(index) {
-      // クリックした削除ボタンに対応するフォームを削除
+      if (window.confirm('削除してもよろしいですか') === false) {
+        return false;
+      } // クリックした削除ボタンに対応するフォームを削除
+
+
       this.searchKeywords.splice(index, 1);
     },
     // フォロワーサーチキーワードフォーム保存用メソッド
@@ -2408,10 +2399,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                // if(this.searchKeywords.length === 0){
-                //   alert('入力必須です')
-                //   return false;
-                // }
                 _iterator3 = _createForOfIteratorHelper(_this3.searchKeywords);
                 _context3.prev = 1;
 
@@ -2573,6 +2560,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     // いいね用キーワードフォーム削除用メソッド
     deleteFavoriteKeywordForm: function deleteFavoriteKeywordForm(index) {
       // クリックした削除ボタンに対応するフォームを削除
+      if (window.confirm('削除してもよろしいですか') === false) {
+        return false;
+      }
+
       this.favoriteKeywords.splice(index, 1);
     },
     // いいね用キーワードフォーム保存用メソッド
@@ -2739,32 +2730,51 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee6);
       }))();
     },
-    // 予約ツイート展開用メソッド
-    queryReserve: function queryReserve() {
+    // 予約ツイートフォーム追加用メソッド
+    addReserveTweetForm: function addReserveTweetForm() {
+      var additionalForm = {
+        unique_key: this.getUniqueKey(),
+        tweet: '',
+        // ツイート内容
+        reserved_at: new Date(),
+        // ツイート時間
+        is_reserved: false
+      };
+      this.reserveTweets.push(additionalForm);
+    },
+    // 予約ツイートフォーム削除用メソッド
+    deleteReserve: function deleteReserve(index) {
       var _this7 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee7() {
-        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee7$(_context7) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
-                _context7.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/reserve/".concat(_this7.item.id));
-
-              case 2:
-                response = _context7.sent;
-
-                //　未投稿の予約ツイートが存在する場合、フォームに展開する
-                if (response.data.length !== 0) {
-                  _this7.$set(_this7.reserve, 'tweet', response.data[0].tweet);
-
-                  _this7.$set(_this7.reserve, 'reserved_at', response.data[0].reserved_at);
-                } else {
-                  _this7.$set(_this7.reserve, 'reserved_at', new Date());
+                if (!(window.confirm('削除してもよろしいですか') === false)) {
+                  _context7.next = 2;
+                  break;
                 }
 
-              case 4:
+                return _context7.abrupt("return", false);
+
+              case 2:
+                if (!_this7.reserveTweets[index].is_reserved) {
+                  _context7.next = 5;
+                  break;
+                }
+
+                _context7.next = 5;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/reserve/delete", _this7.reserveTweets[index]);
+
+              case 5:
+                _this7.reserveTweets.splice(index, 1);
+
+                _this7.$store.commit('message/setText', '予約を削除しました', {
+                  root: true
+                });
+
+              case 7:
               case "end":
                 return _context7.stop();
             }
@@ -2772,44 +2782,45 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee7);
       }))();
     },
-    // 予約ツイート保存用メソッド
-    reserveTweet: function reserveTweet() {
+    // 予約ツイート展開用メソッド
+    queryReserve: function queryReserve() {
       var _this8 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee8() {
-        var response;
+        var response, _iterator7, _step7, data;
+
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee8$(_context8) {
           while (1) {
             switch (_context8.prev = _context8.next) {
               case 0:
-                if (!(_this8.reserve.tweet !== '')) {
-                  _context8.next = 8;
-                  break;
+                _context8.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/reserve/".concat(_this8.item.id));
+
+              case 2:
+                response = _context8.sent;
+
+                //　未投稿の予約ツイートが存在する場合、フォームに展開する
+                // ターゲットアカウントリストが存在する場合、フォームに展開する
+                if (response.data.length !== 0) {
+                  _iterator7 = _createForOfIteratorHelper(response.data);
+
+                  try {
+                    for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+                      data = _step7.value;
+                      data.is_reserved = true; // 予約済みフラグを追加
+
+                      _this8.reserveTweets.push(data);
+                    }
+                  } catch (err) {
+                    _iterator7.e(err);
+                  } finally {
+                    _iterator7.f();
+                  }
                 }
 
-                // フォームに入力がある場合はエラーをクリア
-                _this8.$set(_this8.reserve, 'message', '');
-
-                _this8.reserve.twitter_user_id = _this8.item.id;
-                _context8.next = 5;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/reserve", _this8.reserve);
+                _this8.$set(_this8.reserveTweets, 'is_reserved', true);
 
               case 5:
-                response = _context8.sent;
-                _context8.next = 10;
-                break;
-
-              case 8:
-                _this8.$set(_this8.reserve, 'message', 'ツイート内容が存在しません');
-
-                return _context8.abrupt("return", false);
-
-              case 10:
-                _this8.$store.commit('message/setText', 'ツイートを予約しました', {
-                  root: true
-                });
-
-              case 11:
               case "end":
                 return _context8.stop();
             }
@@ -2817,36 +2828,60 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee8);
       }))();
     },
-    // 自動フォロー状態確認用メソッド
-    queryStateAutoFollow: function queryStateAutoFollow() {
+    // 予約ツイート保存用メソッド
+    reserve: function reserve(index) {
       var _this9 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee9() {
-        var response;
+        var dt;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee9$(_context9) {
           while (1) {
             switch (_context9.prev = _context9.next) {
               case 0:
-                _context9.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/auto/".concat(_this9.item.id));
-
-              case 2:
-                response = _context9.sent;
-
-                /*
-                * 自動フォロー処理中の場合は、
-                *   自動フォローボタン 不活性
-                *   一時停止ボタン     活性
-                *   中止ボタン         活性
-                * という状態にする
-                */
-                if (response.data.length !== 0) {
-                  _this9.disableAutoFollow = true;
-                  _this9.disablePause = false;
-                  _this9.disableFollowCancel = false;
+                if (!(_this9.reserveTweets[index].tweet !== '')) {
+                  _context9.next = 11;
+                  break;
                 }
 
-              case 4:
+                // 予約時刻は現在時刻より5分後以降の日時となるようにする
+                dt = new Date();
+
+                if (!(_this9.reserveTweets[index].reserved_at <= dt.setMinutes(dt.getMinutes() + 5))) {
+                  _context9.next = 5;
+                  break;
+                }
+
+                _this9.$set(_this9.reserveTweets[index], 'message', '5分後以降の日時を指定して下さい');
+
+                return _context9.abrupt("return", false);
+
+              case 5:
+                // フォームに入力がある場合はエラーをクリア
+                _this9.$set(_this9.reserveTweets[index], 'message', ''); // 認証アカウントIDをセット
+
+
+                _this9.reserveTweets[index].twitter_user_id = _this9.item.id;
+                _context9.next = 9;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/reserve", _this9.reserveTweets[index]);
+
+              case 9:
+                _context9.next = 13;
+                break;
+
+              case 11:
+                _this9.$set(_this9.reserveTweets[index], 'message', 'ツイート内容が存在しません');
+
+                return _context9.abrupt("return", false);
+
+              case 13:
+                // 予約済み判定用フラグをtrueにする
+                _this9.$set(_this9.reserveTweets[index], 'is_reserved', true);
+
+                _this9.$store.commit('message/setText', 'ツイートを予約しました', {
+                  root: true
+                });
+
+              case 15:
               case "end":
                 return _context9.stop();
             }
@@ -2854,8 +2889,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee9);
       }))();
     },
-    // 一時停止状態確認用メソッド
-    queryStatePause: function queryStatePause() {
+    // 自動フォロー状態確認用メソッド
+    queryStateAutoFollow: function queryStateAutoFollow() {
       var _this10 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee10() {
@@ -2865,18 +2900,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context10.prev = _context10.next) {
               case 0:
                 _context10.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/pause/".concat(_this10.item.id));
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/auto/".concat(_this10.item.id));
 
               case 2:
                 response = _context10.sent;
 
                 /*
-                * 一時停止中の場合は、
-                *   isPaused = true
-                * とし、再開ボタンに表示を切り替える
+                * 自動フォロー処理中の場合は、
+                *   自動フォローボタン 不活性
+                *   一時停止ボタン     活性
+                *   中止ボタン         活性
+                * という状態にする
                 */
                 if (response.data.length !== 0) {
-                  _this10.isPaused = true;
+                  _this10.disableAutoFollow = true;
+                  _this10.disablePause = false;
+                  _this10.disableFollowCancel = false;
                 }
 
               case 4:
@@ -2887,8 +2926,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee10);
       }))();
     },
-    // 自動フォロー状態確認用メソッド
-    queryStateAutoFavorite: function queryStateAutoFavorite() {
+    // 一時停止状態確認用メソッド
+    queryStatePause: function queryStatePause() {
       var _this11 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee11() {
@@ -2898,20 +2937,18 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             switch (_context11.prev = _context11.next) {
               case 0:
                 _context11.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/auto/favorite/".concat(_this11.item.id));
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/pause/".concat(_this11.item.id));
 
               case 2:
                 response = _context11.sent;
 
                 /*
-                * 自動いいね処理中の場合は、
-                *   自動いいねボタン 不活性
-                *   中止ボタン         活性
-                * という状態にする
+                * 一時停止中の場合は、
+                *   isPaused = true
+                * とし、再開ボタンに表示を切り替える
                 */
                 if (response.data.length !== 0) {
-                  _this11.disableAutoFavorite = true;
-                  _this11.disableFavoriteCancel = false;
+                  _this11.isPaused = true;
                 }
 
               case 4:
@@ -2922,68 +2959,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee11);
       }))();
     },
-    // 自動フォロー（自動運用）開始用メソッド
-    autoFollow: function autoFollow() {
+    // 自動フォロー状態確認用メソッド
+    queryStateAutoFavorite: function queryStateAutoFavorite() {
       var _this12 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee12() {
-        var responseTargets, responseKeywords, responseUnfollow, responsePromise;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee12$(_context12) {
           while (1) {
             switch (_context12.prev = _context12.next) {
               case 0:
                 _context12.next = 2;
-                return _this12.saveTargetForm();
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("/api/twitter/auto/favorite/".concat(_this12.item.id));
 
               case 2:
-                responseTargets = _context12.sent;
+                response = _context12.sent;
 
-                if (responseTargets) {
-                  _context12.next = 5;
-                  break;
+                /*
+                * 自動いいね処理中の場合は、
+                *   自動いいねボタン 不活性
+                *   中止ボタン         活性
+                * という状態にする
+                */
+                if (response.data.length !== 0) {
+                  _this12.disableAutoFavorite = true;
+                  _this12.disableFavoriteCancel = false;
                 }
 
-                return _context12.abrupt("return", false);
-
-              case 5:
-                _context12.next = 7;
-                return _this12.saveSearchKeywordForm();
-
-              case 7:
-                responseKeywords = _context12.sent;
-
-                if (responseKeywords) {
-                  _context12.next = 10;
-                  break;
-                }
-
-                return _context12.abrupt("return", false);
-
-              case 10:
-                _context12.next = 12;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/update", {
-                  id: _this12.item.id,
-                  unfollow: _this12.checkUnfollow
-                });
-
-              case 12:
-                responseUnfollow = _context12.sent;
-                // 自動フォローを開始する
-                _this12.disableAutoFollow = true;
-                _this12.disablePause = false;
-                _this12.disableFollowCancel = false;
-
-                _this12.$store.commit('message/setText', '自動フォローを開始しました', {
-                  root: true
-                });
-
-                _context12.next = 19;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this12.item.id));
-
-              case 19:
-                responsePromise = _context12.sent;
-
-              case 20:
+              case 4:
               case "end":
                 return _context12.stop();
             }
@@ -2991,21 +2994,81 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee12);
       }))();
     },
-    // 自動フォロー 一時停止用メソッド
-    toPause: function toPause() {
+    // 自動フォロー（自動運用）開始用メソッド
+    autoFollow: function autoFollow() {
       var _this13 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee13() {
-        var responsePromise;
+        var responseTargets, responseKeywords, responseUnfollow, responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee13$(_context13) {
           while (1) {
             switch (_context13.prev = _context13.next) {
               case 0:
-                // 自動処理を一時停止する
-                _this13.isPaused = true;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/pause/".concat(_this13.item.id));
+                _context13.next = 2;
+                return _this13.saveTargetForm();
 
               case 2:
+                responseTargets = _context13.sent;
+
+                if (responseTargets) {
+                  _context13.next = 5;
+                  break;
+                }
+
+                return _context13.abrupt("return", false);
+
+              case 5:
+                if (!(_this13.searchKeywords.length === 0)) {
+                  _context13.next = 8;
+                  break;
+                }
+
+                if (!(window.confirm('対象の全フォロワーをフォローしますがよろしいですか') === false)) {
+                  _context13.next = 8;
+                  break;
+                }
+
+                return _context13.abrupt("return", false);
+
+              case 8:
+                _context13.next = 10;
+                return _this13.saveSearchKeywordForm();
+
+              case 10:
+                responseKeywords = _context13.sent;
+
+                if (responseKeywords) {
+                  _context13.next = 13;
+                  break;
+                }
+
+                return _context13.abrupt("return", false);
+
+              case 13:
+                _context13.next = 15;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/update", {
+                  id: _this13.item.id,
+                  unfollow: _this13.checkUnfollow
+                });
+
+              case 15:
+                responseUnfollow = _context13.sent;
+                // 自動フォローを開始する
+                _this13.disableAutoFollow = true;
+                _this13.disablePause = false;
+                _this13.disableFollowCancel = false;
+
+                _this13.$store.commit('message/setText', '自動フォローを開始しました', {
+                  root: true
+                });
+
+                _context13.next = 22;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/follow/".concat(_this13.item.id));
+
+              case 22:
+                responsePromise = _context13.sent;
+
+              case 23:
               case "end":
                 return _context13.stop();
             }
@@ -3013,8 +3076,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee13);
       }))();
     },
-    // 自動フォロー 中止用メソッド
-    toCancel: function toCancel() {
+    // 自動フォロー 一時停止用メソッド
+    toPause: function toPause() {
       var _this14 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee14() {
@@ -3023,14 +3086,11 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context14.prev = _context14.next) {
               case 0:
-                // 自動処理を中止する
-                _this14.disableAutoFollow = false;
-                _this14.disablePause = true;
-                _this14.isPaused = false;
-                _this14.disableFollowCancel = true;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/cancel/".concat(_this14.item.id));
+                // 自動処理を一時停止する
+                _this14.isPaused = true;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/pause/".concat(_this14.item.id));
 
-              case 5:
+              case 2:
               case "end":
                 return _context14.stop();
             }
@@ -3038,8 +3098,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee14);
       }))();
     },
-    // 自動フォロー 再開用メソッド
-    toRestart: function toRestart() {
+    // 自動フォロー 中止用メソッド
+    toCancel: function toCancel() {
       var _this15 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee15() {
@@ -3048,11 +3108,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context15.prev = _context15.next) {
               case 0:
-                // 自動処理を再開する
+                // 自動処理を中止する
+                _this15.disableAutoFollow = false;
+                _this15.disablePause = true;
                 _this15.isPaused = false;
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/restart/".concat(_this15.item.id));
+                _this15.disableFollowCancel = true;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/cancel/".concat(_this15.item.id));
 
-              case 2:
+              case 5:
               case "end":
                 return _context15.stop();
             }
@@ -3060,47 +3123,21 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee15);
       }))();
     },
-    // 自動いいね開始用メソッド
-    autoFavorite: function autoFavorite() {
+    // 自動フォロー 再開用メソッド
+    toRestart: function toRestart() {
       var _this16 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee16() {
-        var responseKeywords, responsePromise;
+        var responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee16$(_context16) {
           while (1) {
             switch (_context16.prev = _context16.next) {
               case 0:
-                _context16.next = 2;
-                return _this16.saveFavoriteKeywordForm();
+                // 自動処理を再開する
+                _this16.isPaused = false;
+                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/restart/".concat(_this16.item.id));
 
               case 2:
-                responseKeywords = _context16.sent;
-
-                if (responseKeywords) {
-                  _context16.next = 5;
-                  break;
-                }
-
-                return _context16.abrupt("return", false);
-
-              case 5:
-                // 自動いいねを開始する
-                _this16.disableAutoFavorite = true;
-                _this16.disableFavoriteCancel = false;
-                _context16.next = 9;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/update", {
-                  id: _this16.item.id,
-                  favorite: true
-                });
-
-              case 9:
-                responsePromise = _context16.sent;
-
-                _this16.$store.commit('message/setText', '自動いいねを開始しました', {
-                  root: true
-                });
-
-              case 11:
               case "end":
                 return _context16.stop();
             }
@@ -3108,33 +3145,47 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee16);
       }))();
     },
-    // 自動いいね 中止用メソッド
-    toCancelFavorite: function toCancelFavorite() {
+    // 自動いいね開始用メソッド
+    autoFavorite: function autoFavorite() {
       var _this17 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee17() {
-        var responsePromise;
+        var responseKeywords, responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee17$(_context17) {
           while (1) {
             switch (_context17.prev = _context17.next) {
               case 0:
-                // 自動いいねを中止する
-                _this17.disableAutoFavorite = false;
-                _this17.disableFavoriteCancel = true;
-                _context17.next = 4;
+                _context17.next = 2;
+                return _this17.saveFavoriteKeywordForm();
+
+              case 2:
+                responseKeywords = _context17.sent;
+
+                if (responseKeywords) {
+                  _context17.next = 5;
+                  break;
+                }
+
+                return _context17.abrupt("return", false);
+
+              case 5:
+                // 自動いいねを開始する
+                _this17.disableAutoFavorite = true;
+                _this17.disableFavoriteCancel = false;
+                _context17.next = 9;
                 return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/update", {
                   id: _this17.item.id,
-                  favorite: false
+                  favorite: true
                 });
 
-              case 4:
+              case 9:
                 responsePromise = _context17.sent;
 
-                _this17.$store.commit('message/setText', '自動いいねを中止しました', {
+                _this17.$store.commit('message/setText', '自動いいねを開始しました', {
                   root: true
                 });
 
-              case 6:
+              case 11:
               case "end":
                 return _context17.stop();
             }
@@ -3142,49 +3193,33 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee17);
       }))();
     },
-    // 認証用ユーザー解除用メソッド
-    deleteUser: function deleteUser() {
+    // 自動いいね 中止用メソッド
+    toCancelFavorite: function toCancelFavorite() {
       var _this18 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee18() {
-        var response;
+        var responsePromise;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee18$(_context18) {
           while (1) {
             switch (_context18.prev = _context18.next) {
               case 0:
-                if (!(window.confirm('連携を解除してもよろしいですか') === false)) {
-                  _context18.next = 2;
-                  break;
-                }
-
-                return _context18.abrupt("return", false);
-
-              case 2:
+                // 自動いいねを中止する
+                _this18.disableAutoFavorite = false;
+                _this18.disableFavoriteCancel = true;
                 _context18.next = 4;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/user/delete/".concat(_this18.item.id));
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/favorite/update", {
+                  id: _this18.item.id,
+                  favorite: false
+                });
 
               case 4:
-                response = _context18.sent;
+                responsePromise = _context18.sent;
 
-                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
-                  _context18.next = 9;
-                  break;
-                }
-
-                _this18.$store.commit('error/setCode', response.status);
-
-                _this18.$store.commit('error/setMessage', response.data.errors);
-
-                return _context18.abrupt("return", false);
-
-              case 9:
-                _this18.$store.commit('message/setText', '認証が解除されました', {
+                _this18.$store.commit('message/setText', '自動いいねを中止しました', {
                   root: true
                 });
 
-                location.reload();
-
-              case 11:
+              case 6:
               case "end":
                 return _context18.stop();
             }
@@ -3192,20 +3227,49 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee18);
       }))();
     },
-    // 自動アンフォロー開始用メソッド（テスト用）
-    autoUnfollow: function autoUnfollow() {
+    // 認証用ユーザー解除用メソッド
+    deleteUser: function deleteUser() {
       var _this19 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee19() {
-        var responsePromise;
+        var response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee19$(_context19) {
           while (1) {
             switch (_context19.prev = _context19.next) {
               case 0:
-                // 自動アンフォローを開始する
-                responsePromise = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/unfollow/".concat(_this19.item.id));
+                if (!(window.confirm('連携を解除してもよろしいですか') === false)) {
+                  _context19.next = 2;
+                  break;
+                }
 
-              case 1:
+                return _context19.abrupt("return", false);
+
+              case 2:
+                _context19.next = 4;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/twitter/user/delete/".concat(_this19.item.id));
+
+              case 4:
+                response = _context19.sent;
+
+                if (!(response.status !== _util__WEBPACK_IMPORTED_MODULE_2__["OK"])) {
+                  _context19.next = 9;
+                  break;
+                }
+
+                _this19.$store.commit('error/setCode', response.status);
+
+                _this19.$store.commit('error/setMessage', response.data.errors);
+
+                return _context19.abrupt("return", false);
+
+              case 9:
+                _this19.$store.commit('message/setText', '認証が解除されました', {
+                  root: true
+                });
+
+                location.reload();
+
+              case 11:
               case "end":
                 return _context19.stop();
             }
@@ -3213,68 +3277,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }, _callee19);
       }))();
     },
-    // 自動ツイートメソッド（テスト用）
-    autoTweet: function autoTweet() {
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee20() {
-        var responseTweet;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee20$(_context20) {
-          while (1) {
-            switch (_context20.prev = _context20.next) {
-              case 0:
-                responseTweet = axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/twitter/tweet');
 
-              case 1:
-              case "end":
-                return _context20.stop();
-            }
-          }
-        }, _callee20);
-      }))();
-    },
-    // メール送信用メソッド（テスト用）
-    sendMail: function sendMail() {
-      var _this20 = this;
-
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee21() {
-        var response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee21$(_context21) {
-          while (1) {
-            switch (_context21.prev = _context21.next) {
-              case 0:
-                _context21.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post("/api/send/mail/".concat(_this20.item.id));
-
-              case 2:
-                response = _context21.sent;
-
-              case 3:
-              case "end":
-                return _context21.stop();
-            }
-          }
-        }, _callee21);
-      }))();
-    },
-    autoFavoriteTest: function autoFavoriteTest() {
-      return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee22() {
-        var response;
-        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee22$(_context22) {
-          while (1) {
-            switch (_context22.prev = _context22.next) {
-              case 0:
-                _context22.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/api/favorite/test');
-
-              case 2:
-                response = _context22.sent;
-
-              case 3:
-              case "end":
-                return _context22.stop();
-            }
-          }
-        }, _callee22);
-      }))();
+    /*
+    ユニークキー生成用メソッド
+    現在時刻の16進数と乱数を用いてランダムな文字列を生成する
+    */
+    getUniqueKey: function getUniqueKey() {
+      var strong = 1000;
+      return new Date().getTime().toString(16) + Math.floor(strong * Math.random()).toString(16);
     }
   },
   created: function created() {
@@ -3439,8 +3449,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util */ "./resources/js/util.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -3463,7 +3472,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "Callback",
@@ -3499,7 +3507,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee);
     }))();
   },
-  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])({
+  computed: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"])({
     // APIのレスポンスが正常かどうかを判断
     apiStatus: function apiStatus(state) {
       return state.twitter.apiStatus;
@@ -3733,6 +3741,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
 //
 //
 //
@@ -4511,6 +4520,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   created: function created() {
     this.clearError();
   }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js&":
+/*!*********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js& ***!
+  \*********************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "NotFound"
 });
 
 /***/ }),
@@ -45058,10 +45093,6 @@ var render = function() {
         ])
       ]),
       _vm._v(" "),
-      _c("button", { on: { click: _vm.autoFavoriteTest } }, [
-        _vm._v("自動いいね")
-      ]),
-      _vm._v(" "),
       _c(
         "div",
         { staticClass: "p-account__content__forms" },
@@ -45120,15 +45151,6 @@ var render = function() {
               on: { click: _vm.addTargetForm }
             },
             [_vm._v("追加")]
-          ),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "c-button__square",
-              on: { click: _vm.saveTargetForm }
-            },
-            [_vm._v("保存")]
           )
         ],
         2
@@ -45184,7 +45206,7 @@ var render = function() {
                     _vm._l(searchKeyword.options, function(option) {
                       return _c("option", [
                         _vm._v(
-                          "\n              " + _vm._s(option) + "\n            "
+                          "\n            " + _vm._s(option) + "\n          "
                         )
                       ])
                     }),
@@ -45236,15 +45258,6 @@ var render = function() {
               on: { click: _vm.addSearchKeywordForm }
             },
             [_vm._v("追加")]
-          ),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "c-button__square",
-              on: { click: _vm.saveSearchKeywordForm }
-            },
-            [_vm._v("保存")]
           )
         ],
         2
@@ -45300,7 +45313,7 @@ var render = function() {
                     _vm._l(favoriteKeyword.options, function(option) {
                       return _c("option", [
                         _vm._v(
-                          "\n              " + _vm._s(option) + "\n            "
+                          "\n            " + _vm._s(option) + "\n          "
                         )
                       ])
                     }),
@@ -45352,15 +45365,6 @@ var render = function() {
               on: { click: _vm.addFavoriteKeywordForm }
             },
             [_vm._v("追加")]
-          ),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "c-button__square",
-              on: { click: _vm.saveFavoriteKeywordForm }
-            },
-            [_vm._v("保存")]
           )
         ],
         2
@@ -45374,55 +45378,116 @@ var render = function() {
             _vm._v("ツイート予約")
           ]),
           _vm._v(" "),
-          _c("flat-pickr", {
-            attrs: { config: _vm.config },
-            model: {
-              value: _vm.reserve.reserved_at,
-              callback: function($$v) {
-                _vm.$set(_vm.reserve, "reserved_at", $$v)
-              },
-              expression: "reserve.reserved_at"
-            }
+          _vm._l(_vm.reserveTweets, function(reserveTweet, index) {
+            return !_vm.emptyReserveTweet
+              ? _c(
+                  "div",
+                  { staticClass: "p-account__form u-margin__bottom--8" },
+                  [
+                    _c(
+                      "div",
+                      { staticClass: "l-flex" },
+                      [
+                        _c("flat-pickr", {
+                          attrs: {
+                            config: _vm.config,
+                            disabled: reserveTweet.is_reserved
+                          },
+                          model: {
+                            value: reserveTweet.reserved_at,
+                            callback: function($$v) {
+                              _vm.$set(reserveTweet, "reserved_at", $$v)
+                            },
+                            expression: "reserveTweet.reserved_at"
+                          }
+                        }),
+                        _vm._v(" "),
+                        reserveTweet.is_reserved
+                          ? _c("span", [
+                              _c("i", {
+                                staticClass:
+                                  "far fa-check-circle p-account__form__icon--reserved"
+                              }),
+                              _vm._v("予約済み")
+                            ])
+                          : _vm._e()
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c("span", { staticClass: "p-account__form__msg" }, [
+                      _vm._v(_vm._s(reserveTweet.message))
+                    ]),
+                    _vm._v(" "),
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: reserveTweet.tweet,
+                          expression: "reserveTweet.tweet"
+                        }
+                      ],
+                      staticClass: "p-account__form__textarea",
+                      attrs: {
+                        name: "",
+                        id: "",
+                        rows: "7",
+                        maxlength: "140",
+                        disabled: reserveTweet.is_reserved
+                      },
+                      domProps: { value: reserveTweet.tweet },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(reserveTweet, "tweet", $event.target.value)
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "c-button__square",
+                        attrs: { disabled: reserveTweet.is_reserved },
+                        on: {
+                          click: function($event) {
+                            return _vm.reserve(index)
+                          }
+                        }
+                      },
+                      [_vm._v("予約")]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "button",
+                      {
+                        staticClass: "c-button__square p-account__form__btn",
+                        on: {
+                          click: function($event) {
+                            return _vm.deleteReserve(index)
+                          }
+                        }
+                      },
+                      [_vm._v("削除")]
+                    )
+                  ]
+                )
+              : _vm._e()
           }),
-          _vm._v(" "),
-          _c("div", [
-            _c("span", { staticClass: "p-account__form__msg" }, [
-              _vm._v(_vm._s(_vm.reserve.message))
-            ]),
-            _vm._v(" "),
-            _c("textarea", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.reserve.tweet,
-                  expression: "reserve.tweet"
-                }
-              ],
-              staticClass: "p-account__form__textarea",
-              attrs: { name: "", id: "", rows: "7", maxlength: "140" },
-              domProps: { value: _vm.reserve.tweet },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.reserve, "tweet", $event.target.value)
-                }
-              }
-            })
-          ]),
           _vm._v(" "),
           _c(
             "button",
             {
               staticClass: "c-button__square",
-              on: { click: _vm.reserveTweet }
+              on: { click: _vm.addReserveTweetForm }
             },
-            [_vm._v("予約")]
+            [_vm._v("追加")]
           )
         ],
-        1
+        2
       ),
       _vm._v(" "),
       _c("hr", { staticClass: "c-hr" })
@@ -47212,6 +47277,51 @@ var staticRenderFns = [
         _vm._v("パスワード再確認")
       ]
     )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true&":
+/*!*************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true& ***!
+  \*************************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "l-container" }, [
+      _c("div", { staticClass: "p-system" }, [
+        _c("div", { staticClass: "p-system__content" }, [
+          _c("h2", { staticClass: "p-system__content__header" }, [
+            _vm._v("ページが見つかりません 404")
+          ]),
+          _vm._v(" "),
+          _c("p", [
+            _vm._v(
+              "お探しのページが見つかりませんでした。URLを再度ご確認下さい。"
+            )
+          ])
+        ])
+      ])
+    ])
   }
 ]
 render._withStripped = true
@@ -63749,8 +63859,7 @@ var createApp = /*#__PURE__*/function () {
   return function createApp() {
     return _ref.apply(this, arguments);
   };
-}(); // SyncManager(store, router);
-
+}();
 
 createApp();
 
@@ -63784,21 +63893,7 @@ try {
 
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
-// axiosのresponseインターセプターはレスポンスを受けた後の処理を上書きする
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'; // axiosのresponseインターセプターはレスポンスを受けた後の処理を上書きする
 // 第一引数は成功時の処理、第二引数は失敗時の処理
 
 window.axios.interceptors.response.use(function (response) {
@@ -64655,6 +64750,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/pages/errors/NotFound.vue":
+/*!************************************************!*\
+  !*** ./resources/js/pages/errors/NotFound.vue ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true& */ "./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true&");
+/* harmony import */ var _NotFound_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NotFound.vue?vue&type=script&lang=js& */ "./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _NotFound_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  "2eaaa6da",
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/pages/errors/NotFound.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js&":
+/*!*************************************************************************!*\
+  !*** ./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotFound_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib??ref--4-0!../../../../node_modules/vue-loader/lib??vue-loader-options!./NotFound.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/errors/NotFound.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NotFound_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true&":
+/*!*******************************************************************************************!*\
+  !*** ./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true& ***!
+  \*******************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib??vue-loader-options!./NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/errors/NotFound.vue?vue&type=template&id=2eaaa6da&scoped=true&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NotFound_vue_vue_type_template_id_2eaaa6da_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/pages/errors/System.vue":
 /*!**********************************************!*\
   !*** ./resources/js/pages/errors/System.vue ***!
@@ -64747,10 +64911,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _pages_MyPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./pages/MyPage */ "./resources/js/pages/MyPage.vue");
 /* harmony import */ var _pages_errors_System__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./pages/errors/System */ "./resources/js/pages/errors/System.vue");
 /* harmony import */ var _pages_Callback__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pages/Callback */ "./resources/js/pages/Callback.vue");
+/* harmony import */ var _pages_errors_NotFound__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./pages/errors/NotFound */ "./resources/js/pages/errors/NotFound.vue");
 
  // auth ストアを使用するため追加
 
  // ページコンポーネントをインポートする
+
 
 
 
@@ -64840,6 +65006,9 @@ var routes = [{
 }, {
   path: '/500',
   component: _pages_errors_System__WEBPACK_IMPORTED_MODULE_11__["default"]
+}, {
+  path: '*',
+  component: _pages_errors_NotFound__WEBPACK_IMPORTED_MODULE_13__["default"]
 }]; // VueRouterインスタンスを作成する
 
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({

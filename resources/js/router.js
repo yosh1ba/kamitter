@@ -15,6 +15,7 @@ import EmailVerificationResend from "./pages/EmailVerificationResend"
 import MyPage from './pages/MyPage'
 import System from "./pages/errors/System";
 import Callback from "./pages/Callback";
+import NotFound from "./pages/errors/NotFound";
 
 
 // VueRouterプラグインを使用する
@@ -106,7 +107,11 @@ const routes = [
   {
     path: '/500',
     component: System
-  }
+  },
+  {
+    path: '*',
+    component: NotFound
+  },
 ]
 
 // VueRouterインスタンスを作成する

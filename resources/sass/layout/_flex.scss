@@ -1,4 +1,11 @@
 .l-flex {
     display: flex;
     flex-wrap: wrap;
+    &__align {
+        &--end{
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+    }
 }

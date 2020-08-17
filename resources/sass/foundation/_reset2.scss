@@ -11,3 +11,17 @@ a {
         color: $color-accent;
     }
 }
+
+// Accountコンポーネントで利用しているflatpickrのCSSを調整
+.flatpickr-current-month{
+    font-family: 'ヒラギノ角ゴ ProN', 'Hiragino Kaku Gothic ProN', 'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif !important;
+    .flatpickr-monthDropdown-months {
+        height: inherit !important;
+    }
+}
+
+.flatpickr-input{
+    &:disabled {
+        cursor: inherit !important;
+    }
+}

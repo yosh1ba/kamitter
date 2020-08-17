@@ -5,5 +5,7 @@
     background-color: $color-light;
     color: $color-dark;
     margin-top: auto;
-
+    @include mq('sp') {
+        font-size: 1.4rem;
+    }
 }

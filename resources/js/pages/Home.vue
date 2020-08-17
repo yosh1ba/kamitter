@@ -8,6 +8,7 @@
           <router-link class="p-hero__content__link" to="/signup">使ってみる</router-link>
         </div>
       </div>
+
     </div>
   </div>
 </template>

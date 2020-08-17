@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\FavoriteKeywordList;
+use App\Http\Controllers\Auth\TwitterController;
+use App\Library\MailReady;
 use App\TwitterUser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 
-/*
- * 自動いいね用処理クラス
- */
+// 自動いいね用コントローラー
 class FavoriteController extends Controller
 {
   /*
@@ -70,12 +68,11 @@ class FavoriteController extends Controller
    */
   public function queryFavoriteKeywordList(int $id)
   {
-    $response = FavoriteKeywordList::OfTwitterUserId($id)
+    return FavoriteKeywordList::OfTwitterUserId($id)
       ->select('selected', 'text')
       ->get();
-
-    return $response;
   }
+
 
   /*
    * いいね用Where句作成用メソッド
@@ -118,7 +115,6 @@ class FavoriteController extends Controller
    * cronにて15分間隔で呼び出し、自動いいねを行う
    * @return 無し
    */
-  // TODO cronで自動実行できるように変更する
   public function autoFavorite()
   {
     // 自動いいねが有効なTwitterカウントを取得
@@ -143,15 +139,10 @@ class FavoriteController extends Controller
           ';
         $data['subject'] = '[神ったー]自動いいね処理完了のお知らせ';
 
-        $twitter_controller = app()->make('App\Http\Controllers\Auth\TwitterController');
-        $twitter_controller->sendMailAsString($account->id, $data);
+        $mail = new MailReady;
+        $mail->sendMailReadyAsString($account->id, $data);
 
-//        TwitterUser::find($account->id)->update([
-//          'auto_favorite_enabled' => false
-//        ]);
-
-        TwitterUser::find($account->id)
-          ->UpdateState('favorite');
+        TwitterUser::find($account->id)->UpdateState('favorite');
 
         return false;
       }
@@ -161,11 +152,7 @@ class FavoriteController extends Controller
 
       // いいね用キーワードがない場合、自動いいねを停止する
       if ($condition === false) {
-//        TwitterUser::find($account->id)->update([
-//          'auto_favorite_enabled' => false
-//        ]);
-        TwitterUser::find($account->id)
-          ->UpdateState('favorite');
+        TwitterUser::find($account->id)->UpdateState('favorite');
         return false;
       }
 
@@ -197,7 +184,7 @@ class FavoriteController extends Controller
       $request_params = [];
       $request_params['url'] = 'search/tweets'; // ツイート検索
       $request_params['params'] = [
-        'q' => $query,  // クエリ分
+        'q' => $query,  // クエリ文
         'count' => 10,  // 一度にいいねを行うツイートは最大10個とする
         'result_type' => 'recent' // 最新のツイートを対象とする
       ];
@@ -206,7 +193,7 @@ class FavoriteController extends Controller
       $user[0] = $account;
 
       // ツイートを検索する
-      $twitter_controller = app()->make('App\Http\Controllers\Auth\TwitterController');
+      $twitter_controller = new TwitterController;
       $response = $twitter_controller->accessTwitterWithAccessTokenAsString($user, $request_params, 'get', $account->id);
 
       $request_params = []; // リクエストパラメータ初期化
@@ -246,34 +233,11 @@ class FavoriteController extends Controller
           return false;
         }
 
+        // ツイートIDをパラメータにセットし、いいねを行う
         $request_params['params']['id'] = $tweet->id;
-        $response = $twitter_controller->accessTwitterWithAccessTokenAsString($user, $request_params, 'post', $account->id);
+        $twitter_controller->accessTwitterWithAccessTokenAsString($user, $request_params, 'post', $account->id);
         sleep(10);  // 10秒待機する
       }
-    }
-    return false;
-  }
-
-  /*
-   * 自動いいね判定値変更用メソッド
-   * ユーザー情報を引数に取り、自動いいねの判定値を変更する
-   * @param $request  Twitterアカウント情報
-   * @return 無し
-   */
-  public function updateFavorite(Request $request)
-  {
-    $data = $request->all();
-
-    // 自動いいねを有効にする場合のみ、現在時刻をDBへセットする
-    if($data['favorite'] == true){
-      TwitterUser::find($data['id'])->update([
-        'auto_favorite_enabled' => $data['favorite'],
-        'auto_favorite_enabled_at' => now()
-      ]);
-    }else {
-      TwitterUser::find($data['id'])->update([
-        'auto_favorite_enabled' => $data['favorite']
-      ]);
     }
     return false;
   }

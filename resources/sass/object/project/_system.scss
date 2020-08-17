@@ -5,5 +5,8 @@
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
     text-align: center;
+    &__header {
+      margin-bottom: 16px;
+    }
   }
 }

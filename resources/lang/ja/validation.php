@@ -148,10 +148,10 @@ return [
       |--------------------------------------------------------------------------
       |
       | The following language lines are used to swap attribute place-holders
-      | with something more reader friendly such as E-Mail Address instead
+      | with something more reader friendly such as E-MailReady Address instead
       | of "email". This simply helps us make messages a little cleaner.
       |
-      | 次の言語行は、属性プレースホルダを「email」ではなく「E-Mail Address」などの
+      | 次の言語行は、属性プレースホルダを「email」ではなく「E-MailReady Address」などの
       | 読みやすいものと交換するために使用されます。
       |
     */

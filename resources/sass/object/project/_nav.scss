@@ -1,31 +1,9 @@
-//.p-footer {
-//    position: relative;
-//
-//    &__wrapper {
-//        @include mq('tab') {
-//            padding-bottom: 40px;
-//        }
-//    }
-//
-//    &__nav {
-//        border-top: 1px solid $color-dark;
-//        width: 100%;
-//        bottom: 0;
-//        position: fixed;
-//        background-color: $color-light;
-//    }
-//}
-
 .p-nav {
-  //width: 320px;
   height: 100%;
   align-items: center;
   list-style: none;
   padding: 0;
   margin: 0;
-  //@include mq('tab') {
-  //    display: none;
-  //}
 
   &__item {
     margin-right: 24px;
@@ -35,6 +13,10 @@
     }
     &:hover {
       @include hover;
+    }
+    @include mq('sp'){
+      margin-right: 16px;
+      font-size: 1.4rem;
     }
   }
 }

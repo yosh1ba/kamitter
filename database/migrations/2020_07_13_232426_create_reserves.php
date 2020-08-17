@@ -19,6 +19,7 @@ class CreateReserves extends Migration
             $table->string('tweet', 140);
             $table->boolean('is_posted')->default(false);
             $table->unsignedBigInteger('twitter_user_id');
+            $table->string('unique_key');
             $table->timestamps();
         });
     }
