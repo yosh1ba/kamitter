@@ -15,6 +15,8 @@
 @import "layout/header";
 @import "layout/main";
 @import "layout/wrapper";
+@import "layout/about";
+@import "layout/wrapper";
 
 
 /* Object
@@ -34,6 +36,8 @@
 @import "object/project/system";
 @import "object/project/mypage";
 @import "object/project/account";
+@import "object/project/about";
+@import "object/project/card";
 
 /* Utility ------------ */
 @import "object/utility/position";

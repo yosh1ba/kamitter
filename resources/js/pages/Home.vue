@@ -8,14 +8,19 @@
           <router-link class="p-hero__content__link" to="/signup">使ってみる</router-link>
         </div>
       </div>
-
+      <About></About>
     </div>
   </div>
 </template>
 
 <script>
+import About from "../components/About";
+
 export default {
   name: "Home",
+  components: {
+    About
+  },
 }
 </script>
 

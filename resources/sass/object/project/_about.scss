@@ -1,0 +1,35 @@
+.p-about {
+  padding-top: 80px;
+  padding-bottom: 72px;
+  text-align: center;
+  &__header {
+    margin-bottom: 16px;
+    @include mq('sp') {
+      font-size: 2.2rem;
+    }
+  }
+  &__detail {
+  margin-bottom: 40px;
+    &--small {
+      font-size: 1.4rem;
+    }
+  }
+  &__card {
+    justify-content: space-evenly;
+    margin-bottom: 40px;
+  }
+  &__button {
+    &__link {
+      color: $color-accent;
+      background-color: $color-light;
+      font-size: 2.4rem;
+      border: 1px solid $color-light;
+      border-radius: 3px;
+      padding: 8px 16px;
+      &:hover{
+        background-color: $color-accent;
+        color: $color-light;
+      }
+    }
+  }
+}

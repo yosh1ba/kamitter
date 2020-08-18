@@ -529,10 +529,41 @@ a:hover {
   }
 }
 
-.l-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.l-wrapper__about {
+  background-color: #00acee;
+  background-size: cover;
+  color: #fafafa;
+  margin-left: calc(((100vw - 100%) / 2) * -1);
+  margin-right: calc(((100vw - 100%) / 2) * -1);
+}
+
+.l-about {
+  width: 100vw;
+  max-width: 960px;
+  margin: 0 auto;
+  min-width: 560px;
+  padding: 0 32px;
+}
+
+@media screen and (max-width: 959px) {
+  .l-about {
+    padding-left: calc((32 / 560) * 100%);
+    padding-right: calc((32 / 560) * 100%);
+  }
+}
+
+@media screen and (max-width: 559px) {
+  .l-about {
+    min-width: 320px;
+  }
+}
+
+.l-wrapper__about {
+  background-color: #00acee;
+  background-size: cover;
+  color: #fafafa;
+  margin-left: calc(((100vw - 100%) / 2) * -1);
+  margin-right: calc(((100vw - 100%) / 2) * -1);
 }
 
 /* Object
@@ -859,11 +890,9 @@ a:hover {
 
 .p-hero__content {
   width: 100%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateY(-50%) translateX(-50%);
   text-align: center;
+  height: calc(100vh - 71px - 40px);
+  transform: translateY(30%);
 }
 
 @media screen and (max-width: 959px) {
@@ -887,6 +916,10 @@ a:hover {
   .p-hero__content__header {
     font-size: 2.4rem;
   }
+}
+
+.p-hero__content__detail {
+  margin-bottom: 24px;
 }
 
 @media screen and (max-width: 959px) {
@@ -1109,6 +1142,70 @@ a:hover {
 .p-account__form__icon--reserved {
   color: #3eb370;
   margin-right: 4px;
+}
+
+.p-about {
+  padding-top: 80px;
+  padding-bottom: 72px;
+  text-align: center;
+}
+
+.p-about__header {
+  margin-bottom: 16px;
+}
+
+@media screen and (max-width: 559px) {
+  .p-about__header {
+    font-size: 2.2rem;
+  }
+}
+
+.p-about__detail {
+  margin-bottom: 40px;
+}
+
+.p-about__detail--small {
+  font-size: 1.4rem;
+}
+
+.p-about__card {
+  justify-content: space-evenly;
+  margin-bottom: 40px;
+}
+
+.p-about__button__link {
+  color: #00acee;
+  background-color: #fafafa;
+  font-size: 2.4rem;
+  border: 1px solid #fafafa;
+  border-radius: 3px;
+  padding: 8px 16px;
+}
+
+.p-about__button__link:hover {
+  background-color: #00acee;
+  color: #fafafa;
+}
+
+.p-card {
+  width: 200px;
+  min-height: 260px;
+  border: 1px solid #fafafa;
+  border-radius: 3px;
+  margin: 24px 8px;
+  padding: 32px 8px 24px 8px;
+}
+
+.p-card__icon {
+  font-size: 3.2rem;
+}
+
+.p-card__header {
+  margin-bottom: 16px;
+}
+
+.p-card__description {
+  font-size: 1.4rem;
 }
 
 /* Utility ------------ */

@@ -1,0 +1,14 @@
+.l-about{
+  width: 100vw;
+  max-width: 960px;
+  margin: 0 auto;
+  min-width: 560px;
+  padding: 0 32px;
+  @include mq('tab') {
+    padding-left: calc((32 / 560) * 100%);
+    padding-right: calc((32 / 560) * 100%);
+  }
+  @include mq('sp') {
+    min-width: 320px;
+  }
+}

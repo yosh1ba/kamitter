@@ -1,5 +1,9 @@
-.l-wrapper{
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+.l-wrapper {
+  &__about{
+    background-color: #00acee;
+    background-size: cover;
+    color: #fafafa;
+    margin-left: calc(((100vw - 100%) / 2) * -1);
+    margin-right: calc(((100vw - 100%) / 2) * -1);
+  }
 }

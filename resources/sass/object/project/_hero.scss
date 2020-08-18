@@ -1,12 +1,9 @@
 .p-hero{
   &__content{
     width: 100%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateY(-50%) translateX(-50%);
-
     text-align: center;
+    height: calc(100vh - 71px - 40px);
+    transform: translateY(30%);
     @include mq('tab') {
       padding: 0 8px;
     }
@@ -21,6 +18,7 @@
       }
     }
     &__detail {
+      margin-bottom: 24px;
       @include mq('tab') {
         font-size: 1.4rem;
       }
