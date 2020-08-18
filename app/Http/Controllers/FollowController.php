@@ -55,7 +55,18 @@ class FollowController extends Controller
 
     // リスタート時は16分間待機する
     if($restart === true ){
-      $wait->wait($request);
+      TwitterUser::find($request->route('id'))->update([
+        'is_waited' => true,
+      ]);
+
+      Log::debug('待機開始');
+      // 指定時間だけ待機
+      sleep(960);
+      Log::debug('待機終了');
+
+      TwitterUser::find($request->route('id'))->update([
+        'is_waited' => false,
+      ]);
     }
 
     // 1ターゲットアカウント毎に自動処理を行う
