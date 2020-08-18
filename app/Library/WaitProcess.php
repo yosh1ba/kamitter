@@ -27,7 +27,7 @@
 
       Log::debug('待機開始');
       // 指定時間だけ待機
-      sleep($time);
+      sleep(960);
       Log::debug('待機終了');
 
       TwitterUser::find($request->route('id'))->update([
