@@ -26,7 +26,6 @@
 
       // 指定時間だけ待機
       sleep($time);
-
       TwitterUser::find($request->route('id'))->update([
         'is_waited' => false,
       ]);
