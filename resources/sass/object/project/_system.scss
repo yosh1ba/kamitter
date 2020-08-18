@@ -1,9 +1,6 @@
 .p-system{
   &__content{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateY(-50%) translateX(-50%);
+    margin: 80px 0;
     text-align: center;
     &__header {
       margin-bottom: 16px;
