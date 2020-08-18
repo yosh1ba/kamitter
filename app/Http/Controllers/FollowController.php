@@ -11,6 +11,7 @@ use App\TargetAccountList;
 use App\TwitterUser;
 use Illuminate\Http\Request;
 use App\Library\WaitProcess;
+use Illuminate\Support\Facades\Log;
 
 // 自動フォロー用コントローラー
 class FollowController extends Controller
@@ -84,6 +85,7 @@ class FollowController extends Controller
        * twitterAPIからエラーが返ってきた場合、その時点で処理を終了する
       */
       foreach ($targets as $target){
+        Log::debug($count .'回目');
         $friendship = new Friendship;
 
         // 自動処理無効もしくは一時停止の場合、処理を中止する

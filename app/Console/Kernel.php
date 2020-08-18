@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
       $schedule->call('App\Http\Controllers\AutoTweetController@AutoTweet')
         ->everyMinute()
         ->name('task-tweet');
-      
+
       $schedule->call('App\Http\Controllers\FavoriteController@autoFavorite')
         ->everyFifteenMinutes()
         ->name('task-favorite');
