@@ -29,6 +29,8 @@ class FollowController extends Controller
   */
   public function autoFollow(Request $request,$restart = null)
   {
+    $wait = new WaitProcess;
+
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
     * 待機状態判定用カラム(is_waited)をfalseにする
@@ -53,7 +55,7 @@ class FollowController extends Controller
 
     // リスタート時は16分間待機する
     if($restart === true ){
-      WaitProcess::wait($request);
+      $wait->wait($request);
     }
 
     // 1ターゲットアカウント毎に自動処理を行う
@@ -110,7 +112,7 @@ class FollowController extends Controller
 
         // 15カウントごとにカウントごとに16分(960秒)待機する
         if( $count !== 0  && ($count % 15) === 0 ){
-          WaitProcess::wait($request);
+          $wait->wait($request);
         }
         // twitterAPIへフォローリクエストを送る
         $twitter_controller = new TwitterController;

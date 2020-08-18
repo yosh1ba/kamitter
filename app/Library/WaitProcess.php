@@ -19,7 +19,7 @@
      * @param $request  Twitterアカウント情報
      * @return なし
     */
-    public static function wait(Request $request, int $time = 960)
+    public function wait(Request $request, int $time = 960)
     {
       TwitterUser::find($request->route('id'))->update([
         'is_waited' => true,
