@@ -29,7 +29,16 @@
       Log::debug('待機開始');
       // 指定時間だけ待機
 
-      WaitProcess::respondOK();
+      ignore_user_abort(true);
+      set_time_limit(500);
+
+      ob_start();
+      echo 'ok'."\n";
+      header('Connection: close');
+      header('Content-Length: '.ob_get_length());
+      ob_end_flush();
+      ob_flush();
+      flush();
 
       sleep(960);
       Log::debug('待機終了');
