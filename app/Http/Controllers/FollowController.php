@@ -30,7 +30,6 @@ class FollowController extends Controller
   public function autoFollow(Request $request,$restart = null)
   {
     $wait = new WaitProcess;
-    set_time_limit(0);
 
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
@@ -62,6 +61,7 @@ class FollowController extends Controller
 
       Log::debug('待機開始');
       // 指定時間だけ待機
+      echo json_encode('待機開始');
       sleep(960);
       Log::debug('待機終了');
 
