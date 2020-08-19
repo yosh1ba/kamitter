@@ -99,6 +99,7 @@ class FollowController extends Controller
 
         // 自動処理無効もしくは一時停止の場合、処理を中止する
         if(JudgeController::judgeAutoPilot($request) === false || JudgeController::judgePaused($request) === true){
+          Log::debug('処理終了');
           return false;
         }
 
