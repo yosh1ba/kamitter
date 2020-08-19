@@ -25,13 +25,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-      $schedule->call('App\Http\Controllers\AutoTweetController@AutoTweet')
-        ->everyMinute()
-        ->name('task-tweet');
-
-      $schedule->call('App\Http\Controllers\FavoriteController@autoFavorite')
-        ->everyFifteenMinutes()
-        ->name('task-favorite');
+//      $schedule->call('App\Http\Controllers\AutoTweetController@AutoTweet')
+//        ->everyMinute()
+//        ->name('task-tweet');
+//
+//      $schedule->call('App\Http\Controllers\FavoriteController@autoFavorite')
+//        ->everyFifteenMinutes()
+//        ->name('task-favorite');
     }
 
     /**
