@@ -61,7 +61,8 @@ class FollowController extends Controller
 
       Log::debug('待機開始');
       // 指定時間だけ待機
-      echo json_encode('待機開始');
+      ignore_user_abort(true);
+      set_time_limit(0);
       sleep(960);
       Log::debug('待機終了');
 
