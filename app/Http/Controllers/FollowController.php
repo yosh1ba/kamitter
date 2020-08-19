@@ -29,6 +29,15 @@ class FollowController extends Controller
   */
   public function autoFollow(Request $request,$restart = null)
   {
+
+    ob_start();
+    echo json_encode( 'レスポンス' );
+    header('Connection: close');
+    header('Content-Length: '.ob_get_length());
+    ob_end_flush();
+    ob_flush();
+    flush();
+
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
     * 待機状態判定用カラム(is_waited)をfalseにする
