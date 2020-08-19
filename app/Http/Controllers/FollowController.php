@@ -61,8 +61,14 @@ class FollowController extends Controller
 
       Log::debug('待機開始');
       // 指定時間だけ待機
-      ignore_user_abort(true);
-      set_time_limit(0);
+      ob_start();
+      echo 'ok';
+      header("Connection: close");
+      header("Content-length: " . (string)ob_get_length());
+      ob_end_flush();
+      ob_flush();
+      flush();
+
       sleep(960);
       Log::debug('待機終了');
 
