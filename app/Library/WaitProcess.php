@@ -52,28 +52,14 @@
 
     public static function respondOK()
     {
-      // check if fastcgi_finish_request is callable
-      if (is_callable('fastcgi_finish_request')) {
-        /*
-         * This works in Nginx but the next approach not
-         */
-        session_write_close();
-        fastcgi_finish_request();
-
-        return;
-      }
-
-      ignore_user_abort(true);
-
       ob_start();
-      $serverProtocole = filter_input(INPUT_SERVER, 'SERVER_PROTOCOL', FILTER_SANITIZE_STRING);
-      header($serverProtocole.' 200 OK');
-      header('Content-Encoding: none');
-      header('Content-Length: '.ob_get_length());
+      echo json_encode( 'レスポンス' );
       header('Connection: close');
-
+      header('Content-Length: '.ob_get_length());
       ob_end_flush();
       ob_flush();
       flush();
+
+      return false;
     }
   }
