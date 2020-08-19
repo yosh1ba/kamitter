@@ -17,7 +17,6 @@ class AutoTweetController extends Controller
    */
   public function autoTweet()
   {
-    set_time_limit(0);
     Log::debug('自動ツイートタスク開始');
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す

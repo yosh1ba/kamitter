@@ -30,6 +30,7 @@ class FollowController extends Controller
   public function autoFollow(Request $request,$restart = null)
   {
     $wait = new WaitProcess;
+    set_time_limit(0);
 
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
