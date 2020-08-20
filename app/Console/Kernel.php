@@ -32,6 +32,10 @@ class Kernel extends ConsoleKernel
       $schedule->call('App\Http\Controllers\FavoriteController@autoFavorite')
         ->everyFifteenMinutes()
         ->name('task-favorite');
+
+      $schedule->command('queue:work --tries=1 --stop-when-empty')
+        ->everyMinute()
+        ->withoutOverlapping();
     }
 
     /**
