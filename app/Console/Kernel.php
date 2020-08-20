@@ -36,13 +36,13 @@ class Kernel extends ConsoleKernel
         ->name('task-favorite');
 
       // 毎分毎にキューを実行する(自動フォローメソッドで利用)
-      $schedule->command('queue:work --tries=1 --timeout=960 --stop-when-empty')
+      $schedule->command('queue:work --tries=1 --stop-when-empty')
         ->everyMinute();
 
       // 15分毎に失敗ジョブを自動削除する
       $schedule->command('queue:flush')
         ->everyFifteenMinutes()
-        ->withoutOverlapping(10);
+        ->withoutOverlapping();
     }
 
     /**
