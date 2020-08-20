@@ -49,17 +49,4 @@
 
       return false;
     }
-
-    public static function respondOK()
-    {
-      ob_start();
-      echo json_encode( 'レスポンス' );
-      header('Connection: close');
-      header('Content-Length: '.ob_get_length());
-      ob_end_flush();
-      ob_flush();
-      flush();
-
-      return false;
-    }
   }

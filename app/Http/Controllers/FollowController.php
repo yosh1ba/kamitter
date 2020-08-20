@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\FollowedList;
 use App\Http\Controllers\Auth\TwitterController;
+use App\Jobs\AutoFollowJob;
 use App\Library\Friendship;
 use App\Library\MailReady;
 use App\Library\Target;
@@ -17,6 +18,15 @@ use Illuminate\Support\Facades\Log;
 class FollowController extends Controller
 {
 
+  public function autoFollowQueue(Request $request,$restart = null)
+  {
+
+    Log::debug('AutoFollowQueue In');
+    Log::debug('id: '. $request->route('id'));
+    Log::debug('restart: '. $restart);
+    AutoFollowJob::dispatch($request, $restart);
+  }
+
   /*
   * 自動フォロー用メソッド
   * ユーザー情報を引数に取り、自動運用を行う
@@ -27,17 +37,8 @@ class FollowController extends Controller
   * @param $restart  一時停止から再開した場合の判定
   * @return 無し
   */
-  public function autoFollow(Request $request,$restart = null)
+  public function autoFollow($request,$restart)
   {
-
-    ob_start();
-    echo json_encode( 'レスポンス' );
-    header('Connection: close');
-    header('Content-Length: '.ob_get_length());
-    ob_end_flush();
-    ob_flush();
-    flush();
-
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
     * 待機状態判定用カラム(is_waited)をfalseにする
@@ -46,6 +47,11 @@ class FollowController extends Controller
       'auto_follow_enabled' => true,
       'is_waited' => false
     ];
+
+    Log::debug('AutoFollow In');
+    Log::debug('id: '. $request);
+    Log::debug('restart: '. $restart);
+
     TwitterUser::find($request->route('id'))->update($update_column);
 
     // 自動アンフォローの判定値を取得

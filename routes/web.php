@@ -70,7 +70,7 @@ Route::prefix('api')
     Route::get('/favorite/keyword/{id}', 'FavoriteController@queryFavoriteKeywordList');
 
     // 自動フォロー
-    Route::post('/twitter/follow/{id}', 'FollowController@autoFollow');
+    Route::post('/twitter/follow/{id}', 'FollowController@autoFollowQueue');
 
     // 自動アンフォロー状態更新
     Route::post('/twitter/unfollow/update', 'StateController@updateUnfollow');
