@@ -25,17 +25,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+      // 毎分毎に自動ツイートメソッドを実行する
       $schedule->call('App\Http\Controllers\AutoTweetController@AutoTweet')
         ->everyMinute()
         ->name('task-tweet');
 
+      // 15分間隔で自動いいねメソッドを実行する
       $schedule->call('App\Http\Controllers\FavoriteController@autoFavorite')
         ->everyFifteenMinutes()
         ->name('task-favorite');
 
-      $schedule->command('queue:work --tries=1 --stop-when-empty')
+      // 毎分毎にキューを実行する(自動フォローメソッドで利用)
+      $schedule->command('queue:work --tries=1 --timeout=960 --stop-when-empty')
         ->everyMinute();
 
+      // 15分毎に失敗ジョブを自動削除する
       $schedule->command('queue:flush')
         ->everyFifteenMinutes()
         ->withoutOverlapping(10);
