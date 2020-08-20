@@ -42,11 +42,10 @@ class UnfollowController extends Controller
     $targets = array_intersect($oneways, $while_ago_follow);
 
     // 15日間ツイートがないアカウントを$inactive_usersに格納
-    $friendship = new Friendship;
-    $inactive_users = $friendship->query;
-
     // TODO 直す
-    InactiveUsers($id, $user['twitter_screen_name'], 1);
+    $friendship = new Friendship;
+    $inactive_users = $friendship->queryInactiveUsers($id, $user['twitter_screen_name'], 1);
+
 
     // $targetsと$inactive_usersで共通するアカウントを$merge_targetsに格納
     // 重複を削除
