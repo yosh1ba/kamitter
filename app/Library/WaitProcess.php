@@ -20,30 +20,19 @@
      * @param $request  Twitterアカウント情報
      * @return なし
     */
-    public static function wait(Request $request, int $time = 960)
+    public static function wait(string $id, int $time = 960)
     {
-      TwitterUser::find($request->route('id'))->update([
+      TwitterUser::find($id)->update([
         'is_waited' => true,
       ]);
 
       Log::debug('待機開始');
+
       // 指定時間だけ待機
-
-      ignore_user_abort(true);
-      set_time_limit(500);
-
-      ob_start();
-      echo 'ok'."\n";
-      header('Connection: close');
-      header('Content-Length: '.ob_get_length());
-      ob_end_flush();
-      ob_flush();
-      flush();
-
-      sleep(960);
+      sleep($time);
       Log::debug('待機終了');
 
-      TwitterUser::find($request->route('id'))->update([
+      TwitterUser::find($id)->update([
         'is_waited' => false,
       ]);
 

@@ -62,9 +62,9 @@ class SearchController extends Controller
    * @param $request Twitterユーザー情報
    * @return レスポンス
    */
-  public function querySearchKeywordList(Request $request)
+  public function querySearchKeywordList(String $id)
   {
-    $response = SearchKeywordList::OfTwitterUserId($request->route('id'))
+    $response = SearchKeywordList::OfTwitterUserId($id)
       ->select('selected', 'text')
       ->get();
     return $response;
@@ -76,10 +76,10 @@ class SearchController extends Controller
    * @param $request Twitterユーザー情報
    * @return レスポンス
    */
-  public function makeWhereConditions(Request $request)
+  public function makeWhereConditions(String $id)
   {
     // サーチキーワードを配列形式で格納
-    $arr = $this->querySearchKeywordList($request)->toArray();
+    $arr = $this->querySearchKeywordList($id)->toArray();
 
     if(!$arr){
       // サーチキーワードの検索結果が空の場合はfalseを返す

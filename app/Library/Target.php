@@ -20,7 +20,7 @@
      * @param 各コントローラのメソッドインジェクション
      * @return レスポンス
     */
-    public function createFollowerTargetList(Request $request, String $screen_name)
+    public function createFollowerTargetList(String $id, String $screen_name)
     {
       // APIリクエスト用のパラメータを定義
       $request_params = [];
@@ -34,7 +34,7 @@
       $target = new FollowerTargetList;
 
       // 同じtwitter_user_idのデータを一旦削除する
-      $target->OfTwitterUserId($request->route('id'))->delete();
+      $target->OfTwitterUserId($id)->delete();
 
       $count = 1; // ループ回数カウント
       $limit = '1'; // APIリクエスト可能回数
@@ -56,7 +56,7 @@
          * API制限状は15分(900秒)だが、念の為16分(960秒)を待機時間として設定する
         */
         if( $limit === '0' ){
-          WaitProcess::wait($request);
+          WaitProcess::wait($id);
         }
 
         /*
@@ -73,19 +73,19 @@
           $judge_controller = new JudgeController;
 
           // 自分自身かどうかを判定
-          $matchedMySelf = $judge_controller->judgeMatchedMySelf($request, $follower);
+          $matchedMySelf = $judge_controller->judgeMatchedMySelf($id, $follower);
 
           // プロフィールに日本語が含まれるか判定
           $includedJapanese = $judge_controller->judgeIncludedJapanese($follower);
 
           // キーワードマッチングを行う
-          $matchedKeywords = $judge_controller->judgeMatchedKeywords($request, $follower);
+          $matchedKeywords = $judge_controller->judgeMatchedKeywords($id, $follower);
 
           // アンフォローリストに含まれるアカウントは除く
-          $alreadyUnfollowed = $judge_controller->alreadyUnfollowed($request, $follower);
+          $alreadyUnfollowed = $judge_controller->alreadyUnfollowed($id, $follower);
 
           // すでにフォロー済みのアカウントは除く
-          $alreadyFollowed = $judge_controller->alreadyFollowed($request, $follower);
+          $alreadyFollowed = $judge_controller->alreadyFollowed($id, $follower);
 
           /*
            * ・自分自身でないこと
@@ -100,7 +100,7 @@
             $followerQueue[] = [
               'screen_name' => $follower['screen_name'],
               'is_followed' => false,
-              'twitter_user_id' => $request->route('id'),
+              'twitter_user_id' => $id,
               'created_at' => now(),
               'updated_at' => now()
             ];
@@ -130,9 +130,9 @@
      * @param $request  Twitterアカウント情報
      * @return レスポンス
      */
-    public function queryFollowerTargetList(Request $request)
+    public function queryFollowerTargetList(String $id)
     {
-      return FollowerTargetList::OfTwitterUserId($request->route('id'))
+      return FollowerTargetList::OfTwitterUserId($id)
         ->NotFollowed()
         ->select('screen_name')
         ->get();
@@ -146,9 +146,9 @@
      * @param $obj アンフォロー済みアカウントの情報
      * @return なし
      */
-    public function updateFollowerTargetList(Request $request, String $screen_name){
+    public function updateFollowerTargetList(String $id, String $screen_name){
 
-      FollowerTargetList::OfTwitterUserId($request->route('id'))
+      FollowerTargetList::OfTwitterUserId($id)
         ->OfScreenName($screen_name)
         ->update(['is_followed' => true]);
 

@@ -19,7 +19,7 @@
      * @param $$user TwitterUsersテーブル情報
      * @return ユーザー情報
      */
-    public function queryFriendsCount(Request $request, Object $user)
+    public function queryFriendsCount(String $id, Object $user)
     {
       $decoded_user = json_decode($user, true);
 
@@ -30,7 +30,7 @@
       ];
 
       $twitter_controller = new TwitterController;
-      $response = $twitter_controller->accessTwitterWithAccessToken($decoded_user, $request_params, 'get', $request);
+      $response = $twitter_controller->accessTwitterWithAccessTokenAsString( $decoded_user, $request_params, 'get', $id);
 
       // フォロー数を返す
       return $response->friends_count;

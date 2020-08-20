@@ -16,9 +16,9 @@ class JudgeController extends Controller
    * @param $request  Twitterアカウント情報
    * @return true or false
    */
-  public static function judgeAutoPilot(Request $request)
+  public static function judgeAutoPilot(String $id)
   {
-    $target = TwitterUser::find($request->route('id'));
+    $target = TwitterUser::find($id);
 
     if($target->auto_follow_enabled === 1){
       return true;
@@ -51,9 +51,9 @@ class JudgeController extends Controller
    * @param $request  Twitterアカウント情報
    * @return true or false
    */
-  public static function judgePaused(Request $request)
+  public static function judgePaused(String $id)
   {
-    $target = TwitterUser::find($request->route('id'));
+    $target = TwitterUser::find($id);
 
     if($target->pause_enabled === 1){
       return true;
@@ -89,7 +89,7 @@ class JudgeController extends Controller
   * @param $request TwitterUsersテーブルのID
   * @return true or false
   */
-  public static function judgeMatchedMySelf(Request $request, Array $follower)
+  public static function judgeMatchedMySelf(String $id, Array $follower)
   {
     /*
      * twitter_usersテーブルから、自分自身の情報を取得
@@ -98,7 +98,7 @@ class JudgeController extends Controller
      *  いない場合   >>  false（空）
      * を返す
     */
-    $target = TwitterUser::find($request->route('id'));
+    $target = TwitterUser::find($id);
 
     if($target->twitter_screen_name === $follower['screen_name']){
       return true;
@@ -131,11 +131,11 @@ class JudgeController extends Controller
    * @param $follower フォロワーリスト
    * @return true or false
    */
-  public function judgeMatchedKeywords(Request $request, Array $follower){
+  public function judgeMatchedKeywords(String $id, Array $follower){
 
     // サーチキーワードリストからwhere句を生成
     $search_controller = new SearchController;
-    $condition = $search_controller->makeWhereConditions($request);
+    $condition = $search_controller->makeWhereConditions($id);
 
     $judgeAND = null;
     $judgeOR = null;
@@ -212,10 +212,10 @@ class JudgeController extends Controller
    * @param $follower フォロワーリスト
    * @return true or false
    */
-  public static function alreadyFollowed(Request $request, Array $follower)
+  public static function alreadyFollowed(String $id, Array $follower)
   {
     // FollowedLists(フォロー済みリスト)の中で、30日以内にフォロー済みのカウントの場合はfalseを返す
-    $target =FollowedList::OfTwitterUserId($request->route('id'))
+    $target =FollowedList::OfTwitterUserId($id)
       ->OfScreenName($follower['screen_name'])
       ->FollowedWithinAMonth()
       ->get();
@@ -236,10 +236,10 @@ class JudgeController extends Controller
    * @param $follower フォロワーリスト
    * @return true or false
    */
-  public static function alreadyUnfollowed(Request $request, Array $follower)
+  public static function alreadyUnfollowed(String $id, Array $follower)
   {
     // UnfollowedLists(アンフォローリスト)に一致するものがあれば、falseを返す
-    $target = UnfollowedList::OfTwitterUserId($request->route('id'))
+    $target = UnfollowedList::OfTwitterUserId($id)
       ->OfScreenName($follower['screen_name'])
       ->get();
 

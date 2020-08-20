@@ -112,6 +112,42 @@ class TwitterController extends Controller
   }
 
   /*
+  * ベアラートークンを利用してTwitterAPIにアクセスするメソッドです。
+  * リクエスト用パラメータを引数に取り、レスポンスを返します。
+  *
+  * @param $arr リクエスト用パラメータ
+  * @param $request TwitterUsersテーブルのID
+  * @return レスポンス
+  */
+  public function accessTwitterWithBearerTokenAsString(Array $arr, String $id = null)
+  {
+    $url = $arr['url'];
+    $params = $arr['params'];
+
+    $bearer_token = config('app.twitter_bearer_token');  // ベアラートークン
+
+    $response = Http::withToken($bearer_token)->get('https://api.twitter.com/1.1/'. $url, $params);
+
+    // エラーが発生した場合、処理を停止する
+    if(isset($response['errors'])){
+      $data = [];
+      $data['message'] =
+        '自動処理が停止しました。
+      アカウントをご確認下さい。
+      ';
+      $data['subject'] = '[神ったー]自動処理停止のお知らせ';
+      $mail = new MailReady;
+      $mail->sendMailReadyAsString($id, $data);
+
+      TwitterUser::find($id)
+        ->UpdateState('error');
+
+      exit();
+    }
+    return $response;
+  }
+
+  /*
    * アクセストークンを利用してTwitterAPIにアクセスするメソッドです。
    * リクエスト用パラメータを引数に取り、レスポンスを返します。
    *
@@ -171,7 +207,7 @@ class TwitterController extends Controller
   public function accessTwitterWithAccessTokenAsString(Array $user, Array $arr,string $context = 'post', string $id)
   {
 
-    $client_id = config('app.twitter_client_id');;
+    $client_id = config('app.twitter_client_id');
     $client_secret = config('app.twitter_client_secret');
     $access_token = $user[0]['twitter_oauth_token'];
     $access_token_secret = $user[0]['twitter_oauth_token_secret'];

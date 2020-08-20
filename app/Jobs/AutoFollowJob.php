@@ -24,10 +24,6 @@ class AutoFollowJob implements ShouldQueue
      */
     public function __construct(Request $request, $restart)
     {
-      Log::debug('AutoFollowJob__construct In');
-      Log::debug('id: '. $request->route('id'));
-      Log::debug('restart: '. $restart);
-
       $this->request = $request->route('id');
       $this->restart = $restart;
     }
@@ -39,11 +35,7 @@ class AutoFollowJob implements ShouldQueue
      */
     public function handle()
     {
-      Log::debug('AutoFollowJob In');
-      Log::debug('id: '. $this->request);
-      Log::debug('restart: '. $this->restart);
         $follow_controller = new FollowController();
-
         $follow_controller->autoFollow($this->request, $this->restart);
     }
 }

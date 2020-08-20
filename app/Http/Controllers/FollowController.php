@@ -20,10 +20,6 @@ class FollowController extends Controller
 
   public function autoFollowQueue(Request $request,$restart = null)
   {
-
-    Log::debug('AutoFollowQueue In');
-    Log::debug('id: '. $request->route('id'));
-    Log::debug('restart: '. $restart);
     AutoFollowJob::dispatch($request, $restart);
   }
 
@@ -37,7 +33,7 @@ class FollowController extends Controller
   * @param $restart  一時停止から再開した場合の判定
   * @return 無し
   */
-  public function autoFollow($request,$restart)
+  public function autoFollow($id,$restart)
   {
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
@@ -48,27 +44,23 @@ class FollowController extends Controller
       'is_waited' => false
     ];
 
-    Log::debug('AutoFollow In');
-    Log::debug('id: '. $request);
-    Log::debug('restart: '. $restart);
-
-    TwitterUser::find($request->route('id'))->update($update_column);
+    TwitterUser::find($id)->update($update_column);
 
     // 自動アンフォローの判定値を取得
-    $enable_unfollow = TwitterUser::find($request->route('id'))
+    $enable_unfollow = TwitterUser::find($id)
       ->get()[0]->auto_unfollow_enabled;
 
     // 認証済みアカウント情報取得
-    $user = TwitterUser::find($request->route('id'))->get();
+    $user = TwitterUser::find($id)->get();
 
     // ターゲットアカウントリスト取得
-    $lists = TargetAccountList::OfTwitterUserId($request->route('id'))->select('screen_name')->get();
+    $lists = TargetAccountList::OfTwitterUserId($id)->select('screen_name')->get();
 
     $count = 0; // APIリクエスト可能回数
 
     // リスタート時は16分間待機する
     if($restart === true ){
-      WaitProcess::wait($request);
+      WaitProcess::wait($id);
     }
 
     // 1ターゲットアカウント毎に自動処理を行う
@@ -77,12 +69,11 @@ class FollowController extends Controller
 
       // リスタートで無い場合は、フォロワーターゲットリストを作成する
       if ($restart !== true){
-        $target_class->createFollowerTargetList($request, $list->screen_name);
+        $target_class->createFollowerTargetList($id, $list->screen_name);
       }
 
       // 未フォローのフォロワーターゲットリストを取得
-      $targets = $target_class->queryFollowerTargetList($request);
-
+      $targets = $target_class->queryFollowerTargetList($id);
 
       $request_params = [];
       $request_params['url'] = 'friendships/create';
@@ -104,42 +95,43 @@ class FollowController extends Controller
         $friendship = new Friendship;
 
         // 自動処理無効もしくは一時停止の場合、処理を中止する
-        if(JudgeController::judgeAutoPilot($request) === false || JudgeController::judgePaused($request) === true){
+        if(JudgeController::judgeAutoPilot($id) === false || JudgeController::judgePaused($id) === true){
           Log::debug('処理終了');
           return false;
         }
-
         $request_params['params']['screen_name'] = $target->screen_name;
 
         // 現在のフォロー数を確認する
-        $friends_count = $friendship->queryFriendsCount($request ,$user);
+        $friends_count = $friendship->queryFriendsCount($id ,$user);
 
         // フォロー数が5000人を超え、自動アンフォローがONの場合は自動アンフォローの処理を開始する
         if($friends_count >= 5000 && $enable_unfollow === 1){
           $unfollow = new UnfollowController;
           if ($restart !== true){
-            $unfollow->autoUnfollow($request);
+            $unfollow->autoUnfollow($id);
           }else {
-            $unfollow->autoUnfollow($request, true);
+            $unfollow->autoUnfollow($id, true);
           }
         }
 
         // 15カウントごとにカウントごとに16分(960秒)待機する
         if( $count !== 0  && ($count % 15) === 0 ){
-          WaitProcess::wait($request);
+          WaitProcess::wait($id);
         }
+
+        Log::debug('$user：'. $user);
         // twitterAPIへフォローリクエストを送る
         $twitter_controller = new TwitterController;
-        $response = $twitter_controller->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
+        $response = $twitter_controller->accessTwitterWithAccessTokenAsString(json_decode($user, true),$request_params, 'post', $id);
 
         // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
         if(!property_exists($response, 'id')){
           return false;
         }else {
           // フォロー成功した場合、フォロー済みリストにもアカウント情報を格納する
-          $target_class->updateFollowerTargetList($request, $target->screen_name);
+          $target_class->updateFollowerTargetList($id, $target->screen_name);
 
-          $this->createFollowedLists($request, $response);
+          $this->createFollowedLists($id, $response);
         }
         sleep(15);
         $count++;
@@ -153,9 +145,9 @@ class FollowController extends Controller
       ';
     $data['subject'] = '[神ったー]自動処理完了のお知らせ';
     $mail = new MailReady;
-    $mail->sendMailReady($request, $data);
+    $mail->sendMailReadyAsString($id, $data);
 
-    TwitterUser::find($request->route('id'))
+    TwitterUser::find($id)
       ->UpdateState('follow');
 
     return false;
@@ -169,12 +161,12 @@ class FollowController extends Controller
    * @param $obj フォロー済みアカウントの情報
    * @return レスポンス
    */
-  public function createFollowedLists(Request $request, Object $obj){
+  public function createFollowedLists(String $id, Object $obj){
 
     $create_column = [
       'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
-      'twitter_user_id' => $request->route('id')
+      'twitter_user_id' => $id
     ];
 
     return FollowedList::create($create_column);
@@ -188,9 +180,9 @@ class FollowController extends Controller
    * @param $day  判定用日数
    * @return ユーザー情報
    */
-  public static function queryFollowedLists(Request $request, Int $day)
+  public static function queryFollowedLists(String $id, Int $day)
   {
-    return FollowedList::OfTwitterUserId($request->route('id'))
+    return FollowedList::OfTwitterUserId($id)
       ->FollowedSomeDaysAgo($day)
       ->select('user_id')
       ->get();

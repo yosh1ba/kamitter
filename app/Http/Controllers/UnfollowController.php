@@ -19,19 +19,19 @@ class UnfollowController extends Controller
   * @param 各コントローラのメソッドインジェクション
   * @return なし
   */
-  public function autoUnfollow(Request $request, $restart = null)
+  public function autoUnfollow(String $id, $restart = null)
   {
 
-    $user = TwitterUser::find($request->route('id'));
+    $user = TwitterUser::find($id);
 
     // リスタートではない場合、アンフォローターゲットリストを取得
     if ($restart === null) {
       // 片思い中のアカウントを取得
-      $oneways = $this->queryUnfollowTargetList($request, $user['twitter_screen_name']);
+      $oneways = $this->queryUnfollowTargetList($id, $user['twitter_screen_name']);
     }
 
     // フォロー後に7日経過してもフォロー返しがないユーザを$while_ago_followに格納する
-    $followed_lists = FollowController::queryFollowedLists($request, 7);
+    $followed_lists = FollowController::queryFollowedLists($id, 7);
     $while_ago_follow = [];
     foreach ($followed_lists as $friend) {
       array_push($while_ago_follow, $friend->user_id);
@@ -42,7 +42,7 @@ class UnfollowController extends Controller
 
     // 15日間ツイートがないアカウントを$inactive_usersに格納
     $friendship = new Friendship;
-    $inactive_users = $friendship->queryInactiveUsers($request, $user['twitter_screen_name'], 15);
+    $inactive_users = $friendship->queryInactiveUsers($id, $user['twitter_screen_name'], 15);
 
     // $targetsと$inactive_usersで共通するアカウントを$merge_targetsに格納
     // 重複を削除
@@ -58,7 +58,7 @@ class UnfollowController extends Controller
       'id' => ''
     ];
 
-    $user = TwitterUser::find($request->route('id'))->get();
+    $user = TwitterUser::find($id)->get();
 
     /*
      * $result_targetsの全てについて、アンフォローを実施
@@ -66,19 +66,19 @@ class UnfollowController extends Controller
      */
     foreach ($result_targets as $target) {
       // 自動処理無効もしくは一時停止の場合、処理を中止する
-      if(JudgeController::judgeAutoUnfollow($request) === false || JudgeController::judgePaused($request) === true){
+      if(JudgeController::judgeAutoUnfollow($id) === false || JudgeController::judgePaused($id) === true){
         return false;
       }
 
       $request_params['params']['id'] = $target;
       $twitter_controller = new TwitterController;
-      $response = $twitter_controller->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $request);
+      $response = $twitter_controller->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $id);
 
       // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if (!property_exists($response, 'id')) {
         return false;
       } else {
-        $this->createUnfollowedLists($request, $response);
+        $this->createUnfollowedLists($id, $response);
       }
       sleep(15);
 
@@ -95,7 +95,7 @@ class UnfollowController extends Controller
    * @param $screen_name  Twitter表示名(@以降の名前)
    * @return ユーザー情報
    */
-  public function queryUnfollowTargetList(Request $request, String $screen_name)
+  public function queryUnfollowTargetList(String $id, String $screen_name)
   {
     $request_params = [];
     $request_params['url'] = 'friends/ids.json';  // フォロー済みのTwitterID
@@ -106,10 +106,10 @@ class UnfollowController extends Controller
       'screen_name' => $screen_name
     ];
     $twitter_controller = new TwitterController;
-    $friends = $twitter_controller->accessTwitterWithBearerToken($request_params, $request)['ids'];
+    $friends = $twitter_controller->accessTwitterWithBearerTokenAsString($request_params, $id)['ids'];
 
     $request_params['url'] = 'followers/ids.json';  // フォロワーのTwitterID
-    $followers = $twitter_controller->accessTwitterWithBearerToken($request_params, $request)['ids'];
+    $followers = $twitter_controller->accessTwitterWithBearerTokenAsString($request_params, $id)['ids'];
 
     // フォロー返しの無いTwitterユーザー情報を返す
     return array_diff($friends, $followers);
@@ -123,12 +123,12 @@ class UnfollowController extends Controller
    * @param $obj アンフォロー済みアカウントの情報
    * @return レスポンス
    */
-  public function createUnfollowedLists(Request $request, Object $obj){
+  public function createUnfollowedLists(String $id, Object $obj){
 
     $create_column = [
       'user_id' => $obj->id_str,
       'screen_name' => $obj->screen_name,
-      'twitter_user_id' => $request->route('id')
+      'twitter_user_id' => $id
     ];
 
     return UnfollowedList::create($create_column);
