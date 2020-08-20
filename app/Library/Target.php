@@ -64,7 +64,7 @@
          * $followers にフォロワーリストを格納
          */
         $twitter_controller = new TwitterController;
-        $response = $twitter_controller->accessTwitterWithBearerToken($request_params);
+        $response = $twitter_controller->accessTwitterWithBearerTokenAsString($request_params, $id);
         $limit = $response->header('x-rate-limit-remaining');
         $followers = $response['users'];
 
