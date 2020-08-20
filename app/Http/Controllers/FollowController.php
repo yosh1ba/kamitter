@@ -113,7 +113,7 @@ class FollowController extends Controller
 
         // フォロー数が5000人を超え、自動アンフォローがONの場合は自動アンフォローの処理を開始する
         // TODO 直す
-        if($friends_count >= 100 && $enable_unfollow === 1){
+        if($friends_count >= 320 && $enable_unfollow === 1){
           $unfollow = new UnfollowController;
           if ($restart !== true){
             $unfollow->autoUnfollow($id);

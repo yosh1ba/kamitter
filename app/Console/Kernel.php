@@ -35,7 +35,11 @@ class Kernel extends ConsoleKernel
 
       $schedule->command('queue:work --tries=1 --stop-when-empty')
         ->everyMinute()
-        ->withoutOverlapping();
+        ->withoutOverlapping(10);
+
+      $schedule->command('queue:flush')
+        ->everyFifteenMinutes()
+        ->withoutOverlapping(10);
     }
 
     /**
