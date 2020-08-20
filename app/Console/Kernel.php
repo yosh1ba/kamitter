@@ -34,8 +34,7 @@ class Kernel extends ConsoleKernel
         ->name('task-favorite');
 
       $schedule->command('queue:work --tries=1 --stop-when-empty')
-        ->everyMinute()
-        ->withoutOverlapping(10);
+        ->everyMinute();
 
       $schedule->command('queue:flush')
         ->everyFifteenMinutes()
