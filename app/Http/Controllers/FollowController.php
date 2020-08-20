@@ -13,6 +13,7 @@ use App\TwitterUser;
 use Illuminate\Http\Request;
 use App\Library\WaitProcess;
 use Illuminate\Support\Facades\Log;
+use Monolog\Formatter\LogglyFormatter;
 
 // 自動フォロー用コントローラー
 class FollowController extends Controller
@@ -42,6 +43,7 @@ class FollowController extends Controller
   */
   public function autoFollow(String $id,$restart)
   {
+    Log::debug('自動フォロー開始');
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
     * 待機状態判定用カラム(is_waited)をfalseにする
@@ -67,6 +69,7 @@ class FollowController extends Controller
 
     // リスタート時は16分間待機する
     if($restart === true ){
+      Log::debug('リスタート用待機メソッドへ');
       WaitProcess::wait($id);
     }
 
@@ -112,8 +115,7 @@ class FollowController extends Controller
         $friends_count = $friendship->queryFriendsCount($id ,$user);
 
         // フォロー数が5000人を超え、自動アンフォローがONの場合は自動アンフォローの処理を開始する
-        // TODO 直す
-        if($friends_count >= 320 && $enable_unfollow === 1){
+        if($friends_count >= 5000 && $enable_unfollow === 1){
           $unfollow = new UnfollowController;
           if ($restart !== true){
             $unfollow->autoUnfollow($id);
