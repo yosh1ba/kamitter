@@ -18,6 +18,13 @@ use Illuminate\Support\Facades\Log;
 class FollowController extends Controller
 {
 
+  /*
+  * 自動フォローキューイング用メソッド
+  * ユーザー情報を引数に取り、自動運用のためのキューを作る（非同期処理）
+  * @param $request  Twitterアカウント情報
+  * @param $restart  一時停止から再開した場合の判定
+  * @return 無し
+  */
   public function autoFollowQueue(Request $request,$restart = null)
   {
     AutoFollowJob::dispatch($request, $restart);
@@ -29,11 +36,11 @@ class FollowController extends Controller
   * 　・自動フォロー
   * 　・自動アンフォロー（フォロー数が5000を超え、フロント側の自動アンフォローにチェックがある場合)
   * これらの処理を一連で行う
-  * @param $request  Twitterアカウント情報
+  * @param $id  TwitterUsersテーブルの主キー
   * @param $restart  一時停止から再開した場合の判定
   * @return 無し
   */
-  public function autoFollow($id,$restart)
+  public function autoFollow(String $id,$restart)
   {
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
@@ -105,7 +112,8 @@ class FollowController extends Controller
         $friends_count = $friendship->queryFriendsCount($id ,$user);
 
         // フォロー数が5000人を超え、自動アンフォローがONの場合は自動アンフォローの処理を開始する
-        if($friends_count >= 5000 && $enable_unfollow === 1){
+        // TODO 直す
+        if($friends_count >= 100 && $enable_unfollow === 1){
           $unfollow = new UnfollowController;
           if ($restart !== true){
             $unfollow->autoUnfollow($id);
@@ -119,7 +127,6 @@ class FollowController extends Controller
           WaitProcess::wait($id);
         }
 
-        Log::debug('$user：'. $user);
         // twitterAPIへフォローリクエストを送る
         $twitter_controller = new TwitterController;
         $response = $twitter_controller->accessTwitterWithAccessTokenAsString(json_decode($user, true),$request_params, 'post', $id);
@@ -157,7 +164,7 @@ class FollowController extends Controller
   /*
    * FollowedLists(フォロー済みリスト)を作成するメソッド
    * Twitterアカウント情報を引数に取り、レスポンスを返す
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $obj フォロー済みアカウントの情報
    * @return レスポンス
    */
@@ -176,7 +183,7 @@ class FollowController extends Controller
   /*
    * フォローから一定日数以上経過したユーザー情報を返す
    * Twitterユーザー情報と日数を引数に取り、フォローから対象日数以上が経過したユーザーを返す
-   * @param $request Twitterユーザー情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $day  判定用日数
    * @return ユーザー情報
    */

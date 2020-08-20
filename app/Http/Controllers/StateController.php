@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AutoFollowJob;
 use App\Reserve;
 use App\TwitterUser;
 use Illuminate\Http\Request;
@@ -35,10 +36,9 @@ class StateController extends Controller
    * 再開メソッド
    * ユーザー情報を引数に取り、一時停止判定用カラムを変更し、自動処理を再開する
    * @param $request  Twitterアカウント情報
-   * @param $follow_controller  FollowControllerのメソッドインジェクション
    * @return なし
    */
-  public function toRestart(Request $request,FollowController $follow_controller)
+  public function toRestart(Request $request)
   {
     $update_column = ['pause_enabled' => false];
 
@@ -46,7 +46,7 @@ class StateController extends Controller
       ->update($update_column);
 
     // 自動処理再開
-    $follow_controller->autoFollow($request, (bool)TRUE);
+    AutoFollowJob::dispatch($request, (bool)TRUE);
 
     return false;
   }

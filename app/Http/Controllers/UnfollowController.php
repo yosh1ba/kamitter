@@ -14,7 +14,7 @@ class UnfollowController extends Controller
   /*
   * 自動アンフォロー用メソッド
   * ユーザー情報を引数に取り、自動アンフォローを行う
-  * @param $request  Twitterアカウント情報
+  * @param $id  TwitterUsersテーブルの主キー
   * @param $restart  一時停止から再開した場合の判定
   * @param 各コントローラのメソッドインジェクション
   * @return なし
@@ -31,7 +31,8 @@ class UnfollowController extends Controller
     }
 
     // フォロー後に7日経過してもフォロー返しがないユーザを$while_ago_followに格納する
-    $followed_lists = FollowController::queryFollowedLists($id, 7);
+    // TODO 直す
+    $followed_lists = FollowController::queryFollowedLists($id, 1);
     $while_ago_follow = [];
     foreach ($followed_lists as $friend) {
       array_push($while_ago_follow, $friend->user_id);
@@ -42,7 +43,10 @@ class UnfollowController extends Controller
 
     // 15日間ツイートがないアカウントを$inactive_usersに格納
     $friendship = new Friendship;
-    $inactive_users = $friendship->queryInactiveUsers($id, $user['twitter_screen_name'], 15);
+    $inactive_users = $friendship->query;
+
+    // TODO 直す
+    InactiveUsers($id, $user['twitter_screen_name'], 1);
 
     // $targetsと$inactive_usersで共通するアカウントを$merge_targetsに格納
     // 重複を削除
@@ -72,7 +76,7 @@ class UnfollowController extends Controller
 
       $request_params['params']['id'] = $target;
       $twitter_controller = new TwitterController;
-      $response = $twitter_controller->accessTwitterWithAccessToken(json_decode($user, true), $request_params, $id);
+      $response = $twitter_controller->accessTwitterWithAccessTokenAsString(json_decode($user, true), $request_params, 'post', $id);
 
       // アカウント情報が返ってこない（エラーが発生した）場合、処理を中断する
       if (!property_exists($response, 'id')) {
@@ -91,7 +95,7 @@ class UnfollowController extends Controller
    * アンフォロー対象ユーザー参照用メソッド
    * Twitterアカウント情報とTwitter表示名を引数に取り、
    * フォロー済みのTwitterユーザーの中で、フォロー返しの無いユーザーを返す
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $screen_name  Twitter表示名(@以降の名前)
    * @return ユーザー情報
    */
@@ -119,7 +123,7 @@ class UnfollowController extends Controller
   /*
    * UnFollowedLists(アンフォロー済みリスト)を作成するメソッド
    * Twitterアカウント情報を引数に取り、レスポンスを返す
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $obj アンフォロー済みアカウントの情報
    * @return レスポンス
    */

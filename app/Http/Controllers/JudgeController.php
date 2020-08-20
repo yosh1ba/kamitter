@@ -30,12 +30,12 @@ class JudgeController extends Controller
   /*
    * 自動アンフォロー判定用メソッド
    * TwitterUsersテーブルのIDを引数に取り、自動アンフォローが有効かどうか(auto_unfollow_enabled)を返す
-   * @param $request  Twitterアカウント情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return true or false
    */
-  public static function judgeAutoUnfollow(Request $request)
+  public static function judgeAutoUnfollow(String $id)
   {
-    $target = TwitterUser::find($request->route('id'));
+    $target = TwitterUser::find($id);
 
     if($target->auto_unfollow_enabled === 1){
       return true;
@@ -48,7 +48,7 @@ class JudgeController extends Controller
   /*
    * 一時停止判定用メソッド
    * TwitterUsersテーブルのIDを引数に取り、一時停止が有効かどうか(pause_enabled)を返す
-   * @param $request  Twitterアカウント情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return true or false
    */
   public static function judgePaused(String $id)
@@ -66,7 +66,7 @@ class JudgeController extends Controller
   /*
    * 自動いいね判定用メソッド
    * TwitterUsersテーブルのIDを引数に取り、自動いいねが有効かどうか(auto_favorite_enabled)を返す
-   * @param $request  Twitterアカウント情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return true or false
    */
   public static function judgeAutoFavorite(Request $request)
@@ -86,7 +86,7 @@ class JudgeController extends Controller
   * Twitterアカウント情報とフォロワー情報を引数に取り、真偽値を返す
   *
   * @param $user TwitterUsersテーブル情報
-  * @param $request TwitterUsersテーブルのID
+  * @param $id  TwitterUsersテーブルの主キー
   * @return true or false
   */
   public static function judgeMatchedMySelf(String $id, Array $follower)
@@ -127,7 +127,7 @@ class JudgeController extends Controller
    * キーワード文がプロフィールに含まれるか判定するメソッド
    * Twitterアカウント情報とフォロワー情報を引数に取り、真偽値を返す
    *
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $follower フォロワーリスト
    * @return true or false
    */
@@ -208,7 +208,7 @@ class JudgeController extends Controller
    * 30日以内にフォロー済みかを判定するメソッド
    * Twitterアカウント情報とフォロワー情報を引数に取り、真偽値を返す
    *
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $follower フォロワーリスト
    * @return true or false
    */
@@ -232,7 +232,7 @@ class JudgeController extends Controller
    * アンフォロー済みかを判定するメソッド
    * Twitterアカウント情報とフォロワー情報を引数に取り、真偽値を返す
    *
-   * @param $request TwitterUsersテーブルのID
+   * @param $id  TwitterUsersテーブルの主キー
    * @param $follower フォロワーリスト
    * @return true or false
    */

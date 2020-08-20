@@ -59,7 +59,7 @@ class SearchController extends Controller
    * フォロー用キーワード(search_keyword_lists)参照用メソッド
    * リクエスト用パラメータを引数に取り、設定済みのフォロー用キーワードを返します。
    * フロント側で利用
-   * @param $request Twitterユーザー情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return レスポンス
    */
   public function querySearchKeywordList(String $id)
@@ -73,7 +73,7 @@ class SearchController extends Controller
   /*
    * フォロー用Where句作成用メソッド
    * リクエスト用パラメータを引数に取り、フォロー用Where句を返す
-   * @param $request Twitterユーザー情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return レスポンス
    */
   public function makeWhereConditions(String $id)

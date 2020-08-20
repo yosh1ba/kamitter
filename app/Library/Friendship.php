@@ -42,12 +42,12 @@
      * 一定日数アクティブでないユーザーの参照用メソッド
      * Twitterユーザー情報とTwitter表示名、日数を引数に取り、
      * 一定日数アクティブでない(ツイートが無い)ユーザー情報を返す
-     * @param $request Twitterユーザー情報
+     * @param $id  TwitterUsersテーブルの主キー
      * @param $screen_name Twitter表示名(@以降の名前)
      * @param $day  判定用日数
      * @return ユーザー情報
      */
-    public function queryInactiveUsers(Request $request, String $screen_name, Int $day)
+    public function queryInactiveUsers(String $id, String $screen_name, Int $day)
     {
       $twitter_controller = new TwitterController;
 
@@ -59,7 +59,7 @@
         'stringify_ids' => true,
         'screen_name' => $screen_name
       ];
-      $friends = $twitter_controller->accessTwitterWithBearerToken($request_params, $request)['ids'];
+      $friends = $twitter_controller->accessTwitterWithBearerTokenAsString($request_params, $id)['ids'];
 
       $request_params = [];
       $request_params['url'] = 'statuses/user_timeline.json'; // ユーザータイムライン取得
@@ -74,7 +74,7 @@
       foreach ($friends as $friend){
         $request_params['params']['user_id'] = $friend;
 
-        $timeline = $twitter_controller->accessTwitterWithBearerToken($request_params, $request);
+        $timeline = $twitter_controller->accessTwitterWithBearerTokenAsString($request_params, $id);
 
         /*
          * $datetime_tweet  最新のツイート日時
