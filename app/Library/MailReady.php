@@ -40,7 +40,7 @@
      * メール送信準備用メソッド
      * ユーザー情報とメール送信用情報を引数に取り、メールを送信用メソッドを読み出す
      * TwitterユーザーIDを文字列で受け取る
-     * @param $id  TwitterゆーザーID
+     * @param $id  TwitterUsersテーブルの主キー
      * @param $data メール送信用情報
      * @return なし
      */

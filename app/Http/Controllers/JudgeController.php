@@ -13,7 +13,7 @@ class JudgeController extends Controller
   /*
    * 自動フォロー判定用メソッド
    * TwitterUsersテーブルのIDを引数に取り、自動フォローが有効かどうか(auto_follow_enabled)を返す
-   * @param $request  Twitterアカウント情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return true or false
    */
   public static function judgeAutoPilot(String $id)

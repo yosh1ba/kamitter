@@ -114,9 +114,10 @@ class TwitterController extends Controller
   /*
   * ベアラートークンを利用してTwitterAPIにアクセスするメソッドです。
   * リクエスト用パラメータを引数に取り、レスポンスを返します。
+  * Httpリクエスト($request)ではなく、Stringで引数を受け取ります。
   *
   * @param $arr リクエスト用パラメータ
-  * @param $request TwitterUsersテーブルのID
+  * @param $id  TwitterUsersテーブルの主キー
   * @return レスポンス
   */
   public function accessTwitterWithBearerTokenAsString(Array $arr, String $id = null)

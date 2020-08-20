@@ -63,7 +63,7 @@ class FavoriteController extends Controller
    * いいね用キーワード(favorite_keyword_lists)参照用メソッド
    * リクエスト用パラメータを引数に取り、設定済みのいいね用キーワードを返します。
    * フロント側で利用
-   * @param $request Twitterユーザー情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return レスポンス
    */
   public function queryFavoriteKeywordList(int $id)
@@ -77,7 +77,7 @@ class FavoriteController extends Controller
   /*
    * いいね用Where句作成用メソッド
    * リクエスト用パラメータを引数に取り、いいね用Where句を返す
-   * @param $request Twitterユーザー情報
+   * @param $id  TwitterUsersテーブルの主キー
    * @return レスポンス
    */
   public function makeWhereConditions(int $id)

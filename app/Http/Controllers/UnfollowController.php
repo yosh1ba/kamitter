@@ -6,7 +6,6 @@ use App\Http\Controllers\Auth\TwitterController;
 use App\Library\Friendship;
 use App\TwitterUser;
 use App\UnfollowedList;
-use Illuminate\Http\Request;
 
 // 自動アンフォロー用コントローラー
 class UnfollowController extends Controller
@@ -31,8 +30,7 @@ class UnfollowController extends Controller
     }
 
     // フォロー後に7日経過してもフォロー返しがないユーザを$while_ago_followに格納する
-    // TODO 直す
-    $followed_lists = FollowController::queryFollowedLists($id, 1);
+    $followed_lists = FollowController::queryFollowedLists($id, 7);
     $while_ago_follow = [];
     foreach ($followed_lists as $friend) {
       array_push($while_ago_follow, $friend->user_id);
@@ -42,9 +40,8 @@ class UnfollowController extends Controller
     $targets = array_intersect($oneways, $while_ago_follow);
 
     // 15日間ツイートがないアカウントを$inactive_usersに格納
-    // TODO 直す
     $friendship = new Friendship;
-    $inactive_users = $friendship->queryInactiveUsers($id, $user['twitter_screen_name'], 1);
+    $inactive_users = $friendship->queryInactiveUsers($id, $user['twitter_screen_name'], 15);
 
 
     // $targetsと$inactive_usersで共通するアカウントを$merge_targetsに格納

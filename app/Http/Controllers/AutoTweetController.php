@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Auth\TwitterController;
 use App\Reserve;
 use App\TwitterUser;
-use Illuminate\Support\Facades\Log;
 
 // 自動ツイート用コントローラー
 class AutoTweetController extends Controller
@@ -13,11 +12,11 @@ class AutoTweetController extends Controller
   /*
    * 予約ツイート投稿用メソッド
    * 予約ツイートを投稿する
+   * メソッドはcron
    * @return なし
    */
   public function autoTweet()
   {
-    Log::debug('自動ツイートタスク開始');
     // 現在時刻をキーに、reserveテーブルを検索
     // is_postedがfalseの値を探す
     $reserves = Reserve::ReservedAtNow()
@@ -25,7 +24,6 @@ class AutoTweetController extends Controller
       ->get();
 
     if($reserves->count() === 0){
-      Log::debug('自動ツイートタスク終了');
       return false;
     }
     $request_params = [];

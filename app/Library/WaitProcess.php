@@ -5,9 +5,7 @@
 
 
   use App\TwitterUser;
-  use Illuminate\Http\Request;
   use Illuminate\Support\Facades\Log;
-  use phpDocumentor\Reflection\Types\This;
 
   class WaitProcess
   {
@@ -17,7 +15,8 @@
      * 　・待機判定用カラム
      * を変更する。
      * Twitter APIリクエスト制限回避に用いる。(待機時間を960秒をデフォルトとする)
-     * @param $request  Twitterアカウント情報
+     * @param $id  TwitterUsersテーブルの主キー
+     * @param $time  待機時間(デフォルトは960秒)
      * @return なし
     */
     public static function wait(string $id, int $time = 960)

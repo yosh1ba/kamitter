@@ -18,13 +18,6 @@ class AutoFollowJob implements ShouldQueue
     private $request;
     private $restart;
 
-    /**
-     * ジョブがタイムアウトになるまでの秒数
-     *
-     * @var int
-     */
-    public $timeout = 960;
-
     // リクエスト情報(TwitterUsersテーブルのID)とリスタート判定を引数に取る
     public function __construct(Request $request, $restart)
     {

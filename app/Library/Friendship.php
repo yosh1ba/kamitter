@@ -6,7 +6,6 @@
 
   use App\Http\Controllers\Auth\TwitterController;
   use Carbon\Carbon;
-  use Illuminate\Http\Request;
 
   // フレンドシップ関連クラス
   class Friendship
@@ -15,7 +14,7 @@
      * フォロー数カウント用メソッド
      * Twitterユーザー情報とTwitter表示名、日数を引数に取り、
      * 一定日数アクティブでない(ツイートが無い)ユーザー情報を返す
-     * @param $request Twitterユーザー情報
+     * @param $id  TwitterUsersテーブルの主キー
      * @param $$user TwitterUsersテーブル情報
      * @return ユーザー情報
      */

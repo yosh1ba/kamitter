@@ -7,7 +7,6 @@
   use App\FollowerTargetList;
   use App\Http\Controllers\Auth\TwitterController;
   use App\Http\Controllers\JudgeController;
-  use Illuminate\Http\Request;
 
   class Target
   {
@@ -15,7 +14,7 @@
      * フォロワーターゲットリスト(FollowerTargetLists) 作成用メソッド
      * Twitterアカウント情報を引数に取り、レスポンスを返します
      *
-     * @param $request TwitterUsersテーブルのID
+     * @param $id  TwitterUsersテーブルの主キー
      * @param $screen_name Twitter表示名(@以降の名前)
      * @param 各コントローラのメソッドインジェクション
      * @return レスポンス
@@ -127,7 +126,7 @@
      * Twitterユーザー情報に紐づくフォロワーターゲットリスト参照用メソッド
      * ユーザー情報を引数に取り、それに紐づくFollowerTargetListsテーブルの情報を返す
      * フロント側での画面描画に使用する
-     * @param $request  Twitterアカウント情報
+     * @param $id  TwitterUsersテーブルの主キー
      * @return レスポンス
      */
     public function queryFollowerTargetList(String $id)
@@ -142,7 +141,7 @@
     /*
      * FollowerTargetLists(フォロワーターゲットリスト)更新用メソッド
      * Twitterアカウント情報とTwitter表示名を引数に取り、フォロー済み判カラム(is_followed)をtrueにする
-     * @param $request TwitterUsersテーブルのID
+     * @param $id  TwitterUsersテーブルの主キー
      * @param $obj アンフォロー済みアカウントの情報
      * @return なし
      */
