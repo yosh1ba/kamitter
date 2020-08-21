@@ -224,7 +224,7 @@ class TwitterController extends Controller
       $content = $connection->post($arr['url'],$arr['params']);
     }
 
-    Log::debug($context);
+    Log::debug($content);
     // エラーが発生した場合、処理を停止する
     if(isset($content->errors)){
       $data = [];
