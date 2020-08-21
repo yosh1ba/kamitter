@@ -208,8 +208,6 @@ class TwitterController extends Controller
    */
   public function accessTwitterWithAccessTokenAsString(Array $user, Array $arr,string $context = 'post', string $id)
   {
-
-    Log::debug('TwitterOauth In');
     $client_id = config('app.twitter_client_id');
     $client_secret = config('app.twitter_client_secret');
     $access_token = $user[0]['twitter_oauth_token'];
@@ -222,9 +220,9 @@ class TwitterController extends Controller
       $content = $connection->get($arr['url'],$arr['params']);
     }else{
       $content = $connection->post($arr['url'],$arr['params']);
+      Log::debug(print_r($content, true));
     }
 
-    Log::debug(print_r($content, true));
     // エラーが発生した場合、処理を停止する
     if(isset($content->errors)){
       $data = [];
