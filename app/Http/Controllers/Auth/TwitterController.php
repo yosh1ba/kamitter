@@ -210,7 +210,6 @@ class TwitterController extends Controller
   {
 
     Log::debug('TwitterOauth In');
-    Log::debug($user[0]);
     $client_id = config('app.twitter_client_id');
     $client_secret = config('app.twitter_client_secret');
     $access_token = $user[0]['twitter_oauth_token'];
@@ -225,6 +224,7 @@ class TwitterController extends Controller
       $content = $connection->post($arr['url'],$arr['params']);
     }
 
+    Log::debug($context);
     // エラーが発生した場合、処理を停止する
     if(isset($content->errors)){
       $data = [];
