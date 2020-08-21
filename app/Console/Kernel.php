@@ -38,7 +38,8 @@ class Kernel extends ConsoleKernel
       // 毎分毎にキューを実行する(自動フォローメソッドで利用)
       $schedule->command('queue:work --tries=1 --stop-when-empty')
         ->everyMinute()
-        ->withoutOverlapping();
+        ->withoutOverlapping()
+        ->runInBackground();
 
       // 15分毎に失敗ジョブを自動削除する
       $schedule->command('queue:flush')
