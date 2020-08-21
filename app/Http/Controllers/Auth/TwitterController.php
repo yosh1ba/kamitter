@@ -235,7 +235,7 @@ class TwitterController extends Controller
 
       TwitterUser::find($id)->UpdateState('error');
 
-      exit();
+      return false;
     }
     return $content;
   }
