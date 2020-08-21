@@ -142,7 +142,7 @@ class FollowController extends Controller
 
           $this->createFollowedLists($id, $response);
         }
-        sleep(15);
+        sleep(20);
         $count++;
       }
     }
