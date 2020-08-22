@@ -13,7 +13,6 @@ use App\TwitterUser;
 use Illuminate\Http\Request;
 use App\Library\WaitProcess;
 use Illuminate\Support\Facades\Log;
-use Monolog\Formatter\LogglyFormatter;
 
 // 自動フォロー用コントローラー
 class FollowController extends Controller
@@ -43,7 +42,6 @@ class FollowController extends Controller
   */
   public function autoFollow(String $id,$restart)
   {
-    Log::debug('自動フォロー開始');
     /*
     * 自動運用判定用カラム(auto_follow_enabled)をtrueにする
     * 待機状態判定用カラム(is_waited)をfalseにする
@@ -69,7 +67,6 @@ class FollowController extends Controller
 
     // リスタート時は16分間待機する
     if($restart === true ){
-      Log::debug('リスタート用待機メソッドへ');
       WaitProcess::wait($id);
     }
 
@@ -101,12 +98,10 @@ class FollowController extends Controller
        * twitterAPIからエラーが返ってきた場合、その時点で処理を終了する
       */
       foreach ($targets as $target){
-        Log::debug($count .'回目');
         $friendship = new Friendship;
 
         // 自動処理無効もしくは一時停止の場合、処理を中止する
         if(JudgeController::judgeAutoPilot($id) === false || JudgeController::judgePaused($id) === true){
-          Log::debug('処理終了');
           return false;
         }
         $request_params['params']['screen_name'] = $target->screen_name;
@@ -142,7 +137,7 @@ class FollowController extends Controller
 
           $this->createFollowedLists($id, $response);
         }
-        sleep(20);
+        sleep(10);
         $count++;
       }
     }

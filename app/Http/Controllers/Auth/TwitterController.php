@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Abraham\TwitterOAuth\TwitterOAuth;
 
@@ -130,8 +129,6 @@ class TwitterController extends Controller
 
     $response = Http::withToken($bearer_token)->get('https://api.twitter.com/1.1/'. $url, $params);
 
-    Log::debug(print_r($response, true));
-
     // エラーが発生した場合、処理を停止する
     if(isset($response['errors'])){
       $data = [];
@@ -222,7 +219,6 @@ class TwitterController extends Controller
       $content = $connection->get($arr['url'],$arr['params']);
     }else{
       $content = $connection->post($arr['url'],$arr['params']);
-      Log::debug(print_r($content, true));
     }
 
     // エラーが発生した場合、処理を停止する

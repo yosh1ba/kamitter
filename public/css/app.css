@@ -891,7 +891,7 @@ a:hover {
 .p-hero__content {
   width: 100%;
   text-align: center;
-  height: calc(100vh - 71px - 40px);
+  height: 80vh;
   transform: translateY(30%);
 }
 

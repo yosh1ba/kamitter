@@ -25,11 +25,8 @@
         'is_waited' => true,
       ]);
 
-      Log::debug('待機開始');
-
       // 指定時間だけ待機
       sleep($time);
-      Log::debug('待機終了');
 
       TwitterUser::find($id)->update([
         'is_waited' => false,

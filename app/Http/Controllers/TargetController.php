@@ -31,7 +31,6 @@ class TargetController extends Controller
         'screen_name' => $request->screen_name
       ]
     );
-    // Log::debug($response->json());
 
     return json_decode($response,true);
   }
