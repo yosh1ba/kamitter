@@ -130,6 +130,8 @@ class TwitterController extends Controller
 
     $response = Http::withToken($bearer_token)->get('https://api.twitter.com/1.1/'. $url, $params);
 
+    Log::debug(print_r($response, true));
+
     // エラーが発生した場合、処理を停止する
     if(isset($response['errors'])){
       $data = [];
